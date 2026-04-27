@@ -185,7 +185,12 @@ BEGIN
 		UPDATE TourSchedules
 		SET AvailableSlots = AvailableSlots - @NumberOfPeople
 		WHERE ScheduleId = @ScheduleId;
-	COMMIT;
+COMMIT;
+END TRY
+BEGIN CATCH
+ROLLBACK;
+RAISERROR('Create booking failed',16,1);
+END CATCH
 END;
 GO
 
