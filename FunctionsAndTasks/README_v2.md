@@ -60,16 +60,11 @@ Hệ thống **Travel Tour Booking** là ứng dụng quản lý và đặt tour
 ### 3. Nhóm Quản lý Khách hàng & Phản hồi
 
 - **Đăng ký / Đăng nhập** — JWT Authentication với `PasswordHash` (BCrypt) và `Role` lưu trong bảng `Customers`. Phân quyền 3 cấp: Admin / Staff / Customer
-<<<<<<< HEAD:FunctionsAndTasks/README_v2.md
 - **Phân quyền (RBAC)** — 3 cấp độ rõ ràng, dùng `[Authorize(Roles="...")]` trên từng endpoint:
   - `Admin` — toàn quyền: CRUD Tour, Categories, Destinations, Employees, xem báo cáo doanh thu, Export/Import XML
   - `Staff` — chỉ xem: xem danh sách tour, xem danh sách booking (không tạo, không sửa, không xóa)
   - `Customer` — đặt tour, hủy booking của mình, đánh giá tour, xem lịch sử cá nhân
 - **Quản lý Nhân viên (Admin only)** — CRUD hồ sơ nhân viên / hướng dẫn viên (bảng `Employees`). **Lưu ý:** `Employees` và tài khoản đăng nhập là 2 khái niệm tách biệt — Employee không đăng nhập hệ thống, chỉ được Admin phân công vào `TourSchedules.EmployeeId` để dẫn tour
-=======
-- **Duyệt tài khoản Staff** — Staff sau khi đăng ký sẽ ở trạng thái chờ duyệt; admin chỉ cần bật cột `IsVerified` trong bảng `Employees` thì staff mới được phép đăng nhập.
-- **Phân quyền (RBAC)** — Admin toàn quyền, Staff quản lý tour và duyệt booking, Customer chỉ xem và đặt tour. Dùng `[Authorize(Roles="Admin")]` trên Controller
->>>>>>> 3d04b4736e524142651155374f6357ecd0ebfb00:FunctionsAndTasks/README.md
 - **Quản lý hồ sơ cá nhân** — Xem và cập nhật thông tin khách hàng
 - **Đánh giá Tour (Reviews)** — Chấm 1–5 sao, viết bình luận (chỉ khách có booking Completed)
 - **Thống kê cá nhân** — Đếm số booking trong năm (`fn_CustomerBookingCount`)
@@ -155,11 +150,7 @@ Customers ───────────────────────�
 | `Categories` | Loại hình tour | 3 |
 | `Destinations` | Điểm đến | 5 |
 | `Tours` | Thông tin tour | 10 |
-<<<<<<< HEAD:FunctionsAndTasks/README_v2.md
 | `Employees` | Hướng dẫn viên (không đăng nhập) | 5 |
-=======
-| `Employees` | Nhân viên / HDV (có `IsVerified`) | 6 |
->>>>>>> 3d04b4736e524142651155374f6357ecd0ebfb00:FunctionsAndTasks/README.md
 | `TourSchedules` | Lịch khởi hành | 7 |
 | `Customers` | Tài khoản đăng nhập + Auth (PasswordHash, Role) | 9 |
 | `Bookings` | Đơn đặt tour | 9 |
