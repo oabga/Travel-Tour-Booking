@@ -60,11 +60,16 @@ Hệ thống **Travel Tour Booking** là ứng dụng quản lý và đặt tour
 ### 3. Nhóm Quản lý Khách hàng & Phản hồi
 
 - **Đăng ký / Đăng nhập** — JWT Authentication với `PasswordHash` (BCrypt) và `Role` lưu trong bảng `Customers`. Phân quyền 3 cấp: Admin / Staff / Customer
+<<<<<<< HEAD:FunctionsAndTasks/README_v2.md
 - **Phân quyền (RBAC)** — 3 cấp độ rõ ràng, dùng `[Authorize(Roles="...")]` trên từng endpoint:
   - `Admin` — toàn quyền: CRUD Tour, Categories, Destinations, Employees, xem báo cáo doanh thu, Export/Import XML
   - `Staff` — chỉ xem: xem danh sách tour, xem danh sách booking (không tạo, không sửa, không xóa)
   - `Customer` — đặt tour, hủy booking của mình, đánh giá tour, xem lịch sử cá nhân
 - **Quản lý Nhân viên (Admin only)** — CRUD hồ sơ nhân viên / hướng dẫn viên (bảng `Employees`). **Lưu ý:** `Employees` và tài khoản đăng nhập là 2 khái niệm tách biệt — Employee không đăng nhập hệ thống, chỉ được Admin phân công vào `TourSchedules.EmployeeId` để dẫn tour
+=======
+- **Duyệt tài khoản Staff** — Staff sau khi đăng ký sẽ ở trạng thái chờ duyệt; admin chỉ cần bật cột `IsVerified` trong bảng `Employees` thì staff mới được phép đăng nhập.
+- **Phân quyền (RBAC)** — Admin toàn quyền, Staff quản lý tour và duyệt booking, Customer chỉ xem và đặt tour. Dùng `[Authorize(Roles="Admin")]` trên Controller
+>>>>>>> 3d04b4736e524142651155374f6357ecd0ebfb00:FunctionsAndTasks/README.md
 - **Quản lý hồ sơ cá nhân** — Xem và cập nhật thông tin khách hàng
 - **Đánh giá Tour (Reviews)** — Chấm 1–5 sao, viết bình luận (chỉ khách có booking Completed)
 - **Thống kê cá nhân** — Đếm số booking trong năm (`fn_CustomerBookingCount`)
@@ -150,7 +155,11 @@ Customers ───────────────────────�
 | `Categories` | Loại hình tour | 3 |
 | `Destinations` | Điểm đến | 5 |
 | `Tours` | Thông tin tour | 10 |
+<<<<<<< HEAD:FunctionsAndTasks/README_v2.md
 | `Employees` | Hướng dẫn viên (không đăng nhập) | 5 |
+=======
+| `Employees` | Nhân viên / HDV (có `IsVerified`) | 6 |
+>>>>>>> 3d04b4736e524142651155374f6357ecd0ebfb00:FunctionsAndTasks/README.md
 | `TourSchedules` | Lịch khởi hành | 7 |
 | `Customers` | Tài khoản đăng nhập + Auth (PasswordHash, Role) | 9 |
 | `Bookings` | Đơn đặt tour | 9 |
@@ -177,7 +186,7 @@ TravelTourBooking/
 │   │   │   ├── AuthController.cs
 │   │   │   ├── PaymentsController.cs
 │   │   │   ├── ReviewsController.cs
-│   │   │   ├── EmployeesController.cs
+│   │   │   ├── EmployeesController.cs        # Admin duyệt staff / quản lý nhân viên
 │   │   │   ├── ReportsController.cs
 │   │   │   └── ExportController.cs
 │   │   ├── DTOs/
@@ -346,6 +355,7 @@ TravelTourBooking/
 | `fn_CalcBookingTotal` | ScheduleId, NumberOfPeople, DiscountPercent | DECIMAL | Tính tổng tiền sau giảm giá |
 | `fn_CustomerBookingCount` | CustomerId, Year | INT | Đếm số booking của khách trong năm |
 | `fn_GenerateInvoiceCode` | BookingId | NVARCHAR | Sinh mã hóa đơn `INV-2026-0001` |
+| `fn_IsEmployeeVerified` | EmployeeId | BIT | Kiểm tra staff đã được admin duyệt hay chưa |
 
 ### Stored Procedures (4)
 
@@ -354,6 +364,7 @@ TravelTourBooking/
 | `sp_CreateBooking` | Tạo booking trong TRANSACTION: kiểm tra slot (UPDLOCK) → tính giá → INSERT Booking — Trigger tự trừ slot |
 | `sp_CancelBooking` | Hủy booking, hoàn slot, không cho cancel lần 2 |
 | `sp_SearchTours` | Tìm tour theo điểm đến, khoảng giá, ngày khởi hành (tham số optional NULL) |
+| `sp_ApproveEmployee` | Admin duyệt staff, cập nhật `IsVerified = 1` cho tài khoản nhân viên |
 | `sp_RevenueReport` | Báo cáo doanh thu GROUP BY tháng trong khoảng thời gian |
 
 ### Triggers (2)
@@ -389,8 +400,16 @@ GET    /api/bookings/customer/{id}        Lịch sử booking của khách hàng
 ```
 POST   /api/auth/register                 Đăng ký tài khoản
 POST   /api/auth/login                    Đăng nhập → JWT token
-GET    /api/customers/{id}               Xem hồ sơ
-PUT    /api/customers/{id}               Cập nhật hồ sơ
+GET    /api/customers/{id}                Xem hồ sơ
+PUT    /api/customers/{id}                Cập nhật hồ sơ
+```
+
+### Employees / Staff Approval
+```
+GET    /api/employees/pending             Danh sách staff chờ duyệt [Admin]
+PUT    /api/employees/{id}/approve        Duyệt staff → set IsVerified = 1 [Admin]
+PUT    /api/employees/{id}/reject         Từ chối staff [Admin]
+GET    /api/employees                     Danh sách nhân viên [Admin]
 ```
 
 ### Reports
@@ -573,6 +592,7 @@ feature/report ── (cần tất cả xong) ───────────�
 - [ ] ≥ 4 Stored Procedures (`sp_CreateBooking`, `sp_CancelBooking`, `sp_SearchTours`, `sp_RevenueReport`)
 - [ ] ≥ 2 Triggers (`trg_AfterBookingInsert`, `trg_AfterBookingCancel`)
 - [ ] Transaction với TRY-CATCH trong `sp_CreateBooking`
+- [ ] Luồng duyệt staff: `Employees.IsVerified` + `sp_ApproveEmployee` + kiểm tra khi login
 
 ### Architecture
 - [ ] 4 projects: `.API` / `.BLL` / `.DAL` / `.Common`
