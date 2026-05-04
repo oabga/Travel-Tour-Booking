@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37216.2 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelTourBooking.API", "TravelTourBooking.API\TravelTourBooking.API.csproj", "{5581569B-D0C9-4442-A935-35BD7D55537A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelTourBooking.BLL", "TravelTourBooking.BLL\TravelTourBooking.BLL.csproj", "{3C7FEEC7-A691-458A-85F4-D4CDA3918EB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelTourBooking.DAL", "TravelTourBooking.DAL\TravelTourBooking.DAL.csproj", "{F3FCBF74-53C6-470C-9471-6037B0B60491}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelTourBooking.Common", "TravelTourBooking.Common\TravelTourBooking.Common.csproj", "{AFC98B5E-E0F6-4993-9E03-60E0CC5F8838}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "database", "database", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\..\..\Users\Admin\Downloads\TravelBookingDB.sql = ..\..\..\..\..\Users\Admin\Downloads\TravelBookingDB.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend", "frontend", "{E79DFB1E-48C3-4FD9-A331-00844D6FF4AD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5581569B-D0C9-4442-A935-35BD7D55537A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5581569B-D0C9-4442-A935-35BD7D55537A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5581569B-D0C9-4442-A935-35BD7D55537A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5581569B-D0C9-4442-A935-35BD7D55537A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C7FEEC7-A691-458A-85F4-D4CDA3918EB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C7FEEC7-A691-458A-85F4-D4CDA3918EB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C7FEEC7-A691-458A-85F4-D4CDA3918EB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C7FEEC7-A691-458A-85F4-D4CDA3918EB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3FCBF74-53C6-470C-9471-6037B0B60491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3FCBF74-53C6-470C-9471-6037B0B60491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3FCBF74-53C6-470C-9471-6037B0B60491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3FCBF74-53C6-470C-9471-6037B0B60491}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFC98B5E-E0F6-4993-9E03-60E0CC5F8838}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFC98B5E-E0F6-4993-9E03-60E0CC5F8838}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFC98B5E-E0F6-4993-9E03-60E0CC5F8838}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFC98B5E-E0F6-4993-9E03-60E0CC5F8838}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {575919EB-6166-4F02-AC7F-71AD80BA0DF6}
+	EndGlobalSection
+EndGlobal
