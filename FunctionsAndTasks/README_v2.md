@@ -60,7 +60,11 @@ Hệ thống **Travel Tour Booking** là ứng dụng quản lý và đặt tour
 ### 3. Nhóm Quản lý Khách hàng & Phản hồi
 
 - **Đăng ký / Đăng nhập** — JWT Authentication với `PasswordHash` (BCrypt) và `Role` lưu trong bảng `Customers`. Phân quyền 3 cấp: Admin / Staff / Customer
-- **Phân quyền (RBAC)** — Admin toàn quyền, Staff quản lý tour và duyệt booking, Customer chỉ xem và đặt tour. Dùng `[Authorize(Roles="Admin")]` trên Controller
+- **Phân quyền (RBAC)** — 3 cấp độ rõ ràng, dùng `[Authorize(Roles="...")]` trên từng endpoint:
+  - `Admin` — toàn quyền: CRUD Tour, Categories, Destinations, Employees, xem báo cáo doanh thu, Export/Import XML
+  - `Staff` — chỉ xem: xem danh sách tour, xem danh sách booking (không tạo, không sửa, không xóa)
+  - `Customer` — đặt tour, hủy booking của mình, đánh giá tour, xem lịch sử cá nhân
+- **Quản lý Nhân viên (Admin only)** — CRUD hồ sơ nhân viên / hướng dẫn viên (bảng `Employees`). **Lưu ý:** `Employees` và tài khoản đăng nhập là 2 khái niệm tách biệt — Employee không đăng nhập hệ thống, chỉ được Admin phân công vào `TourSchedules.EmployeeId` để dẫn tour
 - **Quản lý hồ sơ cá nhân** — Xem và cập nhật thông tin khách hàng
 - **Đánh giá Tour (Reviews)** — Chấm 1–5 sao, viết bình luận (chỉ khách có booking Completed)
 - **Thống kê cá nhân** — Đếm số booking trong năm (`fn_CustomerBookingCount`)
@@ -70,7 +74,6 @@ Hệ thống **Travel Tour Booking** là ứng dụng quản lý và đặt tour
 - **Ghi nhận Thanh toán** — Hỗ trợ đặt cọc hoặc thanh toán toàn phần (VNPay, MoMo, chuyển khoản). Lưu `TransactionCode` cho đối soát
 - **Sinh mã Hóa đơn** — Tự động tạo mã `INV-2026-0001` qua `fn_GenerateInvoiceCode`, lưu vào cột `InvoiceCode` của bảng `Payments`
 - **Xem lịch sử Thanh toán** — Tổng đã trả, còn nợ bao nhiêu (LINQ Sum)
-- **Quản lý Nhân viên** — CRUD và phân công hướng dẫn viên cho từng lịch trình
 
 ### 5. Nhóm Báo cáo & Hệ thống
 
@@ -137,17 +140,22 @@ Employees ───────────────────────�
 Customers ───────────────────────────────────────►┘
 ```
 
+> **Lưu ý phân biệt `Customers` và `Employees`:**
+> - `Customers` — tài khoản đăng nhập hệ thống, có `PasswordHash` và `Role` (Admin / Staff / Customer). **Admin là người tạo/sửa/xóa Tour.**
+> - `Employees` — hồ sơ nhân sự hướng dẫn viên, **không đăng nhập hệ thống**. Admin phân công Employee vào `TourSchedules.EmployeeId` để chỉ định ai dẫn tour nào.
+> - Một người thực tế có thể vừa có tài khoản `Customers` (Role=Staff) vừa có hồ sơ `Employees`, nhưng trong DB đây là 2 record độc lập ở 2 bảng khác nhau.
+
 | Bảng | Mô tả | Số cột |
 |------|-------|--------|
 | `Categories` | Loại hình tour | 3 |
 | `Destinations` | Điểm đến | 5 |
 | `Tours` | Thông tin tour | 10 |
-| `Employees` | Nhân viên / HDV | 5 |
+| `Employees` | Hướng dẫn viên (không đăng nhập) | 5 |
 | `TourSchedules` | Lịch khởi hành | 7 |
-| `Customers` | Khách hàng + Auth | 9 |
+| `Customers` | Tài khoản đăng nhập + Auth (PasswordHash, Role) | 9 |
 | `Bookings` | Đơn đặt tour | 9 |
-| `BookingDetails` | Danh sách hành khách | 6 |
-| `Payments` | Thanh toán | 7 |
+| `BookingDetails` | Danh sách hành khách (có PassengerType) | 6 |
+| `Payments` | Thanh toán (có InvoiceCode, TransactionCode) | 8 |
 | `Reviews` | Đánh giá | 6 |
 
 ---
@@ -343,7 +351,7 @@ TravelTourBooking/
 
 | SP | Mô tả |
 |----|-------|
-| `sp_CreateBooking` | Tạo booking trong TRANSACTION: kiểm tra slot (UPDLOCK) → tính giá → INSERT → UPDATE slot |
+| `sp_CreateBooking` | Tạo booking trong TRANSACTION: kiểm tra slot (UPDLOCK) → tính giá → INSERT Booking — Trigger tự trừ slot |
 | `sp_CancelBooking` | Hủy booking, hoàn slot, không cho cancel lần 2 |
 | `sp_SearchTours` | Tìm tour theo điểm đến, khoảng giá, ngày khởi hành (tham số optional NULL) |
 | `sp_RevenueReport` | Báo cáo doanh thu GROUP BY tháng trong khoảng thời gian |
@@ -361,12 +369,12 @@ TravelTourBooking/
 
 ### Tours
 ```
-GET    /api/tours                         Danh sách tour (pagination + filter)
-GET    /api/tours/{id}                    Chi tiết tour
-POST   /api/tours                         Thêm tour [Admin]
-PUT    /api/tours/{id}                    Sửa tour [Admin]
-DELETE /api/tours/{id}                    Xóa tour [Admin]
-GET    /api/tours/search?dest=&priceMin=&priceMax=&date=   Tìm kiếm nâng cao
+GET    /api/tours                                        Danh sách tour (pagination + filter) — Public
+GET    /api/tours/{id}                                   Chi tiết tour — Public
+POST   /api/tours                                        Thêm tour [Admin only]
+PUT    /api/tours/{id}                                   Sửa tour [Admin only]
+DELETE /api/tours/{id}                                   Xóa tour [Admin only]
+GET    /api/tours/search?dest=&priceMin=&priceMax=&date= Tìm kiếm nâng cao — Public
 ```
 
 ### Bookings
@@ -395,14 +403,17 @@ GET    /api/reports/occupancy             Tỷ lệ lấp đầy
 
 ### Khác
 ```
-GET    /api/categories                    Danh sách loại hình
-GET    /api/destinations                  Danh sách điểm đến
-POST   /api/payments                      Ghi nhận thanh toán
-GET    /api/payments/booking/{id}         Lịch sử thanh toán
-POST   /api/reviews                       Đăng đánh giá tour
-GET    /api/employees                     Danh sách nhân viên [Admin]
-GET    /api/export/tours/xml              Xuất tour ra XML (LINQ to XML)
-POST   /api/import/tours/xml              Nhập tour từ XML
+GET    /api/categories                    Danh sách loại hình — Public
+GET    /api/destinations                  Danh sách điểm đến — Public
+POST   /api/payments                      Ghi nhận thanh toán [Customer]
+GET    /api/payments/booking/{id}         Lịch sử thanh toán [Customer/Admin]
+POST   /api/reviews                       Đăng đánh giá tour [Customer — phải có Booking Completed]
+GET    /api/employees                     Danh sách nhân viên/HDV [Admin]
+POST   /api/employees                     Thêm nhân viên/HDV [Admin]
+PUT    /api/employees/{id}               Sửa nhân viên/HDV [Admin]
+DELETE /api/employees/{id}               Xóa nhân viên/HDV [Admin]
+GET    /api/export/tours/xml              Xuất tour ra XML (LINQ to XML) [Admin]
+POST   /api/import/tours/xml              Nhập tour từ XML [Admin]
 ```
 
 ---
@@ -496,6 +507,63 @@ Truy cập: `https://localhost:5001/swagger`
 
 ---
 
+## 👥 Phân công nhóm
+
+| Thành viên | Branch Git | Nhóm chức năng | Trách nhiệm chính |
+|-----------|-----------|----------------|-------------------|
+| **TV1** | `feature/catalog` | Quản lý Tour & Điểm đến | CRUD Tours (Admin only), Categories, Destinations, TourSchedules, `sp_SearchTours`, `vw_PopularTours`, Export/Import XML |
+| **TV2** | `feature/booking` | Đặt Tour & Hành khách | `sp_CreateBooking`, `sp_CancelBooking`, BookingDetails, `trg_AfterBookingInsert`, `trg_AfterBookingCancel`, `vw_BookingDetails` |
+| **TV3** | `feature/auth-customer` | Khách hàng & Bảo mật | Đăng ký/Đăng nhập JWT, RBAC `[Authorize]`, hồ sơ cá nhân, Reviews, `fn_CustomerBookingCount` |
+| **TV4** | `feature/payment-employee` | Thanh toán & Nhân sự | Payments, `fn_GenerateInvoiceCode`, InvoiceCode, CRUD Employees, phân công HDV |
+| **TV5** | `feature/report` | Báo cáo & Hệ thống | `vw_TourRevenue`, `sp_RevenueReport`, Occupancy Rate, Dashboard Angular + Chart.js |
+
+### Khởi tạo branch
+
+```bash
+git checkout -b feature/catalog          # TV1
+git checkout -b feature/booking          # TV2
+git checkout -b feature/auth-customer    # TV3
+git checkout -b feature/payment-employee # TV4
+git checkout -b feature/report           # TV5
+```
+
+### Thứ tự dependency khi merge vào main
+
+```
+feature/catalog  ──────────────────────────────► main
+feature/booking  ── (cần catalog trước) ────────► main
+feature/auth-customer ── (độc lập) ─────────────► main
+feature/payment-employee ── (cần booking trước) ► main
+feature/report ── (cần tất cả xong) ────────────► main
+```
+
+---
+
+## 🔐 Bảng phân quyền (RBAC)
+
+| Chức năng | Admin | Staff | Customer |
+|-----------|:-----:|:-----:|:--------:|
+| Xem danh sách / chi tiết tour | ✅ | ✅ | ✅ |
+| Tìm kiếm tour | ✅ | ✅ | ✅ |
+| **CRUD Tour** | ✅ | ❌ | ❌ |
+| **CRUD Categories / Destinations** | ✅ | ❌ | ❌ |
+| **CRUD Employees** | ✅ | ❌ | ❌ |
+| Xem danh sách booking | ✅ | ✅ | ❌ |
+| **Đặt tour** | ❌ | ❌ | ✅ |
+| **Hủy booking của mình** | ❌ | ❌ | ✅ |
+| Xem booking của mình | ❌ | ❌ | ✅ |
+| **Đánh giá tour** | ❌ | ❌ | ✅ (cần Booking Completed) |
+| Ghi nhận thanh toán | ✅ | ✅ | ✅ |
+| **Xem báo cáo doanh thu** | ✅ | ❌ | ❌ |
+| **Export / Import XML** | ✅ | ❌ | ❌ |
+
+> `[AllowAnonymous]` — Xem danh sách tour, chi tiết tour, tìm kiếm: không cần đăng nhập  
+> `[Authorize(Roles = "Admin")]` — CRUD Tour, Categories, Destinations, Employees, Reports, XML  
+> `[Authorize(Roles = "Admin,Staff")]` — Xem danh sách booking  
+> `[Authorize(Roles = "Customer")]` — Đặt tour, hủy, đánh giá  
+> `[Authorize]` — Ghi nhận thanh toán, xem lịch sử cá nhân
+
+---
 
 ## ✅ Checklist nộp bài
 
