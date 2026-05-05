@@ -1,31 +1,132 @@
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using TravelTourBooking.Common.Helpers;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using TravelTourBooking.API.Middleware;
+using TravelTourBooking.BLL.Helpers;
+using TravelTourBooking.BLL.Interfaces;
+using TravelTourBooking.BLL.Services;
+using TravelTourBooking.BLL.Validators;
 using TravelTourBooking.DAL.EFCore;
-using TravelTourBooking.BLL.Mappers;
+using TravelTourBooking.DAL.Repositories;
+using TravelTourBooking.DAL.Repositories.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
+var cfg = builder.Configuration;
 
-// Add services to the container.
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// ── Database ──────────────────────────────────────────────────────────────
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseSqlServer(cfg.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// ── ADO.NET ───────────────────────────────────────────────────────────────
+builder.Services.AddSingleton(_ =>
+    new AdoTourRepository(cfg.GetConnectionString("DefaultConnection")!));
+
+// ── Repositories (DAL) ────────────────────────────────────────────────────
+builder.Services.AddScoped<ITourRepository, TourRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IDestinationRepository, DestinationRepository>();
+builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+
+// ── Services (BLL) ────────────────────────────────────────────────────────
+builder.Services.AddScoped<ITourService, TourService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IDestinationService, DestinationService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+
+// ── AutoMapper ────────────────────────────────────────────────────────────
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// ── FluentValidation ──────────────────────────────────────────────────────
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<TourValidator>();
+
+// ── JWT Authentication ────────────────────────────────────────────────────
+var jwtSection = cfg.GetSection("JwtSettings");
+var secretKey = jwtSection["SecretKey"]!;
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
+    {
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSection["Issuer"],
+            ValidAudience = jwtSection["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                                           Encoding.UTF8.GetBytes(secretKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// ── CORS ──────────────────────────────────────────────────────────────────
+builder.Services.AddCors(opt =>
+    opt.AddPolicy("AllowAngular", p =>
+        p.WithOrigins("http://localhost:4200")
+         .AllowAnyHeader()
+         .AllowAnyMethod()));
+
+// ── Controllers + Swagger ─────────────────────────────────────────────────
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(s =>
+{
+    s.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "TravelTourBooking API — Catalog (TV1)",
+        Version = "v1"
+    });
+
+    // JWT support in Swagger UI
+    s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Nhập JWT token: Bearer {token}"
+    });
+    s.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {{
+        new OpenApiSecurityScheme
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id   = "Bearer"
+            }
+        },
+        Array.Empty<string>()
+    }});
+});
+
+// ─────────────────────────────────────────────────────────────────────────
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ── Middleware pipeline ───────────────────────────────────────────────────
+app.UseMiddleware<ExceptionMiddleware>();   // Global error handler
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelTourBooking API v1");
+        c.RoutePrefix = "swagger";
+    });
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowAngular");
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
