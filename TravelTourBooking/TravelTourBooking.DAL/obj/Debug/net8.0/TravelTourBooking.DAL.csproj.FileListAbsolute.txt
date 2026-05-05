@@ -1,0 +1,16 @@
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.DAL.deps.json
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.DAL.dll
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.DAL.pdb
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.Common.dll
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.Common.pdb
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.csproj.AssemblyReference.cache
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.AssemblyInfoInputs.cache
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.AssemblyInfo.cs
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.csproj.CoreCompileInputs.cache
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.sourcelink.json
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTo.5890BC92.Up2Date
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.dll
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\refint\TravelTourBooking.DAL.dll
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.pdb
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\ref\TravelTourBooking.DAL.dll

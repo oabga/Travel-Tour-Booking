@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TravelTourBooking.Common\TravelTourBooking.Common.csproj" />
     <ProjectReference Include="..\TravelTourBooking.DAL\TravelTourBooking.DAL.csproj" />
   </ItemGroup>

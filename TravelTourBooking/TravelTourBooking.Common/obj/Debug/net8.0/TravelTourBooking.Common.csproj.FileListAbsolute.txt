@@ -1,0 +1,13 @@
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\bin\Debug\net8.0\TravelTourBooking.Common.deps.json
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\bin\Debug\net8.0\TravelTourBooking.Common.dll
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\bin\Debug\net8.0\TravelTourBooking.Common.pdb
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.csproj.AssemblyReference.cache
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.AssemblyInfoInputs.cache
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.AssemblyInfo.cs
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.csproj.CoreCompileInputs.cache
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.sourcelink.json
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.dll
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\refint\TravelTourBooking.Common.dll
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.pdb
+C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\ref\TravelTourBooking.Common.dll
