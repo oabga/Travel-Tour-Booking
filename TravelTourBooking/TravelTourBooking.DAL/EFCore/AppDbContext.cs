@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,12 +20,15 @@ namespace TravelTourBooking.DAL.EFCore
         public DbSet<Employee> Employees => Set<Employee>();
         public DbSet<Review> Reviews => Set<Review>();
         public DbSet<Booking> Bookings => Set<Booking>();
+        public DbSet<BookingDetail> BookingDetails => Set<BookingDetail>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new TourConfiguration());
             modelBuilder.ApplyConfiguration(new TourScheduleConfiguration());
+            modelBuilder.ApplyConfiguration(new BookingConfiguration());
+            modelBuilder.ApplyConfiguration(new BookingDetailConfiguration());
         }
 
 

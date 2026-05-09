@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace TravelTourBooking.Common.Enums;
 
-namespace TravelTourBooking.Common.Enums
+/// <summary>
+/// Trạng thái Booking — tương ứng CHECK constraint trong SQL.
+/// </summary>
+public enum BookingStatus
 {
-    internal class BookingStatus
-    {
-    }
+    Pending,
+    Confirmed,
+    Completed,
+    Cancelled
 }

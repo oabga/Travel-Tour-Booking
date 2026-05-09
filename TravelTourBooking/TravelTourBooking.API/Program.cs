@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -29,12 +29,14 @@ builder.Services.AddScoped<ITourRepository, TourRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IDestinationRepository, DestinationRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
 // ── Services (BLL) ────────────────────────────────────────────────────────
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 
 // ── AutoMapper ────────────────────────────────────────────────────────────
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -79,7 +81,7 @@ builder.Services.AddSwaggerGen(s =>
 {
     s.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "TravelTourBooking API — Catalog (TV1)",
+        Title = "TravelTourBooking API — Catalog + Booking (TV1 + TV2)",
         Version = "v1"
     });
 
