@@ -13,6 +13,7 @@ using TravelTourBooking.BLL.Validators;
 using TravelTourBooking.DAL.EFCore;
 using TravelTourBooking.DAL.Repositories;
 using TravelTourBooking.DAL.Repositories.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 var cfg = builder.Configuration;
 
@@ -30,11 +31,17 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IDestinationRepository, DestinationRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
+
 // ── Services (BLL) ────────────────────────────────────────────────────────
 builder.Services.AddScoped<ITourService, TourService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped< IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IReviewService,ReviewService>();
+builder.Services.AddScoped<JwtHelper>();
 
 // ── AutoMapper ────────────────────────────────────────────────────────────
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -48,20 +55,21 @@ var jwtSection = cfg.GetSection("JwtSettings");
 var secretKey = jwtSection["SecretKey"]!;
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(opt =>
-    {
-        opt.TokenValidationParameters = new TokenValidationParameters
+.AddJwtBearer(options =>
+{
+    var key = Encoding.UTF8.GetBytes( builder.Configuration["JwtSettings:SecretKey"]!);
+    options.TokenValidationParameters =
+        new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSection["Issuer"],
-            ValidAudience = jwtSection["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                                           Encoding.UTF8.GetBytes(secretKey))
+            ValidIssuer =builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(key)
         };
-    });
+});
 
 builder.Services.AddAuthorization();
 

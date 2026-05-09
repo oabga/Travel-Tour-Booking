@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TravelTourBooking.DAL.EFCore.Configurations;
 using TravelTourBooking.DAL.EFCore.Entities;
 
+
 namespace TravelTourBooking.DAL.EFCore
 {
     public class AppDbContext : DbContext
@@ -26,9 +27,24 @@ namespace TravelTourBooking.DAL.EFCore
 
             modelBuilder.ApplyConfiguration(new TourConfiguration());
             modelBuilder.ApplyConfiguration(new TourScheduleConfiguration());
+            
+            
+            
+            modelBuilder.Entity<AccountRole>().HasKey(x => new { x.AccountId, x.RoleId });
+            modelBuilder.Entity<AccountRole>().HasOne(x => x.Account).WithMany(x => x.AccountRoles).HasForeignKey(x => x.AccountId);
+            modelBuilder.Entity<AccountRole>().HasOne(x => x.Role).WithMany(x => x.AccountRoles).HasForeignKey(x => x.RoleId);
+            modelBuilder.Entity<CustomerProfile>().HasKey(x => x.AccountId);
+            modelBuilder.Entity<Role>().HasData(
+                    new Role { RoleId = 1, RoleName = "Admin" },
+                    new Role { RoleId = 2, RoleName = "Staff" },
+                    new Role { RoleId = 3, RoleName = "Customer" }
+            );
+
         }
-
-
-        
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<AccountRole> AccountRoles { get; set; }
+        public DbSet<CustomerProfile> CustomerProfiles { get; set; }
+        public DbSet<Review> Review { get; set; }
     }
 }
