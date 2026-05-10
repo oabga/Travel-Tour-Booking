@@ -31,7 +31,11 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IDestinationRepository, DestinationRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+<<<<<<< HEAD
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+=======
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+>>>>>>> feature/report
 
 
 // ── Services (BLL) ────────────────────────────────────────────────────────
@@ -44,6 +48,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped< IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IReviewService,ReviewService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 

@@ -18,6 +18,7 @@ public class TourSchedule
     public int AvailableSlots { get; set; }
 
     public int? EmployeeId { get; set; }
+    public int? TotalSlots { get; set; }
 
     [MaxLength(50)]
     public string? Status { get; set; } = "Open";
