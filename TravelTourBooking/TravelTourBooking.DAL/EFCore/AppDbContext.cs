@@ -22,6 +22,7 @@ namespace TravelTourBooking.DAL.EFCore
         public DbSet<Review> Reviews => Set<Review>();
         public DbSet<Booking> Bookings => Set<Booking>();
         public DbSet<BookingDetail> BookingDetails => Set<BookingDetail>();
+        public DbSet<Payment> Payments => Set<Payment>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -34,12 +35,18 @@ namespace TravelTourBooking.DAL.EFCore
             modelBuilder.ApplyConfiguration(new AccountRoleConfiguration());
             modelBuilder.ApplyConfiguration(new CustomerProfileConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
-         
+
+            modelBuilder.Entity<TourRevenueView>().HasNoKey().ToView("vw_TourRevenue");
+            modelBuilder.Entity<PopularToursView>().HasNoKey().ToView("vw_PopularTours");
+
 
         }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<AccountRole> AccountRoles { get; set; }
         public DbSet<CustomerProfile> CustomerProfiles { get; set; }
+        public DbSet<TourRevenueView> TourRevenueView { get; set; }
+        public DbSet<PopularToursView>  PopularToursView  { get; set; }
+
     }
 }

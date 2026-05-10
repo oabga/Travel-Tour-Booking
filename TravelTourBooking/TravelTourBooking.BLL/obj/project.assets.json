@@ -2913,23 +2913,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\QUANG AN\\.nuget\\packages\\": {},
+    "C:\\Users\\Admin\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj",
+      "projectUniqueName": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj",
       "projectName": "TravelTourBooking.BLL",
-      "projectPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj",
-      "packagesPath": "C:\\Users\\QUANG AN\\.nuget\\packages\\",
-      "outputPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\obj\\",
+      "projectPath": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj",
+      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+      "outputPath": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\QUANG AN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -2938,17 +2938,18 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj": {
-              "projectPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj"
+            "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj": {
+              "projectPath": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj"
             },
-            "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj": {
-              "projectPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj"
+            "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj": {
+              "projectPath": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj"
             }
           }
         }
@@ -2994,7 +2995,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.313/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -31,6 +31,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IDestinationRepository, DestinationRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
 
 
 // ── Services (BLL) ────────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped< IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IReviewService,ReviewService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<JwtHelper>();
 
 // ── AutoMapper ────────────────────────────────────────────────────────────
