@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TravelTourBooking.DAL")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7c83fcc4e16b9ebc7dc8155b85f43e5bf2aea2f0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5c4d079346445b963d68afcfc522b3c1efd2a036")]
 [assembly: System.Reflection.AssemblyProductAttribute("TravelTourBooking.DAL")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TravelTourBooking.DAL")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

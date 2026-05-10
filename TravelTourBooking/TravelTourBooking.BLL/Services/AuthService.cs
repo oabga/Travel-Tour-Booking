@@ -58,7 +58,10 @@ namespace TravelTourBooking.BLL.Services
                 new CustomerProfile
                 {
                     AccountId = account.AccountId,
-                    FullName = dto.FullName
+                    FullName = dto.FullName,
+                    Phone = dto.Phone,
+                    DateOfBirth = dto.DateOfBirth,
+                    Address = dto.Address
                 });
 
             await _context.SaveChangesAsync();
