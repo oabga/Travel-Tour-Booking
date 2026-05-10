@@ -37,5 +37,15 @@ public class PaymentRepository : IPaymentRepository
             .ToListAsync();
     }
 
-    
+    public async Task<string> GenerateInvoiceCodeAsync(int bookingId)
+    {
+        var result = await _context
+            .Database
+            .SqlQuery<string>($"SELECT dbo.fn_GenerateInvoiceCode({bookingId})")
+            .ToListAsync();
+
+        return result.FirstOrDefault();
+    }
+
+
 }

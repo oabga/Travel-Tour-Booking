@@ -557,6 +557,70 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "TravelTourBooking.API.Controllers.PaymentsController",
+    "Method": "Create",
+    "RelativePath": "api/payments",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "TravelTourBooking.Common.DTOs.CreatePaymentDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TravelTourBooking.API.Controllers.PaymentsController",
+    "Method": "GetByBooking",
+    "RelativePath": "api/payments/booking/{bookingId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "bookingId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TravelTourBooking.API.Controllers.PaymentsController",
+    "Method": "GetRemaining",
+    "RelativePath": "api/payments/booking/{bookingId}/remaining",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "bookingId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TravelTourBooking.API.Controllers.PaymentsController",
+    "Method": "GetTotalPaid",
+    "RelativePath": "api/payments/booking/{bookingId}/total-paid",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "bookingId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "TravelTourBooking.API.Controllers.ReviewsController",
     "Method": "Create",
     "RelativePath": "api/reviews",

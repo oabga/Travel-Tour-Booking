@@ -21,18 +21,25 @@ public class PaymentService : IPaymentService
 
     public async Task<int> CreatePaymentAsync(CreatePaymentDto dto)
     {
+        var booking = await _bookingRepository.GetByIdAsync(dto.BookingId);
+
+        if (booking == null)
+            throw new Exception("Booking not found");
+
+        if (dto.Amount <= 0)
+            throw new Exception("Invalid payment amount");
+
+        var invoiceCode = await _paymentRepository.GenerateInvoiceCodeAsync(dto.BookingId);
+
         var payment = new Payment
         {
             BookingId = dto.BookingId,
             Amount = dto.Amount,
             PaymentMethod = dto.PaymentMethod,
-            Status = dto.Status,
+            Status = "Pending",
             TransactionCode = dto.TransactionCode,
             PaymentDate = DateTime.Now,
-
-            // TODO:
-            // gọi fn_GenerateInvoiceCode sau
-            InvoiceCode = $"INV-{DateTime.Now.Year}-TEMP"
+            InvoiceCode = invoiceCode
         };
 
         return await _paymentRepository.CreatePaymentAsync(payment);

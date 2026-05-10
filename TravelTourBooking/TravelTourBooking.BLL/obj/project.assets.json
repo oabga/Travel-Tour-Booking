@@ -2913,23 +2913,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\QUANG AN\\.nuget\\packages\\": {},
+    "C:\\Users\\ACER\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj",
+      "projectUniqueName": "F:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj",
       "projectName": "TravelTourBooking.BLL",
-      "projectPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj",
-      "packagesPath": "C:\\Users\\QUANG AN\\.nuget\\packages\\",
-      "outputPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\obj\\",
+      "projectPath": "F:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj",
+      "packagesPath": "C:\\Users\\ACER\\.nuget\\packages\\",
+      "outputPath": "F:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\QUANG AN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ACER\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -2944,11 +2944,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj": {
-              "projectPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj"
+            "F:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj": {
+              "projectPath": "F:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj"
             },
-            "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj": {
-              "projectPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj"
+            "F:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj": {
+              "projectPath": "F:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj"
             }
           }
         }
