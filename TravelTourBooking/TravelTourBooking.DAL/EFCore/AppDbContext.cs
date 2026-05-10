@@ -41,5 +41,6 @@ namespace TravelTourBooking.DAL.EFCore
         public DbSet<Role> Roles { get; set; }
         public DbSet<AccountRole> AccountRoles { get; set; }
         public DbSet<CustomerProfile> CustomerProfiles { get; set; }
+        public DbSet<Payment> Payments { get; set; }
     }
 }
