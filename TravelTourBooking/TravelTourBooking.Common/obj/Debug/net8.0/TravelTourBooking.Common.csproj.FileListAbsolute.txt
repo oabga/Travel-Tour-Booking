@@ -37,3 +37,16 @@ F:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8
 F:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\refint\TravelTourBooking.Common.dll
 F:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.pdb
 F:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\ref\TravelTourBooking.Common.dll
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\bin\Debug\net8.0\TravelTourBooking.Common.deps.json
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\bin\Debug\net8.0\TravelTourBooking.Common.dll
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\bin\Debug\net8.0\TravelTourBooking.Common.pdb
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.csproj.AssemblyReference.cache
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.GeneratedMSBuildEditorConfig.editorconfig
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.AssemblyInfoInputs.cache
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.AssemblyInfo.cs
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.csproj.CoreCompileInputs.cache
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.sourcelink.json
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.dll
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\refint\TravelTourBooking.Common.dll
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\TravelTourBooking.Common.pdb
+E:\University\Junior\LTCSDL\BTL\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.Common\obj\Debug\net8.0\ref\TravelTourBooking.Common.dll

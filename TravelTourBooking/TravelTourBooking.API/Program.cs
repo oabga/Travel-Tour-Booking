@@ -31,12 +31,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IDestinationRepository, DestinationRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
-<<<<<<< HEAD
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-=======
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
->>>>>>> feature/report
-
 
 // ── Services (BLL) ────────────────────────────────────────────────────────
 builder.Services.AddScoped<ITourService, TourService>();

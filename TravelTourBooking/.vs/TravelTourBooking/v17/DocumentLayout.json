@@ -7,6 +7,18 @@
       "RelativeMoniker": "D:0:0:{F3FCBF74-53C6-470C-9471-6037B0B60491}|TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj|solutionrelative:traveltourbooking.dal\\efcore\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{5581569B-D0C9-4442-A935-35BD7D55537A}|TravelTourBooking.API\\TravelTourBooking.API.csproj|e:\\university\\junior\\ltcsdl\\btl\\travel-tour-booking\\traveltourbooking\\traveltourbooking.api\\controllers\\reportscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5581569B-D0C9-4442-A935-35BD7D55537A}|TravelTourBooking.API\\TravelTourBooking.API.csproj|solutionrelative:traveltourbooking.api\\controllers\\reportscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3C7FEEC7-A691-458A-85F4-D4CDA3918EB0}|TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj|e:\\university\\junior\\ltcsdl\\btl\\travel-tour-booking\\traveltourbooking\\traveltourbooking.bll\\interfaces\\ireportservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3C7FEEC7-A691-458A-85F4-D4CDA3918EB0}|TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj|solutionrelative:traveltourbooking.bll\\interfaces\\ireportservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5581569B-D0C9-4442-A935-35BD7D55537A}|TravelTourBooking.API\\TravelTourBooking.API.csproj|e:\\university\\junior\\ltcsdl\\btl\\travel-tour-booking\\traveltourbooking\\traveltourbooking.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5581569B-D0C9-4442-A935-35BD7D55537A}|TravelTourBooking.API\\TravelTourBooking.API.csproj|solutionrelative:traveltourbooking.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{3C7FEEC7-A691-458A-85F4-D4CDA3918EB0}|TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj|e:\\university\\junior\\ltcsdl\\btl\\travel-tour-booking\\traveltourbooking\\traveltourbooking.bll\\services\\paymentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3C7FEEC7-A691-458A-85F4-D4CDA3918EB0}|TravelTourBooking.BLL\\TravelTourBooking.BLL.csproj|solutionrelative:traveltourbooking.bll\\services\\paymentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -53,10 +65,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{5581569B-D0C9-4442-A935-35BD7D55537A}|TravelTourBooking.API\\TravelTourBooking.API.csproj|e:\\university\\junior\\ltcsdl\\btl\\travel-tour-booking\\traveltourbooking\\traveltourbooking.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5581569B-D0C9-4442-A935-35BD7D55537A}|TravelTourBooking.API\\TravelTourBooking.API.csproj|solutionrelative:traveltourbooking.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5581569B-D0C9-4442-A935-35BD7D55537A}|TravelTourBooking.API\\TravelTourBooking.API.csproj|e:\\university\\junior\\ltcsdl\\btl\\travel-tour-booking\\traveltourbooking\\traveltourbooking.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5581569B-D0C9-4442-A935-35BD7D55537A}|TravelTourBooking.API\\TravelTourBooking.API.csproj|solutionrelative:traveltourbooking.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5581569B-D0C9-4442-A935-35BD7D55537A}|TravelTourBooking.API\\TravelTourBooking.API.csproj|e:\\university\\junior\\ltcsdl\\btl\\travel-tour-booking\\traveltourbooking\\traveltourbooking.api\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
@@ -114,7 +122,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 11,
           "Children": [
             {
               "$type": "Bookmark",
@@ -122,7 +130,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
+              "Title": "IReportService.cs",
+              "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\Interfaces\\IReportService.cs",
+              "RelativeDocumentMoniker": "TravelTourBooking.BLL\\Interfaces\\IReportService.cs",
+              "ToolTip": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\Interfaces\\IReportService.cs",
+              "RelativeToolTip": "TravelTourBooking.BLL\\Interfaces\\IReportService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-10T13:35:15.069Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ReportsController.cs",
+              "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\Controllers\\ReportsController.cs",
+              "RelativeDocumentMoniker": "TravelTourBooking.API\\Controllers\\ReportsController.cs",
+              "ToolTip": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\Controllers\\ReportsController.cs",
+              "RelativeToolTip": "TravelTourBooking.API\\Controllers\\ReportsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-10T13:33:40.185Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "IPaymentRepository.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\Repositories\\Interfaces\\IPaymentRepository.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\Repositories\\Interfaces\\IPaymentRepository.cs",
@@ -134,7 +168,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "PaymentService.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\Services\\PaymentService.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.BLL\\Services\\PaymentService.cs",
@@ -142,12 +176,11 @@
               "RelativeToolTip": "TravelTourBooking.BLL\\Services\\PaymentService.cs",
               "ViewState": "AgIAABMAAAAAAAAAAAAswCUAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-10T11:40:09.612Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-10T11:40:09.612Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "PaymentRepository.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\Repositories\\PaymentRepository.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\Repositories\\PaymentRepository.cs",
@@ -159,7 +192,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 12,
               "Title": "CustomerProfile.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Entities\\CustomerProfile.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Entities\\CustomerProfile.cs",
@@ -171,7 +204,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 13,
               "Title": "AccountRole.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Entities\\AccountRole.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Entities\\AccountRole.cs",
@@ -183,7 +216,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 14,
               "Title": "Account.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Entities\\Account.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Entities\\Account.cs",
@@ -195,7 +228,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "LoginDto.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\DTOs\\Auth\\LoginDto.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.Common\\DTOs\\Auth\\LoginDto.cs",
@@ -207,7 +240,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "RegisterDto.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\DTOs\\Auth\\RegisterDto.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.Common\\DTOs\\Auth\\RegisterDto.cs",
@@ -225,14 +258,14 @@
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\AppDbContext.cs",
               "ToolTip": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\AppDbContext.cs",
               "RelativeToolTip": "TravelTourBooking.DAL\\EFCore\\AppDbContext.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAA3wC4AAABEAAAAAAAAAA==",
+              "ViewState": "AgIAABEAAAAAAAAAAAA9wCEAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-10T04:19:13.745Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 11,
               "Title": "AuthService.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\Services\\AuthService.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.BLL\\Services\\AuthService.cs",
@@ -244,7 +277,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 15,
               "Title": "AuthController.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.API\\Controllers\\AuthController.cs",
@@ -256,7 +289,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "appsettings.json",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\appsettings.json",
               "RelativeDocumentMoniker": "TravelTourBooking.API\\appsettings.json",
@@ -268,7 +301,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "IAuthService.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.BLL\\Interfaces\\IAuthService.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.BLL\\Interfaces\\IAuthService.cs",
@@ -280,7 +313,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "appsettings.Development.json",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\appsettings.Development.json",
               "RelativeDocumentMoniker": "TravelTourBooking.API\\appsettings.Development.json",
@@ -292,7 +325,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "ExceptionMiddleware.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\Middleware\\ExceptionMiddleware.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.API\\Middleware\\ExceptionMiddleware.cs",
@@ -304,7 +337,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "JwtMiddleware.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\Middleware\\JwtMiddleware.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.API\\Middleware\\JwtMiddleware.cs",
@@ -316,7 +349,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "TravelTourBooking.API.http",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\TravelTourBooking.API.http",
               "RelativeDocumentMoniker": "TravelTourBooking.API\\TravelTourBooking.API.http",
@@ -328,19 +361,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\Program.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.API\\Program.cs",
               "ToolTip": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.API\\Program.cs",
               "RelativeToolTip": "TravelTourBooking.API\\Program.cs",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAUwF8AAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAAHIAAAAAAAAAAAAAACIAAABCAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-10T04:18:04.698Z"
+              "WhenOpened": "2026-05-10T04:18:04.698Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 21,
               "Title": "BookingDetail.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Entities\\BookingDetail.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Entities\\BookingDetail.cs",
@@ -352,7 +386,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 22,
               "Title": "RoleConfiguration.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Configurations\\RoleConfiguration.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Configurations\\RoleConfiguration.cs",
@@ -364,7 +398,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 23,
               "Title": "CustomerProfileConfiguration.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Configurations\\CustomerProfileConfiguration.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Configurations\\CustomerProfileConfiguration.cs",
@@ -376,7 +410,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 20,
               "Title": "Booking.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Entities\\Booking.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Entities\\Booking.cs",
@@ -388,7 +422,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 24,
               "Title": "AccountRoleConfiguration.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Configurations\\AccountRoleConfiguration.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Configurations\\AccountRoleConfiguration.cs",
@@ -400,7 +434,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 25,
               "Title": "TourScheduleConfiguration.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Configurations\\TourScheduleConfiguration.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Configurations\\TourScheduleConfiguration.cs",
@@ -412,7 +446,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 26,
               "Title": "TourConfiguration.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Configurations\\TourConfiguration.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Configurations\\TourConfiguration.cs",
@@ -424,7 +458,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 27,
               "Title": "BookingConfiguration.cs",
               "DocumentMoniker": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\EFCore\\Configurations\\BookingConfiguration.cs",
               "RelativeDocumentMoniker": "TravelTourBooking.DAL\\EFCore\\Configurations\\BookingConfiguration.cs",
