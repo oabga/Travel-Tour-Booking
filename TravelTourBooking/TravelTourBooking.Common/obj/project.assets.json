@@ -312,23 +312,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Admin\\.nuget\\packages\\": {},
+    "C:\\Users\\QUANG AN\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Ôn Tập Học Hành\\Lập trình_CSDL (C#)\\BTL\\Project_Code\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj",
+      "projectUniqueName": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj",
       "projectName": "TravelTourBooking.Common",
-      "projectPath": "C:\\Ôn Tập Học Hành\\Lập trình_CSDL (C#)\\BTL\\Project_Code\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj",
-      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Ôn Tập Học Hành\\Lập trình_CSDL (C#)\\BTL\\Project_Code\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\obj\\",
+      "projectPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj",
+      "packagesPath": "C:\\Users\\QUANG AN\\.nuget\\packages\\",
+      "outputPath": "D:\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\QUANG AN\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

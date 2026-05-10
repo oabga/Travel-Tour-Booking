@@ -1,4 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TravelTourBooking.DAL.EFCore.Entities;
@@ -35,3 +36,4 @@ public class Booking
 
     public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 }
+

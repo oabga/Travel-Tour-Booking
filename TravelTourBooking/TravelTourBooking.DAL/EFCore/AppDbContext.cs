@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TravelTourBooking.DAL.EFCore.Configurations;
 using TravelTourBooking.DAL.EFCore.Entities;
 
+
 namespace TravelTourBooking.DAL.EFCore
 {
     public class AppDbContext : DbContext
@@ -29,9 +30,16 @@ namespace TravelTourBooking.DAL.EFCore
             modelBuilder.ApplyConfiguration(new TourScheduleConfiguration());
             modelBuilder.ApplyConfiguration(new BookingConfiguration());
             modelBuilder.ApplyConfiguration(new BookingDetailConfiguration());
+
+            modelBuilder.ApplyConfiguration(new AccountRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new CustomerProfileConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+         
+
         }
-
-
-        
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<AccountRole> AccountRoles { get; set; }
+        public DbSet<CustomerProfile> CustomerProfiles { get; set; }
     }
 }

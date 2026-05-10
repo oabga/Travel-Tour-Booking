@@ -33,8 +33,12 @@ namespace TravelTourBooking.API.Middleware
             };
 
             var body = JsonSerializer.Serialize(
-                ApiResponse<string>.Fail(ex.Message),
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+             ApiResponse<string>.Fail(
+                 ex.InnerException?.Message ?? ex.Message),
+             new JsonSerializerOptions
+             {
+                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+             });
 
             return ctx.Response.WriteAsync(body);
         }

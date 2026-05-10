@@ -14,3 +14,19 @@ C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Boo
 C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\refint\TravelTourBooking.DAL.dll
 C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.pdb
 C:\Ôn Tập Học Hành\Lập trình_CSDL (C#)\BTL\Project_Code\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\ref\TravelTourBooking.DAL.dll
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.DAL.deps.json
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.DAL.dll
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.DAL.pdb
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.Common.dll
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\bin\Debug\net8.0\TravelTourBooking.Common.pdb
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.csproj.AssemblyReference.cache
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.GeneratedMSBuildEditorConfig.editorconfig
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.AssemblyInfoInputs.cache
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.AssemblyInfo.cs
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.csproj.CoreCompileInputs.cache
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.sourcelink.json
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTo.5890BC92.Up2Date
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.dll
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\refint\TravelTourBooking.DAL.dll
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\TravelTourBooking.DAL.pdb
+D:\Travel-Tour-Booking\TravelTourBooking\TravelTourBooking.DAL\obj\Debug\net8.0\ref\TravelTourBooking.DAL.dll
