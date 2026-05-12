@@ -1,0 +1,152 @@
+% ══════════════════════════════════════════════
+% CHƯƠNG 4 — THỰC THI KỸ THUẬT VÀ CÔNG NGHỆ
+% Người viết: TV4 (API — Controllers, JWT, Swagger)
+% ══════════════════════════════════════════════
+
+\chapter{Thực thi Kỹ thuật và Công nghệ}
+
+\section{ASP.NET Core Web API}\label{Sec4.1}
+
+\subsection{Thiết kế RESTful Endpoints}\label{sub4.1.1}
+
+\begin{de}\label{def4.1}
+  % [TV4] Định nghĩa REST: các HTTP verb chuẩn (GET/POST/PUT/PATCH/DELETE),
+  % nguyên tắc đặt tên URL (danh từ, không dùng động từ), status codes.
+
+  % [Điền nội dung vào đây]
+\end{de}
+
+% [TV4] Điền toàn bộ endpoint thực tế của hệ thống vào bảng dưới.
+% Thêm/bớt dòng tùy theo số endpoint thực tế.
+
+\begin{longtable}{|l|l|l|l|}
+  \hline
+  \textbf{Method} & \textbf{Endpoint} & \textbf{Mô tả} & \textbf{Quyền} \\
+  \hline
+  % GET    & /api/[resource]           & [Mô tả]          & [Public/Role] \\
+  % GET    & /api/[resource]/\{id\}    & [Mô tả]          & [Public/Role] \\
+  % POST   & /api/[resource]           & [Mô tả]          & [Public/Role] \\
+  % PUT    & /api/[resource]/\{id\}    & [Mô tả]          & [Public/Role] \\
+  % DELETE & /api/[resource]/\{id\}    & [Mô tả]          & [Public/Role] \\
+  % ... thêm các endpoint khác
+  \hline
+  \caption{Danh sách các RESTful Endpoints chính}\label{table:endpoints}
+\end{longtable}
+
+\subsection{Cấu trúc Controller}\label{sub4.1.2}
+
+% [TV4] Chèn code C# của 1 Controller tiêu biểu, bao gồm ít nhất
+% GET (list), GET (detail), POST, PUT, DELETE.
+
+\begin{lstlisting}[style=csharp, caption={[TênController] — các action chính}]
+// [TV4] Dán code Controller vào đây
+\end{lstlisting}
+
+\section{Xác thực và Phân quyền (JWT + RBAC)}\label{Sec4.2}
+
+\subsection{JWT Authentication}\label{sub4.2.1}
+
+\begin{thm}\label{thm4.1}
+  % [TV4] Phát biểu về JWT: stateless, thông tin được mã hóa trong token,
+  % không cần lưu session phía server.
+
+  % [Điền nội dung vào đây]
+\end{thm}
+
+\noindent\begin{proof}
+  % [TV4] Giải thích tại sao JWT đảm bảo stateless và dễ scale ngang
+  % (server chỉ verify chữ ký, không tra DB).
+
+  % [Điền nội dung vào đây]
+  \QEDAa
+\end{proof}
+
+% [TV4] Chèn code cấu hình JWT trong Program.cs
+\begin{lstlisting}[style=csharp, caption={Cấu hình JWT trong Program.cs}]
+// [TV4] Dán code AddAuthentication / AddJwtBearer vào đây
+\end{lstlisting}
+
+\subsection{Phân quyền theo Role}\label{sub4.2.2}
+
+% [TV4] Mô tả các Role trong hệ thống và quyền hạn tương ứng.
+% Điền vào bảng phân quyền dưới đây.
+
+\begin{table}[H]
+  \begin{center}
+    \begin{tabular}{|l|c|c|c|}
+      \hline
+      \textbf{Chức năng} & \textbf{[Role 1]} & \textbf{[Role 2]} & \textbf{[Role 3]} \\
+      \hline
+      % [Chức năng 1] & \checkmark & \checkmark &            \\
+      % [Chức năng 2] & \checkmark &            &            \\
+      % [Chức năng 3] & \checkmark & \checkmark & \checkmark \\
+      % ... thêm dòng nếu cần
+      \hline
+    \end{tabular}
+  \end{center}
+  \caption{Bảng phân quyền theo Role}\label{table:phanquyen}
+\end{table}
+
+\section{Global Exception Middleware}\label{Sec4.3}
+
+% [TV4] Mô tả ngắn mục đích của Middleware xử lý lỗi tập trung,
+% sau đó chèn code.
+
+% [Điền nội dung vào đây]
+
+\begin{lstlisting}[style=csharp, caption={ExceptionMiddleware xử lý lỗi tập trung}]
+// [TV4] Dán code ExceptionMiddleware vào đây
+\end{lstlisting}
+
+\section{LINQ to XML — Export và Import}\label{Sec4.4}
+
+\begin{ex}\label{ex4.1}
+  % [TV4] Mô tả tính năng Export/Import XML bằng LINQ to XML:
+  % dùng ở đâu trong hệ thống, dữ liệu gì được export/import?
+
+  % [Điền nội dung vào đây]
+\end{ex}
+
+% [TV4] Chèn code Export XML
+\begin{lstlisting}[style=csharp, caption={Export dữ liệu ra XML dùng LINQ to XML}]
+// [TV4] Dán code tạo XDocument / XElement vào đây
+\end{lstlisting}
+
+% [TV4] Chèn code Import XML
+\begin{lstlisting}[style=csharp, caption={Import dữ liệu từ XML dùng LINQ to XML}]
+// [TV4] Dán code parse XDocument vào đây
+\end{lstlisting}
+
+\section{Kiểm thử API với Swagger và Postman}\label{Sec4.5}
+
+% [TV4] Chụp màn hình Swagger UI đang chạy, lưu thành file
+%       rồi thay \framebox bên dưới bằng: \includegraphics[width=14cm]{swagger.png}
+
+\begin{figure}[H]
+  \centering
+  \framebox[14cm][c]{\rule{0pt}{6cm} [Chèn screenshot Swagger UI]}
+  \caption{Giao diện Swagger UI kiểm thử API}\label{fig:swagger}
+\end{figure}
+
+% [TV4] Chụp màn hình Postman kết quả test (Collection Runner hoặc request/response),
+%       lưu thành file rồi thay \framebox bên dưới.
+
+\begin{figure}[H]
+  \centering
+  \framebox[14cm][c]{\rule{0pt}{5cm} [Chèn screenshot Postman test results]}
+  \caption{Kết quả kiểm thử API bằng Postman}\label{fig:postman}
+\end{figure}
+
+\section{Dashboard (nếu có)}\label{Sec4.6}
+
+% [TV4/TV5] Nếu nhóm xây dựng giao diện Frontend/Dashboard,
+% mô tả ngắn công nghệ sử dụng và chèn screenshot.
+% Nếu không có, có thể xóa section này.
+
+% [Điền mô tả Dashboard vào đây]
+
+\begin{figure}[H]
+  \centering
+  \framebox[14cm][c]{\rule{0pt}{6cm} [Chèn screenshot Dashboard]}
+  \caption{Giao diện Dashboard báo cáo}\label{fig:dashboard}
+\end{figure}

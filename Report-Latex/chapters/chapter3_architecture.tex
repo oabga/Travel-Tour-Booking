@@ -1,0 +1,173 @@
+% ══════════════════════════════════════════════
+% CHƯƠNG 3 — KIẾN TRÚC PHẦN MỀM 3-LAYER
+% Người viết: TV2 (DAL) + TV3 (BLL)
+% TV2 viết: Sec 3.1, 3.3, 3.4
+% TV3 viết: Sec 3.2, 3.5
+% ══════════════════════════════════════════════
+
+\chapter{Kiến trúc Phần mềm (3-Layer Architecture)}
+
+\section{Tổng quan kiến trúc}\label{Sec3.1}
+
+% [TV2] Định nghĩa kiến trúc 3 tầng và nguyên tắc hoạt động của nó.
+
+\begin{de}\label{def3.1}
+  % [TV2] Định nghĩa 3-Layer Architecture: gồm những tầng nào,
+  % mỗi tầng có trách nhiệm gì, các tầng giao tiếp với nhau như thế nào?
+
+  % [Điền nội dung vào đây]
+\end{de}
+
+% [TV2] Vẽ sơ đồ kiến trúc (có thể dùng draw.io), lưu thành file
+%       rồi thay \framebox bên dưới bằng: \includegraphics[width=14cm]{architecture.png}
+\begin{figure}[H]
+  \centering
+  \framebox[14cm][c]{\rule{0pt}{7cm} [Chèn sơ đồ kiến trúc 3-layer]}
+  \caption{Kiến trúc 3 tầng của hệ thống}\label{fig:3layer}
+\end{figure}
+
+% [TV2] Mô tả cấu trúc solution: có mấy project, tên từng project và vai trò.
+\begin{itemize}
+  \item \textbf{[Tên project 1]}: % [Vai trò — ví dụ: Presentation Layer]
+  \item \textbf{[Tên project 2]}: % [Vai trò — ví dụ: Business Logic Layer]
+  \item \textbf{[Tên project 3]}: % [Vai trò — ví dụ: Data Access Layer]
+  \item \textbf{[Tên project 4]}: % [Vai trò — ví dụ: Shared/Common]
+\end{itemize}
+
+\section{Lớp Nghiệp vụ (Business Logic Layer)}\label{Sec3.2}
+
+% [TV3 viết phần này]
+
+\subsection{Thiết kế Services và Interfaces}\label{sub3.2.1}
+
+% [TV3] Giải thích cách tổ chức Services theo Interface.
+% Điền tên các Service thực tế của nhóm vào đây.
+
+% [TV3] Chèn code C# của 1 Interface tiêu biểu (ví dụ: IBookingService)
+\begin{lstlisting}[style=csharp, caption={Interface [ITênService]}]
+// [TV3] Dán code Interface vào đây
+\end{lstlisting}
+
+\subsection{Business Rules}\label{sub3.2.2}
+
+% [TV3] Mô tả các quy tắc nghiệp vụ quan trọng được kiểm tra trong BLL.
+% Ví dụ: điều kiện hủy đơn, điều kiện thêm đánh giá, kiểm tra tồn kho...
+
+\begin{ex}\label{ex3.1}
+  % [TV3] Mô tả 1 ví dụ cụ thể về business rule trong Service của nhóm.
+  % Nên kèm đoạn code C# minh họa logic kiểm tra.
+
+  % [Điền nội dung vào đây]
+\end{ex}
+
+\begin{lstlisting}[style=csharp, caption={Business rule trong [TênService]}]
+// [TV3] Dán đoạn code minh họa business rule vào đây
+\end{lstlisting}
+
+\subsection{Validation}\label{sub3.2.3}
+
+% [TV3] Mô tả cách nhóm validate dữ liệu đầu vào (FluentValidation, Data Annotations...).
+% Chèn code Validator tiêu biểu.
+
+\begin{lstlisting}[style=csharp, caption={Validator [TênValidator]}]
+// [TV3] Dán code Validator vào đây
+\end{lstlisting}
+
+\section{Lớp Truy cập Dữ liệu (Data Access Layer)}\label{Sec3.3}
+
+% [TV2 viết phần này]
+
+\subsection{Entity Framework Core}\label{sub3.3.1}
+
+\begin{thm}\label{thm3.1}
+  % [TV2] Phát biểu ưu điểm của EF Core so với SQL thủ công
+  % (type-safe, chống SQL Injection, LINQ to Entities...).
+
+  % [Điền nội dung vào đây]
+\end{thm}
+
+\noindent\begin{proof}
+  % [TV2] Giải thích cơ chế EF Core dịch LINQ sang SQL tối ưu,
+  % tự động parameterize query để chống SQL Injection.
+
+  % [Điền nội dung vào đây]
+  \QEDAa
+\end{proof}
+
+% [TV2] Chèn code C# LINQ to Entities tiêu biểu (ví dụ: hàm Search có nhiều điều kiện lọc)
+\begin{lstlisting}[style=csharp, caption={LINQ to Entities trong [TênRepository]}]
+// [TV2] Dán code LINQ query vào đây
+\end{lstlisting}
+
+\subsection{Repository Pattern}\label{sub3.3.2}
+
+% [TV2] Mô tả cách nhóm thiết kế Generic Repository và Specific Repository.
+% Chèn code GenericRepository<T> và 1 Specific Repository tiêu biểu.
+
+\begin{lstlisting}[style=csharp, caption={Generic Repository}]
+// [TV2] Dán code GenericRepository<T> vào đây
+\end{lstlisting}
+
+\subsection{ADO.NET — Connected \& Disconnected Model}\label{sub3.3.3}
+
+\begin{de}\label{def3.2}
+  % [TV2] Định nghĩa 2 mô hình ADO.NET: Connected (SqlDataReader)
+  % và Disconnected (DataSet + SqlDataAdapter), nêu trường hợp dùng mỗi loại.
+
+  \begin{itemize}
+    \item \textbf{Connected model}: % [Điền mô tả]
+    \item \textbf{Disconnected model}: % [Điền mô tả]
+  \end{itemize}
+\end{de}
+
+% [TV2] Chèn code C# minh họa Connected Model
+\begin{lstlisting}[style=csharp, caption={ADO.NET Connected Model}]
+// [TV2] Dán code dùng SqlConnection + SqlDataReader vào đây
+\end{lstlisting}
+
+% [TV2] Chèn code C# minh họa Disconnected Model
+\begin{lstlisting}[style=csharp, caption={ADO.NET Disconnected Model}]
+// [TV2] Dán code dùng DataSet + SqlDataAdapter vào đây
+\end{lstlisting}
+
+\section{Lớp Giao diện (Presentation Layer)}\label{Sec3.4}
+
+% [TV2 viết phần này — phối hợp với TV4]
+
+\subsection{Data Transfer Objects (DTOs)}\label{sub3.4.1}
+
+% [TV2] Giải thích mục đích của DTO: không expose Entity trực tiếp,
+% kiểm soát dữ liệu trả về client.
+
+% [Điền nội dung vào đây]
+
+% [TV2] Vẽ sơ đồ luồng dữ liệu qua các tầng (draw.io/Lucidchart),
+%       lưu thành file rồi thay \framebox bên dưới.
+\begin{figure}[H]
+  \centering
+  \framebox[14cm][c]{\rule{0pt}{4cm} [Chèn sơ đồ luồng: Client → Controller → Service → Repository]}
+  \caption{Luồng dữ liệu qua các tầng sử dụng DTO}\label{fig:dto}
+\end{figure}
+
+\subsection{AutoMapper}\label{sub3.4.2}
+
+% [TV2] Mô tả cách cấu hình MappingProfile và AutoMapper tự động
+% chuyển đổi Entity ↔ DTO.
+
+\begin{lstlisting}[style=csharp, caption={AutoMapper MappingProfile}]
+// [TV2] Dán code MappingProfile vào đây
+\end{lstlisting}
+
+\section{Dependency Injection}\label{Sec3.5}
+
+% [TV3 viết phần này]
+
+% [TV3] Giải thích nguyên tắc IoC và cách DI được áp dụng trong project.
+
+% [Điền nội dung vào đây]
+
+% [TV3] Chèn code đăng ký DI trong Program.cs (chỉ giữ phần tiêu biểu,
+%       không cần chép toàn bộ file).
+\begin{lstlisting}[style=csharp, caption={Cấu hình DI trong Program.cs}]
+// [TV3] Dán đoạn code đăng ký services vào đây
+\end{lstlisting}

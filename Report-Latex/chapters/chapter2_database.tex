@@ -1,0 +1,181 @@
+% ══════════════════════════════════════════════
+% CHƯƠNG 2 — PHÂN TÍCH VÀ THIẾT KẾ CƠ SỞ DỮ LIỆU
+% Người viết: TV1 (Lead + DB)
+% ══════════════════════════════════════════════
+
+\chapter{Phân tích và Thiết kế Cơ sở dữ liệu}
+
+\section{Sơ đồ thực thể mối quan hệ (ERD)}\label{Sec2.1}
+
+\begin{de}\label{def2.1}
+  % [TV1] Mô tả tổng quan cơ sở dữ liệu: có bao nhiêu bảng,
+  % được tổ chức thành mấy nhóm chức năng, tên từng nhóm là gì?
+
+  % [Điền nội dung vào đây]
+\end{de}
+
+% [TV1] Xuất ERD từ SSMS hoặc dbdiagram.io, lưu thành file erd.png
+%       rồi thay dòng \framebox bên dưới bằng: \includegraphics[width=14cm]{erd.png}
+\begin{figure}[H]
+  \centering
+  \framebox[14cm][c]{\rule{0pt}{8cm} [Chèn hình ERD vào đây]}
+  \caption{Sơ đồ thực thể mối quan hệ (ERD) của hệ thống}\label{fig:erd}
+\end{figure}
+
+\section{Mô tả các bảng chính}\label{Sec2.2}
+
+% [TV1] Điền tên bảng, số cột và mô tả chức năng của từng bảng.
+% Thêm/bớt dòng tùy theo số bảng thực tế của nhóm.
+
+\begin{table}[H]
+  \begin{center}
+    \begin{tabular}{|l|c|l|}
+      \hline
+      \textbf{Tên bảng} & \textbf{Số cột} & \textbf{Mô tả} \\
+      \hline
+      % [TênBảng1] & [n] & [Mô tả chức năng bảng] \\
+      \hline
+      % [TênBảng2] & [n] & [Mô tả chức năng bảng] \\
+      \hline
+      % [TênBảng3] & [n] & [Mô tả chức năng bảng] \\
+      \hline
+      % [TênBảng4] & [n] & [Mô tả chức năng bảng] \\
+      \hline
+      % [TênBảng5] & [n] & [Mô tả chức năng bảng] \\
+      \hline
+      % ... thêm dòng nếu cần
+    \end{tabular}
+  \end{center}
+  \caption{Mô tả các bảng trong cơ sở dữ liệu}\label{table:tables}
+\end{table}
+
+\section{Các ràng buộc dữ liệu}\label{Sec2.3}
+
+\begin{lem}\label{lem2.1}
+  % [TV1] Phát biểu tổng quát về việc áp dụng ràng buộc dữ liệu
+  % (CHECK constraints, NOT NULL, UNIQUE, FK...) tại tầng CSDL.
+
+  % [Điền nội dung vào đây]
+\end{lem}
+
+% [TV1] Liệt kê các ràng buộc quan trọng nhóm đã thiết kế.
+% Dùng cú pháp \texttt{} cho tên cột/bảng và giá trị kỹ thuật.
+
+\begin{itemize}
+  \item \texttt{} % [Ràng buộc 1 — ví dụ: TênBảng.TênCột > 0]
+  \item \texttt{} % [Ràng buộc 2]
+  \item \texttt{} % [Ràng buộc 3]
+  \item \texttt{} % [Ràng buộc 4]
+  \item \texttt{} % [Ràng buộc 5 — thêm nếu cần]
+\end{itemize}
+
+\section{Views}\label{Sec2.4}
+
+\begin{thm}\label{thm2.1}
+  % [TV1] Phát biểu: nhóm tạo bao nhiêu View, mục đích tổng quát là gì?
+
+  % [Điền nội dung vào đây]
+\end{thm}
+
+% [TV1] Với mỗi View: viết 1 dòng mô tả rồi chèn code SQL vào lstlisting.
+% Sao chép cấu trúc bên dưới cho View 2, View 3, ...
+
+\noindent\textbf{View 1 — [Tên View]:} % [Mô tả ngắn View 1]
+
+\begin{lstlisting}[style=sql, caption={View [TênView1]}]
+-- [TV1] Dán code SQL CREATE VIEW vào đây
+\end{lstlisting}
+
+\noindent\textbf{View 2 — [Tên View]:} % [Mô tả ngắn View 2]
+
+\begin{lstlisting}[style=sql, caption={View [TênView2]}]
+-- [TV1] Dán code SQL CREATE VIEW vào đây
+\end{lstlisting}
+
+\noindent\textbf{View 3 — [Tên View]:} % [Mô tả ngắn View 3]
+
+\begin{lstlisting}[style=sql, caption={View [TênView3]}]
+-- [TV1] Dán code SQL CREATE VIEW vào đây
+\end{lstlisting}
+
+\section{Functions}\label{Sec2.5}
+
+% [TV1] Mô tả tên và chức năng của từng Function T-SQL.
+
+\noindent Các Function T-SQL được xây dựng:
+
+\begin{enumerate}
+  \item \textbf{[TênFunction1]}: % [Mô tả chức năng]
+  \item \textbf{[TênFunction2]}: % [Mô tả chức năng]
+  \item \textbf{[TênFunction3]}: % [Mô tả chức năng — thêm nếu có]
+\end{enumerate}
+
+% [TV1] Chèn code SQL của ít nhất 1 Function tiêu biểu.
+
+\begin{lstlisting}[style=sql, caption={Function [TênFunction]}]
+-- [TV1] Dán code SQL CREATE FUNCTION vào đây
+\end{lstlisting}
+
+\section{Stored Procedures}\label{Sec2.6}
+
+\begin{thm}\label{thm2.2}
+  % [TV1] Phát biểu về Stored Procedure quan trọng nhất (ví dụ: dùng
+  % Transaction + lock để đảm bảo ACID khi nhiều người thao tác đồng thời).
+
+  % [Điền nội dung vào đây]
+\end{thm}
+
+\noindent\begin{proof}
+  % [TV1] Giải thích tại sao thiết kế của SP đảm bảo tính đúng đắn
+  % (ví dụ: cơ chế khóa dòng, TRY-CATCH, ROLLBACK khi có lỗi...).
+
+  % [Điền nội dung vào đây]
+  \QEDAa
+\end{proof}
+
+% [TV1] Chèn code SQL đầy đủ của từng Stored Procedure.
+% Sao chép cấu trúc lstlisting bên dưới cho mỗi SP.
+
+\begin{lstlisting}[style=sql, caption={Stored Procedure [TênSP1]}]
+-- [TV1] Dán code SQL CREATE PROCEDURE vào đây
+\end{lstlisting}
+
+\begin{lstlisting}[style=sql, caption={Stored Procedure [TênSP2]}]
+-- [TV1] Dán code SQL CREATE PROCEDURE vào đây
+\end{lstlisting}
+
+% Thêm lstlisting cho SP3, SP4 nếu có
+
+\section{Triggers}\label{Sec2.7}
+
+\begin{ex}\label{ex2.1}
+  % [TV1] Mô tả Trigger đầu tiên: tên, sự kiện kích hoạt (AFTER INSERT/UPDATE/DELETE),
+  % và tác dụng của nó (tự động cập nhật bảng nào, trường nào?).
+
+  % [Điền nội dung vào đây]
+\end{ex}
+
+\begin{lstlisting}[style=sql, caption={Trigger [TênTrigger1]}]
+-- [TV1] Dán code SQL CREATE TRIGGER vào đây
+\end{lstlisting}
+
+\begin{cor}
+  % [TV1] Nêu hệ quả/lợi ích của Trigger vừa trình bày
+  % (ví dụ: tách trách nhiệm, tránh xử lý trùng lặp...).
+
+  % [Điền nội dung vào đây]
+\end{cor}
+
+% [TV1] Thêm lstlisting cho Trigger thứ 2 nếu có
+
+\section{Kết quả kiểm thử T-SQL}\label{Sec2.8}
+
+% [TV1] Chạy các test script trong SSMS, chụp màn hình kết quả
+%       và lưu thành file (ví dụ: ssms_test.png).
+%       Sau đó thay \framebox bên dưới bằng: \includegraphics[width=14cm]{ssms_test.png}
+
+\begin{figure}[H]
+  \centering
+  \framebox[14cm][c]{\rule{0pt}{5cm} [Chèn screenshot kết quả test SSMS]}
+  \caption{Kết quả kiểm thử Stored Procedure trên SSMS}\label{fig:ssms}
+\end{figure}
