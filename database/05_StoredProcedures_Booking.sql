@@ -33,6 +33,10 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM Accounts WHERE AccountId = @AccountId)
         THROW 50002, N'Không tìm thấy khách hàng', 1;
 
+    -- Kiểm tra lịch đang mở (Bug fix: tránh đặt tour vào lịch Full/Cancelled)
+    IF NOT EXISTS (SELECT 1 FROM TourSchedules WHERE ScheduleId = @ScheduleId AND Status = N'Open')
+        THROW 50008, N'Lịch khởi hành không còn mở đặt chỗ', 1;
+
     BEGIN TRY
         BEGIN TRANSACTION;
 
@@ -55,13 +59,19 @@ BEGIN
             THROW 50004, N'Không thể tính giá tour', 1;
 
         -- INSERT Booking — Trigger trg_AfterBookingInsert sẽ tự trừ slot
+        -- Bug fix: lưu NewBookingId vào biến TRƯỚC khi COMMIT
+        -- SCOPE_IDENTITY() trả về NULL nếu gọi sau COMMIT
+        DECLARE @NewBookingId INT;
+
         INSERT INTO Bookings (AccountId, ScheduleId, NumberOfPeople, TotalAmount, DiscountPercent, Status)
         VALUES (@AccountId, @ScheduleId, @NumberOfPeople, @Total, @DiscountPercent, N'Confirmed');
+
+        SET @NewBookingId = SCOPE_IDENTITY();
 
         COMMIT;
 
         -- Trả về BookingId vừa tạo
-        SELECT SCOPE_IDENTITY() AS NewBookingId;
+        SELECT @NewBookingId AS NewBookingId;
 
     END TRY
     BEGIN CATCH

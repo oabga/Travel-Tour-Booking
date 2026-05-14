@@ -39,10 +39,8 @@ Description  NVARCHAR(255),
 ImageUrl     NVARCHAR(255),
 IsActive     BIT DEFAULT 1,
 
-```
 FOREIGN KEY (CateId) REFERENCES Categories(CateId),
 FOREIGN KEY (DesId)  REFERENCES Destinations(DesId)
-```
 
 );
 
@@ -65,11 +63,9 @@ Status         NVARCHAR(50)
 CONSTRAINT CK_ScheduleStatus
 CHECK (Status IN (N'Open', N'Full', N'Cancelled')),
 
-```
 FOREIGN KEY (TourId)     REFERENCES Tours(TourId),
 FOREIGN KEY (EmployeeId) REFERENCES Employees(EmployeeId),
 CONSTRAINT CK_Date CHECK (ReturnDate > DepartureDate)
-```
 
 );
 
@@ -121,10 +117,8 @@ CONSTRAINT CK_BookingStatus
 CHECK (Status IN (N'Pending', N'Confirmed', N'Completed', N'Cancelled')),
 Notes          NVARCHAR(255),
 
-```
 FOREIGN KEY (AccountId) REFERENCES Accounts(AccountId),
 FOREIGN KEY (ScheduleId) REFERENCES TourSchedules(ScheduleId)
-```
 
 );
 
@@ -140,9 +134,7 @@ PassengerType      NVARCHAR(20)  NOT NULL DEFAULT N'Adult'
         CHECK (PassengerType IN (N'Adult', N'Child')),
 PassengerIdNumber  NVARCHAR(20)  NULL,  -- CCCD hoặc số hộ chiếu
 
-```
 FOREIGN KEY (BookingId) REFERENCES Bookings(BookingId)
-```
 
 );
 
@@ -208,7 +200,6 @@ BEGIN
 DECLARE @Price DECIMAL(12,2);
 DECLARE @Result DECIMAL(12,2);
 
-```
 SELECT @Price = T.Price
 FROM Tours T
 JOIN TourSchedules S ON T.TourId = S.TourId
@@ -220,7 +211,6 @@ ELSE
     SET @Result = @Price * @NumberOfPeople * (1 - @DiscountPercent / 100);
 
 RETURN @Result;
-```
 
 END;
 GO
@@ -234,7 +224,6 @@ AS
 BEGIN
 DECLARE @Count INT;
 
-```
 SELECT @Count = COUNT(*)
 FROM Bookings
 WHERE AccountId = @AccountId
@@ -242,7 +231,6 @@ WHERE AccountId = @AccountId
   AND Status != N'Cancelled';
 
 RETURN ISNULL(@Count, 0);
-```
 
 END;
 GO
@@ -270,44 +258,51 @@ AS
 BEGIN
 SET NOCOUNT ON;
 
-```
-IF NOT EXISTS (SELECT 1 FROM TourSchedules WHERE ScheduleId = @ScheduleId)
-    THROW 50001, N'Không tìm thấy lịch khởi hành', 1;
+    IF NOT EXISTS (SELECT 1 FROM TourSchedules WHERE ScheduleId = @ScheduleId)
+        THROW 50001, N'Không tìm thấy lịch khởi hành', 1;
 
-IF NOT EXISTS (SELECT 1 FROM Accounts WHERE AccountId = @AccountId)
-    THROW 50002, N'Không tìm thấy khách hàng', 1;
+    IF NOT EXISTS (SELECT 1 FROM Accounts WHERE AccountId = @AccountId)
+        THROW 50002, N'Không tìm thấy khách hàng', 1;
 
-BEGIN TRY
-    BEGIN TRANSACTION;
+    -- Kiểm tra lịch đang mở
+    IF NOT EXISTS (SELECT 1 FROM TourSchedules WHERE ScheduleId = @ScheduleId AND Status = N'Open')
+        THROW 50008, N'Lịch khởi hành không còn mở đặt chỗ', 1;
 
-    DECLARE @Available INT;
+    BEGIN TRY
+        BEGIN TRANSACTION;
 
-    SELECT @Available = AvailableSlots
-    FROM TourSchedules WITH (UPDLOCK, ROWLOCK)
-    WHERE ScheduleId = @ScheduleId;
+        DECLARE @Available INT;
 
-    IF @Available < @NumberOfPeople
-        THROW 50003, N'Không đủ chỗ trống', 1;
+        SELECT @Available = AvailableSlots
+        FROM TourSchedules WITH (UPDLOCK, ROWLOCK)
+        WHERE ScheduleId = @ScheduleId;
 
-    DECLARE @Total DECIMAL(12,2);
-    SET @Total = dbo.fn_CalcBookingTotal(@ScheduleId, @NumberOfPeople, @DiscountPercent);
+        IF @Available < @NumberOfPeople
+            THROW 50003, N'Không đủ chỗ trống', 1;
 
-    IF @Total IS NULL
-        THROW 50004, N'Không thể tính giá tour', 1;
+        DECLARE @Total DECIMAL(12,2);
+        SET @Total = dbo.fn_CalcBookingTotal(@ScheduleId, @NumberOfPeople, @DiscountPercent);
 
-    INSERT INTO Bookings (AccountId, ScheduleId, NumberOfPeople, TotalAmount, DiscountPercent, Status)
-    VALUES (@AccountId, @ScheduleId, @NumberOfPeople, @Total, @DiscountPercent, N'Confirmed');
+        IF @Total IS NULL
+            THROW 50004, N'Không thể tính giá tour', 1;
 
-    COMMIT;
+        -- Bug fix: lưu NewBookingId TRƯỚC khi COMMIT
+        DECLARE @NewBookingId INT;
 
-    SELECT SCOPE_IDENTITY() AS NewBookingId;
+        INSERT INTO Bookings (AccountId, ScheduleId, NumberOfPeople, TotalAmount, DiscountPercent, Status)
+        VALUES (@AccountId, @ScheduleId, @NumberOfPeople, @Total, @DiscountPercent, N'Confirmed');
 
-END TRY
-BEGIN CATCH
-    IF @@TRANCOUNT > 0 ROLLBACK;
-    THROW;
-END CATCH
-```
+        SET @NewBookingId = SCOPE_IDENTITY();
+
+        COMMIT;
+
+        SELECT @NewBookingId AS NewBookingId;
+
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK;
+        THROW;
+    END CATCH
 
 END;
 GO
@@ -318,33 +313,31 @@ AS
 BEGIN
 SET NOCOUNT ON;
 
-```
-DECLARE @CurrentStatus NVARCHAR(50);
-SELECT @CurrentStatus = Status FROM Bookings WHERE BookingId = @BookingId;
+    DECLARE @CurrentStatus NVARCHAR(50);
+    SELECT @CurrentStatus = Status FROM Bookings WHERE BookingId = @BookingId;
 
-IF @CurrentStatus IS NULL
-    THROW 50005, N'Không tìm thấy booking', 1;
+    IF @CurrentStatus IS NULL
+        THROW 50005, N'Không tìm thấy booking', 1;
 
-IF @CurrentStatus = N'Cancelled'
-    THROW 50006, N'Booking đã được hủy trước đó', 1;
+    IF @CurrentStatus = N'Cancelled'
+        THROW 50006, N'Booking đã được hủy trước đó', 1;
 
-IF @CurrentStatus = N'Completed'
-    THROW 50007, N'Không thể hủy booking đã hoàn thành', 1;
+    IF @CurrentStatus = N'Completed'
+        THROW 50007, N'Không thể hủy booking đã hoàn thành', 1;
 
-BEGIN TRY
-    BEGIN TRANSACTION;
+    BEGIN TRY
+        BEGIN TRANSACTION;
 
-    UPDATE Bookings
-    SET Status = N'Cancelled'
-    WHERE BookingId = @BookingId;
+        UPDATE Bookings
+        SET Status = N'Cancelled'
+        WHERE BookingId = @BookingId;
 
-    COMMIT;
-END TRY
-BEGIN CATCH
-    IF @@TRANCOUNT > 0 ROLLBACK;
-    THROW;
-END CATCH
-```
+        COMMIT;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK;
+        THROW;
+    END CATCH
 
 END;
 GO
@@ -358,7 +351,6 @@ AS
 BEGIN
 SET NOCOUNT ON;
 
-```
 SELECT
     T.TourId, T.TourName, T.Price, T.DurationDays,
     T.MaxCapacity, T.Description, T.ImageUrl,
@@ -376,7 +368,6 @@ WHERE T.IsActive = 1
   AND (@PriceMax IS NULL OR T.Price <= @PriceMax)
   AND (@Date IS NULL OR S.DepartureDate >= @Date)
 ORDER BY S.DepartureDate;
-```
 
 END;
 GO
@@ -388,7 +379,6 @@ AS
 BEGIN
 SET NOCOUNT ON;
 
-```
 SELECT
     YEAR(B.BookingDate) AS RevenueYear,
     MONTH(B.BookingDate) AS RevenueMonth,
@@ -401,7 +391,6 @@ WHERE B.Status IN (N'Confirmed', N'Completed')
   AND (@ToDate IS NULL OR CAST(B.BookingDate AS DATE) <= @ToDate)
 GROUP BY YEAR(B.BookingDate), MONTH(B.BookingDate)
 ORDER BY RevenueYear, RevenueMonth;
-```
 
 END;
 GO
@@ -481,18 +470,19 @@ AS
 BEGIN
 SET NOCOUNT ON;
 
-```
-UPDATE TS
-SET TS.AvailableSlots = TS.AvailableSlots - I.NumberOfPeople
-FROM TourSchedules TS
-JOIN inserted I ON TS.ScheduleId = I.ScheduleId;
+    -- Chỉ trừ slot với booking không bị Cancelled
+    UPDATE TS
+    SET TS.AvailableSlots = TS.AvailableSlots - I.NumberOfPeople
+    FROM TourSchedules TS
+    JOIN inserted I ON TS.ScheduleId = I.ScheduleId
+    WHERE I.Status != N'Cancelled';
 
-UPDATE TS
-SET TS.Status = N'Full'
-FROM TourSchedules TS
-JOIN inserted I ON TS.ScheduleId = I.ScheduleId
-WHERE TS.AvailableSlots = 0;
-```
+    UPDATE TS
+    SET TS.Status = N'Full'
+    FROM TourSchedules TS
+    JOIN inserted I ON TS.ScheduleId = I.ScheduleId
+    WHERE TS.AvailableSlots = 0
+      AND I.Status != N'Cancelled';
 
 END;
 GO
@@ -504,26 +494,24 @@ AS
 BEGIN
 SET NOCOUNT ON;
 
-```
-IF UPDATE(Status)
-BEGIN
-    UPDATE TS
-    SET TS.AvailableSlots = TS.AvailableSlots + I.NumberOfPeople
-    FROM TourSchedules TS
-    JOIN inserted I ON TS.ScheduleId = I.ScheduleId
-    JOIN deleted D ON D.BookingId = I.BookingId
-    WHERE I.Status = N'Cancelled'
-      AND D.Status != N'Cancelled';
+    IF UPDATE(Status)
+    BEGIN
+        UPDATE TS
+        SET TS.AvailableSlots = TS.AvailableSlots + I.NumberOfPeople
+        FROM TourSchedules TS
+        JOIN inserted I ON TS.ScheduleId = I.ScheduleId
+        JOIN deleted D ON D.BookingId = I.BookingId
+        WHERE I.Status = N'Cancelled'
+          AND D.Status != N'Cancelled';
 
-    UPDATE TS
-    SET TS.Status = N'Open'
-    FROM TourSchedules TS
-    JOIN inserted I ON TS.ScheduleId = I.ScheduleId
-    WHERE I.Status = N'Cancelled'
-      AND TS.AvailableSlots > 0
-      AND TS.Status = N'Full';
-END
-```
+        UPDATE TS
+        SET TS.Status = N'Open'
+        FROM TourSchedules TS
+        JOIN inserted I ON TS.ScheduleId = I.ScheduleId
+        WHERE I.Status = N'Cancelled'
+          AND TS.AvailableSlots > 0
+          AND TS.Status = N'Full';
+    END
 
 END;
 GO

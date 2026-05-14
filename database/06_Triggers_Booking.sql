@@ -23,17 +23,20 @@ BEGIN
     SET NOCOUNT ON;
 
     -- Trừ slot theo số người đặt
+    -- Bug fix: chỉ trừ slot khi booking không phải Cancelled
     UPDATE TS
     SET TS.AvailableSlots = TS.AvailableSlots - I.NumberOfPeople
     FROM TourSchedules TS
-    JOIN inserted I ON TS.ScheduleId = I.ScheduleId;
+    JOIN inserted I ON TS.ScheduleId = I.ScheduleId
+    WHERE I.Status != N'Cancelled';
 
     -- Nếu hết slot, đánh dấu 'Full'
     UPDATE TS
     SET TS.Status = N'Full'
     FROM TourSchedules TS
     JOIN inserted I ON TS.ScheduleId = I.ScheduleId
-    WHERE TS.AvailableSlots = 0;
+    WHERE TS.AvailableSlots = 0
+      AND I.Status != N'Cancelled';
 END;
 GO
 
