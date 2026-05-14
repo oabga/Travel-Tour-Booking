@@ -14,3 +14,8 @@
 Thumbs.db
 *.tmp
 *.log
+
+## Thư mục và file của Node.js
+node_modules/
+.angular/
+.tsbuildinfo
