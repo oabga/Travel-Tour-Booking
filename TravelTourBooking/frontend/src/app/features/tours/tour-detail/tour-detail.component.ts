@@ -58,8 +58,8 @@ import { TourDetail } from '../../../shared/models';
                   <div class="mb-3">
                     <span class="text-warning fs-5">
                       @for (s of [1,2,3,4,5]; track s) {
-                        <i class="bi" [class.bi-star-fill]="s <= (tour.avgRating ?? 0)"
-                           [class.bi-star]="s > (tour.avgRating ?? 0)"></i>
+                        <i class="bi" [class.bi-star-fill]="s <= (tour.avgRating)"
+                           [class.bi-star]="s > (tour.avgRating)"></i>
                       }
                     </span>
                     <span class="ms-2">{{ tour.avgRating | number:'1.1-1' }}/5</span>

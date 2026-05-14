@@ -66,7 +66,7 @@ import { ScheduleResponse } from '../../../shared/models';
         <h5 class="mb-3"><i class="bi bi-people me-2"></i>Danh sach hanh khach</h5>
 
         <div formArrayName="passengers">
-          @for (p of passengers.controls; track $index; let i = $index) {
+          @for (p of passengers.controls; track i; let i = $index) {
             <div class="card border-0 shadow-sm mb-3" [formGroupName]="i">
               <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
@@ -206,16 +206,16 @@ export class BookingFormComponent implements OnInit {
     this.bookingSvc.create({
       accountId: userId,
       scheduleId: this.schedule.scheduleId,
-      numberOfPeople: val.numberOfPeople,
-      discountPercent: val.discountPercent,
+        numberOfPeople: val.numberOfPeople ?? 0,
+        discountPercent: val.discountPercent ?? 0,
       notes: val.notes || undefined,
       passengers: val.passengers.map(p => ({
-        passengerName: p.passengerName,
+        passengerName: p.passengerName ?? '',
         passengerType: p.passengerType as 'Adult' | 'Child',
         passengerIdNumber: p.passengerIdNumber || undefined,
         passengerPhone: p.passengerPhone || undefined,
         passengerDOB: p.passengerDOB || undefined,
-        isPrimaryContact: p.isPrimaryContact
+        isPrimaryContact: !!p.isPrimaryContact
       }))
     }).subscribe({
       next: res => {

@@ -137,8 +137,8 @@ import { TourList, PaginationMeta, CategoryResponse, DestinationResponse, Popula
                         <div class="mb-2">
                           <span class="text-warning">
                             @for (s of [1,2,3,4,5]; track s) {
-                              <i class="bi" [class.bi-star-fill]="s <= (tour.avgRating ?? 0)"
-                                 [class.bi-star]="s > (tour.avgRating ?? 0)"></i>
+                              <i class="bi" [class.bi-star-fill]="s <= (tour.avgRating)"
+                                 [class.bi-star]="s > (tour.avgRating)"></i>
                             }
                           </span>
                           <small class="text-muted ms-1">{{ tour.avgRating | number:'1.1-1' }}</small>

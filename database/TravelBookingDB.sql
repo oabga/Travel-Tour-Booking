@@ -59,7 +59,8 @@ DepartureDate  DATE,
 ReturnDate     DATE,
 AvailableSlots INT CHECK (AvailableSlots >= 0),
 EmployeeId     INT,
-Status         NVARCHAR(50)
+Status         NVARCHAR(50),
+TotalSlots int NULL,
 CONSTRAINT CK_ScheduleStatus
 CHECK (Status IN (N'Open', N'Full', N'Cancelled')),
 
