@@ -1,0 +1,16 @@
+## Trình soạn thảo (Visual Studio / VS Code)
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+
+## Thư mục Build của .NET (Rất quan trọng)
+[Bb]in/
+[Oo]bj/
+
+## File tạm của hệ thống và IDE
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
