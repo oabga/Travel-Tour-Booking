@@ -14,7 +14,7 @@ namespace TravelTourBooking.API.Controllers
         //Danh sách tour — phân trang và lọc theo danh mục, điểm đến, khoảng giá
         //chỉ admin, staff mới dc xem
         [HttpGet]
-        [Authorize(Roles = "Admin,Staff")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<PagedResult<TourListDto>>), 200)]
         public async Task<IActionResult> GetAll(
             [FromQuery] int page = 1,
