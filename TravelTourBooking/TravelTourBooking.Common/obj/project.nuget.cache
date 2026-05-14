@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "quzbc0tkLyQ=",
+  "dgSpecHash": "Vkm9/TcZlOw=",
   "success": true,
-  "projectFilePath": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj",
+  "projectFilePath": "C:\\Ôn Tập Học Hành\\Lập trình_CSDL (C#)\\BTL\\Project_Code\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

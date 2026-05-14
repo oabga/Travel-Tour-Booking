@@ -2796,11 +2796,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj",
+      "projectUniqueName": "C:\\Ôn Tập Học Hành\\Lập trình_CSDL (C#)\\BTL\\Project_Code\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj",
       "projectName": "TravelTourBooking.DAL",
-      "projectPath": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj",
+      "projectPath": "C:\\Ôn Tập Học Hành\\Lập trình_CSDL (C#)\\BTL\\Project_Code\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\TravelTourBooking.DAL.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\obj\\",
+      "outputPath": "C:\\Ôn Tập Học Hành\\Lập trình_CSDL (C#)\\BTL\\Project_Code\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.DAL\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -2815,15 +2815,14 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj": {
-              "projectPath": "E:\\University\\Junior\\LTCSDL\\BTL\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj"
+            "C:\\Ôn Tập Học Hành\\Lập trình_CSDL (C#)\\BTL\\Project_Code\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj": {
+              "projectPath": "C:\\Ôn Tập Học Hành\\Lập trình_CSDL (C#)\\BTL\\Project_Code\\Travel-Tour-Booking\\TravelTourBooking\\TravelTourBooking.Common\\TravelTourBooking.Common.csproj"
             }
           }
         }
@@ -2869,7 +2868,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.313/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
