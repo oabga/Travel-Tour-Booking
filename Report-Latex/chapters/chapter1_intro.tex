@@ -1,116 +1,255 @@
 % ══════════════════════════════════════════════
 % CHƯƠNG 1 — GIỚI THIỆU CHUNG
-% Người viết: TV1 (Lead + DB)
 % ══════════════════════════════════════════════
 
 \chapter{Giới thiệu chung}
 
 \section{Giới thiệu đề tài}
 
-% [TV1] Giới thiệu bối cảnh thực tế dẫn đến sự cần thiết của đề tài.
-% Gợi ý: Nêu vấn đề thực tiễn → Hệ thống giải quyết vấn đề gì?
-%         Áp dụng kỹ thuật nào của môn học?
+\noindent\textbf{Tên đề tài:} Hệ thống quản lý và đặt tour du lịch trực tuyến (Travel Tour Booking System).
 
-% [Điền nội dung vào đây]
+Trong những năm gần đây, nhu cầu du lịch trực tuyến ngày càng phát triển mạnh,
+đòi hỏi các doanh nghiệp du lịch cần có hệ thống quản lý hiện đại nhằm hỗ trợ
+khách hàng tìm kiếm, đặt tour và thanh toán một cách nhanh chóng, thuận tiện.
+Bên cạnh đó, việc quản lý lịch khởi hành, số lượng chỗ còn trống, thanh toán
+và thống kê doanh thu bằng phương pháp thủ công thường gây mất thời gian và
+dễ xảy ra sai sót.
+
+Xuất phát từ thực tế đó, nhóm thực hiện đề tài
+\textbf{“Travel Tour Booking System”} nhằm xây dựng hệ thống quản lý và đặt
+tour du lịch trực tuyến. Hệ thống được phát triển theo kiến trúc 3 tầng
+(3-Layer Architecture) gồm: Presentation Layer, Business Logic Layer và
+Data Access Layer, sử dụng ASP.NET Core Web API kết hợp SQL Server và
+Entity Framework Core.
+
+Đồ án vận dụng các kiến thức và kỹ thuật quan trọng trong môn
+Lập trình Cơ sở Dữ liệu như:
+Stored Procedure, Trigger, Function, Transaction, View, LINQ, ADO.NET,
+Entity Framework Core và RESTful API. Hệ thống hỗ trợ các chức năng:
+quản lý tour, đặt tour, quản lý khách hàng, thanh toán, phân quyền người dùng,
+đánh giá tour và báo cáo thống kê doanh thu.
+
+\section{Thông tin nhóm thực hiện}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+
+\begin{tabular}{|p{2.5cm}|p{3.5cm}|p{7cm}|p{2.2cm}|}
+\hline
+
+\centering \textbf{MSSV} &
+\centering \textbf{Họ tên} &
+\centering \textbf{Nhiệm vụ} &
+\centering \textbf{Ghi chú}
+\tabularnewline
+\hline
+
+2351010110 &
+Nguyễn Thanh Lâm &
+Quản lý Tour, Categories, Destinations, TourSchedules, Search Tour &
+
+\tabularnewline
+\hline
+
+2351010016 &
+Lê Gia Bảo &
+Xử lý nghiệp vụ Booking, Transaction, Trigger, BookingDetails &
+\tabularnewline
+\hline
+
+2351010001 &
+Lê Quang An &
+JWT Authentication, Authorization, Customer Profile, Reviews &
+\tabularnewline
+\hline
+
+2351010051 &
+Nguyễn Văn Đức &
+Payments, InvoiceCode, CRUD Employees, quản lý thanh toán &
+\tabularnewline
+\hline
+
+2351010115 &
+Nguyễn Hồ Giang Long &
+Reports, Dashboard Angular, thống kê doanh thu và tour phổ biến &
+\tabularnewline
+\hline
+
+\end{tabular}
+
+\caption{Danh sách thành viên và phân công}
+\label{table:phancong}
+
+\end{table}
 
 \section{Mục tiêu đồ án}
 
 \noindent Đồ án hướng đến các mục tiêu sau:
 
-% [TV1] Liệt kê các mục tiêu cụ thể của nhóm (kỹ thuật + chức năng).
-% Ví dụ cấu trúc:
 \begin{itemize}
-  \item % [Mục tiêu 1 — ví dụ: Xây dựng hệ thống ... theo kiến trúc ...]
-  \item % [Mục tiêu 2 — ví dụ: Áp dụng T-SQL nâng cao: View, SP, Trigger...]
-  \item % [Mục tiêu 3 — ví dụ: Sử dụng EF Core và LINQ...]
-  \item % [Mục tiêu 4 — ví dụ: Xây dựng RESTful API bằng ASP.NET Core...]
-  \item % [Mục tiêu 5 — ví dụ: Tích hợp ADO.NET Connected/Disconnected...]
-  \item % [Mục tiêu 6 — thêm nếu cần]
+
+\item Xây dựng hệ thống quản lý và đặt tour du lịch trực tuyến theo kiến trúc
+3 tầng bằng ASP.NET Core Web API.
+
+\item Thiết kế cơ sở dữ liệu SQL Server đáp ứng đầy đủ các nghiệp vụ quản lý
+tour, booking, thanh toán và khách hàng.
+
+\item Vận dụng kiến thức T-SQL nâng cao như View, Stored Procedure,
+Function, Trigger và Transaction để xử lý dữ liệu.
+
+\item Sử dụng Entity Framework Core, LINQ to Entities và Repository Pattern
+để thao tác dữ liệu hiệu quả.
+
+\item Xây dựng RESTful API kết hợp JWT Authentication và
+Role-based Authorization.
+
+\item Tích hợp ADO.NET theo mô hình Connected và Disconnected.
+
+\item Xây dựng giao diện Angular 17 hỗ trợ tìm kiếm tour, đặt tour
+và thống kê dữ liệu bằng Chart.js.
+
+\item Áp dụng LINQ to XML để thực hiện chức năng xuất và nhập dữ liệu XML.
+
 \end{itemize}
 
 \section{Phạm vi hệ thống}
-
-% [TV1] Mô tả các nhóm chức năng của hệ thống trong bảng dưới.
-% Điền đúng tên nhóm chức năng và mô tả ngắn gọn cho từng nhóm.
 
 Hệ thống bao gồm các nhóm chức năng chính được trình bày trong
 Bảng~\ref{table:phamvi}.
 
 \begin{table}[H]
-  \begin{center}
-    \begin{tabular}{|c|l|l|}
-      \hline
-      \textbf{STT} & \textbf{Nhóm chức năng} & \textbf{Mô tả} \\
-      \hline
-      1 & % [Nhóm chức năng 1] & % [Mô tả ngắn] \\
-      \hline
-      2 & % [Nhóm chức năng 2] & % [Mô tả ngắn] \\
-      \hline
-      3 & % [Nhóm chức năng 3] & % [Mô tả ngắn] \\
-      \hline
-      4 & % [Nhóm chức năng 4] & % [Mô tả ngắn] \\
-      \hline
-      5 & % [Nhóm chức năng 5] & % [Mô tả ngắn] \\
-      \hline
-    \end{tabular}
-  \end{center}
-  \caption{Phạm vi các nhóm chức năng của hệ thống}\label{table:phamvi}
-\end{table}
+\centering
+\renewcommand{\arraystretch}{1.5}
 
-\section{Phân công thực hiện}
+\begin{tabular}{|c|p{4.5cm}|p{7.5cm}|}
+\hline
 
-% [TV1] Điền MSSV, họ tên thật và nhiệm vụ cụ thể của từng thành viên.
+\centering \textbf{STT} &
+\centering \textbf{Nhóm chức năng} &
+\centering \textbf{Mô tả}
+\tabularnewline
+\hline
 
-\begin{table}[H]
-  \begin{center}
-    \begin{tabular}{|c|l|l|l|}
-      \hline
-      \textbf{MSSV} & \textbf{Họ tên} & \textbf{Nhiệm vụ} & \textbf{Ghi chú} \\
-      \hline
-      % [MSSV] & [Họ tên TV1] & [Nhiệm vụ] & Lead \\
-      \hline
-      % [MSSV] & [Họ tên TV2] & [Nhiệm vụ] &      \\
-      \hline
-      % [MSSV] & [Họ tên TV3] & [Nhiệm vụ] &      \\
-      \hline
-      % [MSSV] & [Họ tên TV4] & [Nhiệm vụ] &      \\
-      \hline
-      % [MSSV] & [Họ tên TV5] & [Nhiệm vụ] &      \\
-      \hline
-    \end{tabular}
-  \end{center}
-  \caption{Danh sách thành viên và phân công}\label{table:phancong}
+1 &
+Quản lý Tour và Điểm đến &
+Quản lý danh sách tour, loại hình, điểm đến, lịch khởi hành và tìm kiếm tour.
+\tabularnewline
+\hline
+
+2 &
+Đặt Tour và Booking &
+Hỗ trợ khách hàng đặt tour, nhập thông tin hành khách, hủy booking và xem lịch sử đặt tour.
+\tabularnewline
+\hline
+
+3 &
+Quản lý Khách hàng &
+Đăng ký, đăng nhập, quản lý hồ sơ cá nhân, phân quyền người dùng và đánh giá tour.
+\tabularnewline
+\hline
+
+4 &
+Thanh toán và Nhân sự &
+Ghi nhận thanh toán, sinh mã hóa đơn và quản lý nhân viên/hướng dẫn viên.
+\tabularnewline
+\hline
+
+5 &
+Báo cáo và Thống kê &
+Thống kê doanh thu, tour phổ biến, tỷ lệ lấp đầy và xuất/nhập dữ liệu XML.
+\tabularnewline
+\hline
+
+\end{tabular}
+
+\caption{Phạm vi các nhóm chức năng của hệ thống}
+\label{table:phamvi}
+
 \end{table}
 
 \section{Công nghệ sử dụng}
 
-% [TV1] Điền đúng công nghệ/phiên bản mà nhóm thực sự dùng.
-
 \begin{table}[H]
-  \begin{center}
-    \begin{tabular}{|l|l|}
-      \hline
-      \textbf{Thành phần}    & \textbf{Công nghệ / Phiên bản} \\
-      \hline
-      Ngôn ngữ lập trình     & % [ví dụ: C\# (.NET 8)] \\
-      \hline
-      Backend Framework      & % [ví dụ: ASP.NET Core 8 Web API] \\
-      \hline
-      ORM                    & % [ví dụ: Entity Framework Core 8] \\
-      \hline
-      Cơ sở dữ liệu          & % [ví dụ: SQL Server 2019+] \\
-      \hline
-      Xác thực               & % [ví dụ: JWT Bearer Token] \\
-      \hline
-      Object Mapping         & % [ví dụ: AutoMapper] \\
-      \hline
-      API Documentation      & % [ví dụ: Swagger / Swashbuckle] \\
-      \hline
-      Frontend (nếu có)      & % [ví dụ: Angular 17 + Chart.js] \\
-      \hline
-      Quản lý mã nguồn       & % [ví dụ: Git / GitHub] \\
-      \hline
-    \end{tabular}
-  \end{center}
-  \caption{Danh sách công nghệ sử dụng}\label{table:congnghe}
+\centering
+\renewcommand{\arraystretch}{1.4}
+
+\begin{tabular}{|p{6cm}|p{7cm}|}
+\hline
+
+\centering \textbf{Thành phần} &
+\centering \textbf{Công nghệ / Phiên bản}
+\tabularnewline
+\hline
+
+Ngôn ngữ lập trình &
+C\# (.NET 8), TypeScript
+\tabularnewline
+\hline
+
+Backend Framework &
+ASP.NET Core 8 Web API
+\tabularnewline
+\hline
+
+ORM &
+Entity Framework Core 8
+\tabularnewline
+\hline
+
+Cơ sở dữ liệu &
+SQL Server 2019+
+\tabularnewline
+\hline
+
+Xác thực &
+JWT Bearer Token
+\tabularnewline
+\hline
+
+Object Mapping &
+AutoMapper
+\tabularnewline
+\hline
+
+API Documentation &
+Swagger / Swashbuckle
+\tabularnewline
+\hline
+
+Frontend &
+Angular 17 + Chart.js
+\tabularnewline
+\hline
+
+Validation &
+FluentValidation
+\tabularnewline
+\hline
+
+Password Hashing &
+BCrypt.Net
+\tabularnewline
+\hline
+
+Quản lý mã nguồn &
+Git / GitHub
+\tabularnewline
+\hline
+
+\end{tabular}
+
+\caption{Danh sách công nghệ sử dụng}
+\label{table:congnghe}
+
 \end{table}
+
+\section{Thông tin mã nguồn}
+
+Mã nguồn của hệ thống được quản lý bằng Git và lưu trữ trên GitHub tại:
+
+\begin{center}
+\url{https://github.com/oabga/Travel-Tour-Booking/}
+\end{center}
+
+\clearpage
