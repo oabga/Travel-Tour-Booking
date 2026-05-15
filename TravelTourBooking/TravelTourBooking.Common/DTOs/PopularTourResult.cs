@@ -15,7 +15,7 @@ namespace TravelTourBooking.Common.DTOs
         public string? CateName { get; set; }
         public string? DesName { get; set; }
         public decimal? AvgRating { get; set; }
-        public int TotalReviews { get; set; }
-        public int BookingCount { get; set; }
+        public int? TotalReviews { get; set; }
+        public int TotalBookings { get; set; }
     }
 }

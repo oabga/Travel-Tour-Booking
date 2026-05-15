@@ -40,7 +40,7 @@ namespace TravelTourBooking.Common.DTOs
         public string? ImageUrl { get; set; }
         public string? CateName { get; set; }
         public string? DesName { get; set; }
-        public double? AvgRating { get; set; }
+        public decimal? AvgRating { get; set; }
     }
 
     public class TourDetailDto
@@ -56,7 +56,7 @@ namespace TravelTourBooking.Common.DTOs
         public string? DesName { get; set; }
         public string? Country { get; set; }
         public string? City { get; set; }
-        public double? AvgRating { get; set; }
+        public decimal? AvgRating { get; set; }
         public int TotalReviews { get; set; }
         public IEnumerable<ScheduleResponseDto> Schedules { get; set; } = [];
     }

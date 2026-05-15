@@ -32,8 +32,8 @@ public class MappingProfile : Profile
             .ForMember(d => d.DesName, o => o.MapFrom(t => t.Destination != null ? t.Destination.DesName : null))
             .ForMember(d => d.AvgRating, o => o.MapFrom(t =>
                 t.Reviews.Any()
-                    ? Math.Round(t.Reviews.Average(r => (double)r.Rating), 1)
-                    : (double?)null));
+                    ? Math.Round(t.Reviews.Average(r => (decimal)r.Rating), 1)
+                    : (decimal?)null));
 
         CreateMap<Tour, TourDetailDto>()
             .ForMember(d => d.CateName, o => o.MapFrom(t => t.Category != null ? t.Category.CateName : null))
@@ -42,8 +42,8 @@ public class MappingProfile : Profile
             .ForMember(d => d.City, o => o.MapFrom(t => t.Destination != null ? t.Destination.City : null))
             .ForMember(d => d.AvgRating, o => o.MapFrom(t =>
                 t.Reviews.Any()
-                    ? Math.Round(t.Reviews.Average(r => (double)r.Rating), 1)
-                    : (double?)null))
+                    ? Math.Round(t.Reviews.Average(r => (decimal)r.Rating), 1)
+                    : (decimal?)null))
             .ForMember(d => d.TotalReviews, o => o.MapFrom(t => t.Reviews.Count))
             .ForMember(d => d.Schedules, o => o.MapFrom(t => t.TourSchedules));
 

@@ -1,61 +1,61 @@
 {
-  "hash": "679f4d6f",
-  "configHash": "246a3993",
-  "lockfileHash": "15f8057a",
-  "browserHash": "db53b75c",
+  "hash": "cbcafe66",
+  "configHash": "71076a54",
+  "lockfileHash": "95694640",
+  "browserHash": "62964a59",
   "optimized": {
     "@angular/common": {
       "src": "../../../../../node_modules/@angular/common/fesm2022/common.mjs",
       "file": "@angular_common.js",
-      "fileHash": "fa14659d",
+      "fileHash": "2c6951d7",
       "needsInterop": false
     },
     "@angular/common/http": {
       "src": "../../../../../node_modules/@angular/common/fesm2022/http.mjs",
       "file": "@angular_common_http.js",
-      "fileHash": "ba9d8068",
+      "fileHash": "e1449c5e",
       "needsInterop": false
     },
     "@angular/core": {
       "src": "../../../../../node_modules/@angular/core/fesm2022/core.mjs",
       "file": "@angular_core.js",
-      "fileHash": "54a4e3ce",
+      "fileHash": "bc80394b",
       "needsInterop": false
     },
     "@angular/forms": {
       "src": "../../../../../node_modules/@angular/forms/fesm2022/forms.mjs",
       "file": "@angular_forms.js",
-      "fileHash": "ed32de08",
+      "fileHash": "9053cbb6",
       "needsInterop": false
     },
     "@angular/platform-browser": {
       "src": "../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
       "file": "@angular_platform-browser.js",
-      "fileHash": "125a32a5",
+      "fileHash": "44adbfdd",
       "needsInterop": false
     },
     "@angular/router": {
       "src": "../../../../../node_modules/@angular/router/fesm2022/router.mjs",
       "file": "@angular_router.js",
-      "fileHash": "4df5f44c",
+      "fileHash": "8ecb3898",
       "needsInterop": false
     },
     "chart.js": {
       "src": "../../../../../node_modules/chart.js/dist/chart.js",
       "file": "chart__js.js",
-      "fileHash": "018de15a",
+      "fileHash": "2e85d664",
       "needsInterop": false
     },
     "ng2-charts": {
       "src": "../../../../../node_modules/ng2-charts/fesm2022/ng2-charts.mjs",
       "file": "ng2-charts.js",
-      "fileHash": "eb926d8c",
+      "fileHash": "204b7901",
       "needsInterop": false
     },
     "rxjs": {
       "src": "../../../../../node_modules/rxjs/dist/esm5/index.js",
       "file": "rxjs.js",
-      "fileHash": "dba57c10",
+      "fileHash": "a6630314",
       "needsInterop": false
     }
   },
