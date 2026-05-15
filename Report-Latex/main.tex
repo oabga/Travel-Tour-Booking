@@ -60,6 +60,7 @@ BoldItalicFont=Times New Roman Bold Italic.ttf,
 
 % Theorem styles
 \theoremstyle{plain}
+
 \newtheorem{thm}{Theorem}[chapter]
 \newtheorem{lem}[thm]{Lemma}
 \newtheorem{cor}[thm]{Corollary}
@@ -68,6 +69,7 @@ BoldItalicFont=Times New Roman Bold Italic.ttf,
 \newtheorem{ex}[thm]{Example}
 \newtheorem{de}[thm]{Definition}
 \renewcommand{\proof}{\textbf{Proof.}}
+\renewcommand{\figurename}{Hình}
 \numberwithin{equation}{chapter}
 
 \renewcommand{\baselinestretch}{1.5}
@@ -82,6 +84,15 @@ BoldItalicFont=Times New Roman Bold Italic.ttf,
 \renewcommand{\listfigurename}{\hfill\bfseries\Large DANH SÁCH HÌNH}
 \renewcommand{\cftafterloftitle}{\hfill}
 
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false
+}
 % ══════════════════════════════════════════════
 \begin{document}
 \thispagestyle{empty}

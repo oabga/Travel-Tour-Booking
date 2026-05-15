@@ -1,326 +1,173 @@
-% ══════════════════════════════════════════
+% ══════════════════════════════════════════════
 % CHƯƠNG 3 — KIẾN TRÚC PHẦN MỀM 3-LAYER
-% ══════════════════════════════════════════
+% Người viết: TV2 (DAL) + TV3 (BLL)
+% TV2 viết: Sec 3.1, 3.3, 3.4
+% TV3 viết: Sec 3.2, 3.5
+% ══════════════════════════════════════════════
 
 \chapter{Kiến trúc Phần mềm (3-Layer Architecture)}
 
 \section{Tổng quan kiến trúc}\label{Sec3.1}
 
-Hệ thống TravelBookingDB được thiết kế dựa trên mô hình kiến trúc 3 lớp (3-Layer Architecture) – một trong những kiến trúc kinh điển trong phát triển phần mềm doanh nghiệp. Mục tiêu cốt lõi của kiến trúc này là hiện thực hóa nguyên lý \textit{Separation of Concerns} (Phân tách các mối quan tâm), giúp hệ thống đạt được sự độc lập giữa giao diện người dùng, logic nghiệp vụ và hạ tầng dữ liệu. Việc phân tách này đảm bảo rằng các thay đổi về mặt giao diện (UI) không ảnh hưởng đến các quy tắc nghiệp vụ, đồng thời cho phép thay thế hoặc nâng cấp hệ quản trị cơ sở dữ liệu mà không cần viết lại toàn bộ ứng dụng.
+% [TV2] Định nghĩa kiến trúc 3 tầng và nguyên tắc hoạt động của nó.
 
-Hệ thống bao gồm ba tầng chính phối hợp chặt chẽ với nhau:
+\begin{de}\label{def3.1}
+  % [TV2] Định nghĩa 3-Layer Architecture: gồm những tầng nào,
+  % mỗi tầng có trách nhiệm gì, các tầng giao tiếp với nhau như thế nào?
 
+  % [Điền nội dung vào đây]
+\end{de}
+
+% [TV2] Vẽ sơ đồ kiến trúc (có thể dùng draw.io), lưu thành file
+%       rồi thay \framebox bên dưới bằng: \includegraphics[width=14cm]{architecture.png}
+\begin{figure}[H]
+  \centering
+  \framebox[14cm][c]{\rule{0pt}{7cm} [Chèn sơ đồ kiến trúc 3-layer]}
+  \caption{Kiến trúc 3 tầng của hệ thống}\label{fig:3layer}
+\end{figure}
+
+% [TV2] Mô tả cấu trúc solution: có mấy project, tên từng project và vai trò.
 \begin{itemize}
-    \item \textbf{Lớp Trình diễn (Presentation Layer - Web API):} Đóng vai trò là cửa ngõ tiếp nhận các yêu cầu từ phía Client (Angular). Tầng này chịu trách nhiệm điều phối luồng dữ liệu thông qua các Controllers, thực hiện xác thực và phân quyền dựa trên JSON Web Token (JWT), đồng thời chuẩn hóa dữ liệu trả về thông qua các đối tượng DTO.
-
-    \item \textbf{Lớp Nghiệp vụ (Business Logic Layer - BLL):} Là trung tâm xử lý của ứng dụng, nơi tập trung toàn bộ các quy tắc kinh doanh và logic nghiệp vụ. Tầng này thực hiện các tính toán phức tạp, kiểm tra ràng buộc dữ liệu nâng cao và điều phối sự tương tác giữa tầng DAL và các thành phần helper như AutoMapper hay FluentValidation.
-
-    \item \textbf{Lớp Truy cập Dữ liệu (Data Access Layer - DAL):} Lớp thấp nhất chịu trách nhiệm giao tiếp vật lý với SQL Server. Tầng này bao bọc toàn bộ logic truy vấn dữ liệu thông qua sự kết hợp linh hoạt giữa Entity Framework Core 8 và ADO.NET nhằm tối ưu hóa hiệu năng xử lý các giao dịch phức tạp.
-\end{itemize}
-
-Hệ thống được tổ chức thành 4 dự án chính trong Solution nhằm tối ưu khả năng bảo trì và tái sử dụng mã nguồn:
-
-\begin{itemize}
-    \item \textbf{TravelTourBooking.API:} Thực thi các ASP.NET Core Controllers, cấu hình Middleware, Swagger và thiết lập các chính sách bảo mật cho ứng dụng.
-
-    \item \textbf{TravelTourBooking.BLL:} Chứa các lớp Services triển khai Interface, các bộ lọc dữ liệu và logic xử lý tệp tin LINQ to XML phục vụ mục đích xuất nhập dữ liệu.
-
-    \item \textbf{TravelTourBooking.DAL:} Bao gồm DbContext, các thực thể (Entities), cấu hình Fluent API cho SQL Server và các Repository thực thi quy trình truy xuất dữ liệu.
-
-    \item \textbf{TravelTourBooking.Common:} Đóng vai trò là dự án chứa các hợp đồng dữ liệu chung, các Enums, các lớp DTO và các đối tượng kết quả chung cho toàn bộ hệ thống.
+  \item \textbf{[Tên project 1]}: % [Vai trò — ví dụ: Presentation Layer]
+  \item \textbf{[Tên project 2]}: % [Vai trò — ví dụ: Business Logic Layer]
+  \item \textbf{[Tên project 3]}: % [Vai trò — ví dụ: Data Access Layer]
+  \item \textbf{[Tên project 4]}: % [Vai trò — ví dụ: Shared/Common]
 \end{itemize}
 
 \section{Lớp Nghiệp vụ (Business Logic Layer)}\label{Sec3.2}
 
+% [TV3 viết phần này]
+
 \subsection{Thiết kế Services và Interfaces}\label{sub3.2.1}
 
-Lớp Nghiệp vụ được thiết kế theo nguyên lý \textit{Interface-First}, đảm bảo rằng mọi thành phần bên ngoài chỉ tương tác với dịch vụ thông qua các hợp đồng (Contracts) được định nghĩa sẵn. Phương pháp này không chỉ giúp giảm thiểu sự phụ thuộc (Decoupling) mà còn tạo điều kiện thuận lợi cho việc thực hiện các bài kiểm thử đơn vị (Unit Testing) thông qua cơ chế Mocking. Các dịch vụ tiêu biểu trong hệ thống bao gồm \texttt{ITourService} quản lý danh mục du lịch, \texttt{IBookingService} quản lý quy trình đặt chỗ và \texttt{IAuthService} xử lý định danh người dùng.
+% [TV3] Giải thích cách tổ chức Services theo Interface.
+% Điền tên các Service thực tế của nhóm vào đây.
 
-\begin{lstlisting}[style=csharp, caption={Interface ITourService}]
-namespace TravelTourBooking.BLL.Interfaces
-{
-    public interface ITourService
-    {
-        Task<PagedResult> GetToursAsync(
-            int page,
-            int pageSize,
-            int? cateId,
-            int? desId,
-            decimal? priceMin,
-            decimal? priceMax);
-
-        Task<TourDetailDto?> GetTourDetailAsync(int tourId);
-
-        Task<IEnumerable<SearchTourResult>> SearchToursAsync(
-            string? destination,
-            decimal? priceMin,
-            decimal? priceMax,
-            DateOnly? date);
-
-        Task<IEnumerable<PopularTourResult>> GetPopularToursAsync();
-
-        Task<TourDetailDto> CreateTourAsync(TourRequestDto dto);
-
-        Task<TourDetailDto> UpdateTourAsync(
-            int tourId,
-            TourRequestDto dto);
-
-        Task DeleteTourAsync(int tourId);
-    }
-}
+% [TV3] Chèn code C# của 1 Interface tiêu biểu (ví dụ: IBookingService)
+\begin{lstlisting}[style=csharp, caption={Interface [ITênService]}]
+// [TV3] Dán code Interface vào đây
 \end{lstlisting}
 
-\subsection{Quy tắc Nghiệp vụ (Business Rules)}\label{sub3.2.2}
+\subsection{Business Rules}\label{sub3.2.2}
 
-Tầng BLL chịu trách nhiệm thực thi các quy tắc kinh doanh đặc thù, đảm bảo tính toàn vẹn dữ liệu ngay cả trước khi dữ liệu chạm tới cơ sở dữ liệu. Các quy tắc được triển khai bao gồm:
+% [TV3] Mô tả các quy tắc nghiệp vụ quan trọng được kiểm tra trong BLL.
+% Ví dụ: điều kiện hủy đơn, điều kiện thêm đánh giá, kiểm tra tồn kho...
 
-\begin{itemize}
-    \item \textbf{Ràng buộc thực thể:} Tuyệt đối không cho phép xóa một Tour nếu tour đó đang tồn tại các lịch khởi hành (Schedules) ở trạng thái hoạt động (Active).
+\begin{ex}\label{ex3.1}
+  % [TV3] Mô tả 1 ví dụ cụ thể về business rule trong Service của nhóm.
+  % Nên kèm đoạn code C# minh họa logic kiểm tra.
 
-    \item \textbf{Quy tắc phản hồi:} Chỉ những khách hàng đã có đơn đặt tour chuyển sang trạng thái \textit{Completed} mới có quyền thực hiện đánh giá (Review) dịch vụ.
+  % [Điền nội dung vào đây]
+\end{ex}
 
-    \item \textbf{Logic hủy bỏ:} Hệ thống áp dụng các kiểm tra trạng thái nghiêm ngặt; không cho phép hủy các Booking đã hoàn tất.Quy trình này được đồng bộ giữa BLL và Stored Procedure \texttt{sp\_CancelBooking}.
-
-    \item \textbf{Quản lý số lượng chỗ (Capacity):} Trước khi thực hiện giao dịch, hệ thống phải truy vấn \texttt{AvailableSlots} trong lịch trình để đảm bảo khả năng đáp ứng. Nếu số lượng hành khách vượt quá chỗ trống, một ngoại lệ Validation sẽ được ném ra để ngăn chặn việc đặt chỗ quá tải.
-
-    \item \textbf{Định danh khách hàng:} Áp dụng quy tắc bắt buộc đối với hành khách người lớn phải cung cấp số CCCD hoặc Hộ chiếu (\texttt{PassengerIdNumber}), trong khi trẻ em có thể bỏ trống trường này.
-\end{itemize}
-
-\begin{lstlisting}[style=csharp, caption={Kiểm tra nghiệp vụ trong BookingService}]
-if (dto.Passengers.Count != dto.NumberOfPeople)
-    throw new ArgumentException(
-        $"Số hành khách ({dto.Passengers.Count}) không khớp NumberOfPeople ({dto.NumberOfPeople}).");
-
-// Kiểm tra adult phải có ID (CCCD/Ho chieu)
-var adultsWithoutId = dto.Passengers
-    .Where(p => p.PassengerType == "Adult" &&
-                string.IsNullOrWhiteSpace(p.PassengerIdNumber))
-    .ToList();
-
-if (adultsWithoutId.Any())
-    throw new ArgumentException(
-        "Hành khách người lớn phải có CCCD/Hộ chiếu.");
+\begin{lstlisting}[style=csharp, caption={Business rule trong [TênService]}]
+// [TV3] Dán đoạn code minh họa business rule vào đây
 \end{lstlisting}
 
-\subsection{Xác thực dữ liệu (Validation)}\label{sub3.2.3}
+\subsection{Validation}\label{sub3.2.3}
 
-Hệ thống sử dụng thư viện \textit{FluentValidation} để định nghĩa các quy tắc kiểm tra dữ liệu đầu vào tại lớp BLL. Việc xác thực này được thực hiện tự động trước khi dữ liệu được truyền tới các Services xử lý nghiệp vụ chính. Các quy tắc bao gồm kiểm tra tính hợp lệ của chuỗi dữ liệu, giới hạn giá trị số, định dạng ngày tháng và các logic điều kiện phức tạp, giúp giảm thiểu rủi ro dữ liệu sai lệch đi sâu vào hệ thống.
+% [TV3] Mô tả cách nhóm validate dữ liệu đầu vào (FluentValidation, Data Annotations...).
+% Chèn code Validator tiêu biểu.
 
-\begin{lstlisting}[style=csharp, caption={Validator: TourValidator}]
-public class TourValidator : AbstractValidator<TourRequestDto>
-{
-    public TourValidator()
-    {
-        RuleFor(x => x.TourName)
-            .NotEmpty()
-            .WithMessage("Tên tour không được để trống.")
-            .MaximumLength(150)
-            .WithMessage("Tên tour tối đa 150 ký tự.");
-
-        RuleFor(x => x.CateId)
-            .GreaterThan(0)
-            .WithMessage("Vui lòng chọn danh mục.");
-
-        RuleFor(x => x.Price)
-            .GreaterThan(0)
-            .WithMessage("Giá tour phải lớn hơn 0.");
-
-        RuleFor(x => x.MaxCapacity)
-            .InclusiveBetween(1, 500)
-            .WithMessage("Sức chứa phải từ 1 đến 500.");
-    }
-}
+\begin{lstlisting}[style=csharp, caption={Validator [TênValidator]}]
+// [TV3] Dán code Validator vào đây
 \end{lstlisting}
 
 \section{Lớp Truy cập Dữ liệu (Data Access Layer)}\label{Sec3.3}
 
-\subsection{Entity Framework Core và Repository Pattern}\label{sub3.3.1}
+% [TV2 viết phần này]
 
-Tầng DAL sử dụng Entity Framework Core 8 làm trình ánh xạ đối tượng-quan hệ (ORM) chính. Để quản lý các thực thể và cấu hình một cách mạch lạc, hệ thống áp dụng kỹ thuật \textit{Fluent API} thông qua các lớp \textit{Configuration} riêng biệt. Điều này cho phép định nghĩa các mối quan hệ phức tạp, ràng buộc và chỉ mục mà không làm bẩn các lớp Entity.
+\subsection{Entity Framework Core}\label{sub3.3.1}
 
-Mẫu thiết kế \textit{Repository Pattern} được triển khai nhằm tạo ra một lớp trừu tượng trên EF Core. \textit{Generic Repository} xử lý các thao tác CRUD cơ bản như \textit{GetById}, \textit{Add}, \textit{Update}, \textit{Delete}, giúp tái sử dụng mã nguồn một cách tối đa. Trong khi đó, các \textit{Specific Repositories} được xây dựng để giải quyết các truy vấn đặc thù, bao gồm tìm kiếm nâng cao, lọc tour theo đa tiêu chí và xử lý các báo cáo phức tạp thông qua các View đã được ánh xạ vào \texttt{DbSet}.
+\begin{thm}\label{thm3.1}
+  % [TV2] Phát biểu ưu điểm của EF Core so với SQL thủ công
+  % (type-safe, chống SQL Injection, LINQ to Entities...).
 
-\begin{lstlisting}[style=csharp, caption={Generic Repository Interface \& Implementation}]
-public interface IRepository<T> where T : class
-{
-    Task<IEnumerable<T>> GetAllAsync();
-    Task<T?> GetByIdAsync(int id);
-    Task<T> AddAsync(T entity);
-    Task UpdateAsync(T entity);
-    Task DeleteAsync(int id);
-}
+  % [Điền nội dung vào đây]
+\end{thm}
 
-public class GenericRepository<T> : IRepository<T> where T : class
-{
-    protected readonly AppDbContext _db;
+\noindent\begin{proof}
+  % [TV2] Giải thích cơ chế EF Core dịch LINQ sang SQL tối ưu,
+  % tự động parameterize query để chống SQL Injection.
 
-    public GenericRepository(AppDbContext db)
-    {
-        _db = db;
-    }
+  % [Điền nội dung vào đây]
+  \QEDAa
+\end{proof}
 
-    public async Task<T?> GetByIdAsync(int id)
-        => await _db.Set<T>().FindAsync(id);
-
-    public async Task<T> AddAsync(T entity)
-    {
-        _db.Set<T>().Add(entity);
-        await _db.SaveChangesAsync();
-        return entity;
-    }
-
-    // ... các phương thức Update, Delete tương tự
-}
+% [TV2] Chèn code C# LINQ to Entities tiêu biểu (ví dụ: hàm Search có nhiều điều kiện lọc)
+\begin{lstlisting}[style=csharp, caption={LINQ to Entities trong [TênRepository]}]
+// [TV2] Dán code LINQ query vào đây
 \end{lstlisting}
 
-\subsection{Truy vấn LINQ to Entities}\label{sub3.3.2}
+\subsection{Repository Pattern}\label{sub3.3.2}
 
-Hệ thống tận dụng tối đa sức mạnh của LINQ (Language Integrated Query) để thực hiện các truy vấn dữ liệu linh hoạt ngay trong mã nguồn C\#. Các kỹ thuật như \textit{Eager Loading} (sử dụng \texttt{Include}) được áp dụng để lấy dữ liệu liên quan trong một lần truy vấn duy nhất, giảm thiểu vấn đề N+1. Ngoài ra, logic phân trang (Pagination) và sắp xếp (Sorting) được thực thi trực tiếp tại cấp độ cơ sở dữ liệu để tối ưu hóa băng thông truyền tải dữ liệu giữa SQL Server và Web API.
+% [TV2] Mô tả cách nhóm thiết kế Generic Repository và Specific Repository.
+% Chèn code GenericRepository<T> và 1 Specific Repository tiêu biểu.
 
-\begin{lstlisting}[style=csharp, caption={LINQ to Entities trong TourRepository}]
-var query = _db.Tours
-    .Include(t => t.Category)
-    .Include(t => t.Destination)
-    .Where(t => t.IsActive);
-
-if (cateId.HasValue)
-    query = query.Where(t => t.CateId == cateId.Value);
-
-if (priceMin.HasValue)
-    query = query.Where(t => t.Price >= priceMin.Value);
-
-var total = await query.CountAsync();
-
-var items = await query
-    .OrderByDescending(t => t.TourId)
-    .Skip((page - 1) * pageSize)
-    .Take(pageSize)
-    .ToListAsync();
-
-return (items, total);
+\begin{lstlisting}[style=csharp, caption={Generic Repository}]
+// [TV2] Dán code GenericRepository<T> vào đây
 \end{lstlisting}
 
-\subsection{Chiến lược truy cập dữ liệu hỗn hợp (Hybrid Approach)}\label{sub3.3.4}
+\subsection{ADO.NET — Connected \& Disconnected Model}\label{sub3.3.3}
 
-Để đáp ứng các yêu cầu khắt khe về hiệu năng và tính toàn vẹn giao dịch (ACID) của môn học, hệ thống áp dụng mô hình truy cập dữ liệu hỗn hợp:
+\begin{de}\label{def3.2}
+  % [TV2] Định nghĩa 2 mô hình ADO.NET: Connected (SqlDataReader)
+  % và Disconnected (DataSet + SqlDataAdapter), nêu trường hợp dùng mỗi loại.
 
-\begin{itemize}
-    \item \textbf{EF Core:} Được ưu tiên cho các thao tác quản lý dữ liệu thông thường, quản lý vòng đời thực thể và các truy vấn linh hoạt thông qua \texttt{SqlQueryRaw} cho các Views.
+  \begin{itemize}
+    \item \textbf{Connected model}: % [Điền mô tả]
+    \item \textbf{Disconnected model}: % [Điền mô tả]
+  \end{itemize}
+\end{de}
 
-    \item \textbf{ADO.NET (Connected \& Disconnected Models):} Được sử dụng khi cần tương tác trực tiếp với các đối tượng T-SQL nâng cao. Mô hình \textit{Connected} (thông qua \texttt{SqlDataReader}) được sử dụng để đọc các dòng dữ liệu lớn với hiệu năng cao. Mô hình \textit{Disconnected} (thông qua \texttt{DataSet} và \texttt{SqlDataAdapter}) được áp dụng để trích xuất dữ liệu từ các Views báo cáo như \texttt{vw\_BookingDetails}, cho phép xử lý dữ liệu ngay cả khi ngắt kết nối với máy chủ.
-\end{itemize}
-
-Đặc biệt, các giao dịch quan trọng như \texttt{sp\_CreateBooking} được thực thi thông qua ADO.NET để đảm bảo khả năng kiểm soát tuyệt đối quy trình \textit{Check-and-Update} trong môi trường đa người dùng, ngăn chặn các hiện tượng tranh chấp chỗ trống (Race conditions).
-
-\begin{lstlisting}[style=csharp, caption={Truy vấn hỗn hợp: EF Core \& ADO.NET}]
-// EF Core: Truy vấn View đơn giản
-var rows = await _db.Database
-    .SqlQueryRaw<PopularTourDto>(
-        "SELECT * FROM vw_PopularTours")
-    .ToListAsync();
-
-// ADO.NET Connected: Gọi SP CreateBooking phức tạp
-await using var conn = new SqlConnection(_connectionString);
-
-await using var cmd = new SqlCommand(
-    "sp_CreateBooking",
-    conn)
-{
-    CommandType = CommandType.StoredProcedure
-};
-
-cmd.Parameters.AddWithValue("@AccountId", accountId);
-
-await conn.OpenAsync();
-
-var result = await cmd.ExecuteScalarAsync();
-
-// ADO.NET Disconnected: Lấy View báo cáo bằng DataSet
-var adapter = new SqlDataAdapter(
-    "SELECT * FROM vw_BookingDetails WHERE BookingId = @Id",
-    conn);
-
-var ds = new DataSet();
-
-adapter.Fill(ds, "BookingView");
+% [TV2] Chèn code C# minh họa Connected Model
+\begin{lstlisting}[style=csharp, caption={ADO.NET Connected Model}]
+// [TV2] Dán code dùng SqlConnection + SqlDataReader vào đây
 \end{lstlisting}
 
-\section{Data Transfer Objects (DTOs) và AutoMapper}\label{Sec3.4}
-
-Hệ thống TravelBookingDB áp dụng nghiêm ngặt mẫu thiết kế \textit{Data Transfer Object} để trao đổi thông tin giữa các tầng và với môi trường bên ngoài. Việc không tiết lộ trực tiếp các thực thể (Entities) ra lớp trình diễn mang lại ba lợi ích chiến lược:
-
-\begin{enumerate}
-    \item \textbf{Bảo mật (Security):} Ẩn đi các trường thông tin nhạy cảm của hệ thống như mật khẩu băm (\textit{PasswordHash}) hoặc các cờ trạng thái nội bộ.
-
-    \item \textbf{Hiệu suất (Performance):} Giảm thiểu lưu lượng mạng bằng cách chỉ truyền tải những dữ liệu thực sự cần thiết cho giao diện người dùng, giải quyết vấn đề \textit{Over-fetching}.
-
-    \item \textbf{Tách biệt trách nhiệm:} Ngắt kết nối sự phụ thuộc giữa cấu hình cơ sở dữ liệu và yêu cầu giao diện người dùng, cho phép thay đổi cấu trúc bảng mà không làm hỏng ứng dụng phía Client.
-\end{enumerate}
-
-Thư viện \textit{AutoMapper} được sử dụng để tự động hóa quy trình ánh xạ giữa Entity và DTO thông qua các \textit{Mapping Profiles} tập trung, giúp mã nguồn tại lớp BLL sạch sẽ và giảm thiểu các lỗi gán giá trị thủ công.
-
-\begin{lstlisting}[style=csharp, caption={MappingProfile với AutoMapper}]
-public class MappingProfile : Profile
-{
-    public MappingProfile()
-    {
-        CreateMap<Tour, TourListDto>()
-            .ForMember(
-                d => d.CateName,
-                o => o.MapFrom(t => t.Category.CateName))
-            .ForMember(
-                d => d.AvgRating,
-                o => o.MapFrom(t =>
-                    t.Reviews.Any()
-                        ? Math.Round(
-                            t.Reviews.Average(r => (double)r.Rating),
-                            1)
-                        : (double?)null));
-
-        CreateMap<TourRequestDto, Tour>()
-            .ForMember(
-                d => d.TourId,
-                o => o.Ignore());
-    }
-}
+% [TV2] Chèn code C# minh họa Disconnected Model
+\begin{lstlisting}[style=csharp, caption={ADO.NET Disconnected Model}]
+// [TV2] Dán code dùng DataSet + SqlDataAdapter vào đây
 \end{lstlisting}
 
-\section{Dependency Injection và Cấu hình hệ thống}\label{Sec3.5}
+\section{Lớp Giao diện (Presentation Layer)}\label{Sec3.4}
 
-Hệ thống tận dụng cơ chế \textit{Dependency Injection} (DI) mặc định của ASP.NET Core để quản lý vòng đời của tất cả các thành phần quan trọng trong hệ thống. Tại lớp \texttt{Program.cs}, các thành phần được đăng ký với các \textit{Life cycles} phù hợp:
+% [TV2 viết phần này — phối hợp với TV4]
 
-\begin{itemize}
-    \item \textbf{Scoped:} Áp dụng cho \texttt{AppDbContext}, các Repositories và các Services nghiệp vụ. Điều này đảm bảo rằng mỗi yêu cầu HTTP sẽ nhận được một thể hiện (Instance) duy nhất của dịch vụ, giúp quản lý trạng thái giao dịch một cách nhất quán.
+\subsection{Data Transfer Objects (DTOs)}\label{sub3.4.1}
 
-    \item \textbf{Singleton:} Sử dụng cho các cấu hình hệ thống hoặc các lớp Helper độc lập, nơi một thể hiện duy nhất được chia sẻ trong toàn bộ vòng đời ứng dụng.
-\end{itemize}
+% [TV2] Giải thích mục đích của DTO: không expose Entity trực tiếp,
+% kiểm soát dữ liệu trả về client.
 
-Việc áp dụng DI giúp hệ thống trở nên linh hoạt, dễ dàng thay thế các triển khai cụ thể và hỗ trợ đắc lực cho việc phát triển theo hướng \textit{Test-driven Development} (TDD).
+% [Điền nội dung vào đây]
 
+% [TV2] Vẽ sơ đồ luồng dữ liệu qua các tầng (draw.io/Lucidchart),
+%       lưu thành file rồi thay \framebox bên dưới.
+\begin{figure}[H]
+  \centering
+  \framebox[14cm][c]{\rule{0pt}{4cm} [Chèn sơ đồ luồng: Client → Controller → Service → Repository]}
+  \caption{Luồng dữ liệu qua các tầng sử dụng DTO}\label{fig:dto}
+\end{figure}
+
+\subsection{AutoMapper}\label{sub3.4.2}
+
+% [TV2] Mô tả cách cấu hình MappingProfile và AutoMapper tự động
+% chuyển đổi Entity ↔ DTO.
+
+\begin{lstlisting}[style=csharp, caption={AutoMapper MappingProfile}]
+// [TV2] Dán code MappingProfile vào đây
+\end{lstlisting}
+
+\section{Dependency Injection}\label{Sec3.5}
+
+% [TV3 viết phần này]
+
+% [TV3] Giải thích nguyên tắc IoC và cách DI được áp dụng trong project.
+
+% [Điền nội dung vào đây]
+
+% [TV3] Chèn code đăng ký DI trong Program.cs (chỉ giữ phần tiêu biểu,
+%       không cần chép toàn bộ file).
 \begin{lstlisting}[style=csharp, caption={Cấu hình DI trong Program.cs}]
-var builder = WebApplication.CreateBuilder(args);
-
-// Database & ADO Singleton
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlServer(
-        builder.Configuration.GetConnectionString(
-            "DefaultConnection")));
-
-builder.Services.AddSingleton(_ =>
-    new AdoTourRepository(
-        builder.Configuration.GetConnectionString(
-            "DefaultConnection")!));
-
-// Scoped Repositories & Services
-builder.Services.AddScoped<ITourRepository, TourRepository>();
-builder.Services.AddScoped<ITourService, TourService>();
-
-// Mapping & Validation
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<TourValidator>();
+// [TV3] Dán đoạn code đăng ký services vào đây
 \end{lstlisting}
-
-\section{Lời kết chương}\label{Sec3.6}
-
-Kiến trúc 3-layer của hệ thống TravelBookingDB đảm bảo sự phân tách trách nhiệm rõ ràng, tạo nền tảng vững chắc cho việc bảo trì và mở rộng. Việc kết hợp linh hoạt giữa EF Core cho các tác vụ thông thường và ADO.NET cho các giao dịch phức tạp đã tối ưu hóa được cả tốc độ phát triển lẫn hiệu năng vận hành. Đây là cơ sở quan trọng để triển khai các chức năng nghiệp vụ chi tiết trong các chương tiếp theo, đồng thời hỗ trợ tốt cho việc triển khai Unit Test trong tương lai.
