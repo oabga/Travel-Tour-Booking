@@ -1,166 +1,872 @@
-% ══════════════════════════════════════════
-% CHƯƠNG 3 — KIẾN TRÚC PHẦN MỀM 3-LAYER
-% ══════════════════════════════════════════
+% ══════════════════════════════════════════════════════════════
+% CHƯƠNG 3 — KIẾN TRÚC PHẦN MỀM (3-LAYER ARCHITECTURE)
+% TV2 viết: Sec 3.1, 3.4, 3.5
+% TV3 viết: Sec 3.2, 3.3, 3.6
+% ══════════════════════════════════════════════════════════════
 
 \chapter{Kiến trúc Phần mềm (3-Layer Architecture)}
 
+% ═════════════════════════════════════════════════════════════
 \section{Tổng quan kiến trúc}\label{Sec3.1}
+% ═════════════════════════════════════════════════════════════
 
-Hệ thống TravelBookingDB được thiết kế dựa trên mô hình kiến trúc 3 lớp (3-Layer Architecture) – một trong những kiến trúc kinh điển trong phát triển phần mềm doanh nghiệp. Mục tiêu cốt lõi của kiến trúc này là hiện thực hóa nguyên lý \textit{Separation of Concerns} (Phân tách các mối quan tâm), giúp hệ thống đạt được sự độc lập giữa giao diện người dùng, logic nghiệp vụ và hạ tầng dữ liệu. Việc phân tách này đảm bảo rằng các thay đổi về mặt giao diện (UI) không ảnh hưởng đến các quy tắc nghiệp vụ, đồng thời cho phép thay thế hoặc nâng cấp hệ quản trị cơ sở dữ liệu mà không cần viết lại toàn bộ ứng dụng.
+\begin{de}\label{def3.1}
+Kiến trúc 3 tầng (3-Layer Architecture) là mô hình tổ chức phần
+mềm phân tách ứng dụng thành ba lớp độc lập, mỗi lớp chỉ giao
+tiếp với lớp kề nó thông qua Interface đã định nghĩa trước.
+Nguyên tắc này đảm bảo tính \textit{loose coupling} (kết nối
+lỏng lẻo) và \textit{high cohesion} (gắn kết cao trong nội bộ),
+giúp hệ thống dễ bảo trì, kiểm thử và mở rộng độc lập từng tầng.
+\end{de}
 
-Hệ thống bao gồm ba tầng chính phối hợp chặt chẽ với nhau:
+Hệ thống Travel Tour Booking được tổ chức thành bốn project C\#
+trong cùng một Solution, tương ứng với từng tầng kiến trúc và
+phần dùng chung, như được mô tả trong Bảng~\ref{table:projects}.
 
-\begin{itemize}
-    \item \textbf{Lớp Trình diễn (Presentation Layer - Web API):} Đóng vai trò là cửa ngõ tiếp nhận các yêu cầu từ phía Client (Angular). Tầng này chịu trách nhiệm điều phối luồng dữ liệu thông qua các Controllers, thực hiện xác thực và phân quyền dựa trên JSON Web Token (JWT), đồng thời chuẩn hóa dữ liệu trả về thông qua các đối tượng DTO.
+\begin{table}[H]
+  \begin{center}
+    \begin{tabular}{|l|l|l|}
+      \hline
+      \textbf{Project} & \textbf{Tầng} & \textbf{Trách nhiệm chính} \\
+      \hline
+      \texttt{TravelTourBooking.API}
+        & Presentation
+        & Controllers, Middleware, Swagger, JWT \\
+      \hline
+      \texttt{TravelTourBooking.BLL}
+        & Business Logic
+        & Services, Interfaces, Validators, Helpers \\
+      \hline
+      \texttt{TravelTourBooking.DAL}
+        & Data Access
+        & DbContext, Entities, Repositories, ADO.NET \\
+      \hline
+      \texttt{TravelTourBooking.Common}
+        & Shared
+        & DTOs, ApiResponse, Enums dùng chung \\
+      \hline
+    \end{tabular}
+  \end{center}
+  \caption{Bốn project trong Solution và trách nhiệm}
+  \label{table:projects}
+\end{table}
 
-    \item \textbf{Lớp Nghiệp vụ (Business Logic Layer - BLL):} Là trung tâm xử lý của ứng dụng, nơi tập trung toàn bộ các quy tắc kinh doanh và logic nghiệp vụ. Tầng này thực hiện các tính toán phức tạp, kiểm tra ràng buộc dữ liệu nâng cao và điều phối sự tương tác giữa tầng DAL và các thành phần helper như AutoMapper hay FluentValidation.
+\begin{thm}\label{thm3.1}
+Luồng xử lý trong kiến trúc 3 tầng luôn đi một chiều từ trên
+xuống: \texttt{API} $\rightarrow$ \texttt{BLL} $\rightarrow$
+\texttt{DAL} $\rightarrow$ \texttt{SQL Server}. Tầng trên không
+được phép tham chiếu trực tiếp đến tầng dưới cách một tầng.
+\end{thm}
 
-    \item \textbf{Lớp Truy cập Dữ liệu (Data Access Layer - DAL):} Lớp thấp nhất chịu trách nhiệm giao tiếp vật lý với SQL Server. Tầng này bao bọc toàn bộ logic truy vấn dữ liệu thông qua sự kết hợp linh hoạt giữa Entity Framework Core 8 và ADO.NET nhằm tối ưu hóa hiệu năng xử lý các giao dịch phức tạp.
-\end{itemize}
+\noindent\begin{proof}
+Quy tắc này được thực thi qua cấu hình phụ thuộc project
+(\texttt{.csproj}): \texttt{API} chỉ tham chiếu \texttt{BLL}
+và \texttt{Common}; \texttt{BLL} chỉ tham chiếu \texttt{DAL}
+và \texttt{Common}; \texttt{DAL} chỉ tham chiếu \texttt{Common}.
+Do đó \texttt{API} không thể gọi trực tiếp \texttt{AppDbContext}
+hay bất kỳ Repository nào — mọi thao tác phải đi qua Interface
+của BLL. \QEDAa
+\end{proof}
 
-Hệ thống được tổ chức thành 4 dự án chính trong Solution nhằm tối ưu khả năng bảo trì và tái sử dụng mã nguồn:
 
-\begin{itemize}
-    \item \textbf{TravelTourBooking.API:} Thực thi các ASP.NET Core Controllers, cấu hình Middleware, Swagger và thiết lập các chính sách bảo mật cho ứng dụng.
+% ═════════════════════════════════════════════════════════════
+\section{Lớp Giao diện — Presentation Layer}\label{Sec3.2}
+% ═════════════════════════════════════════════════════════════
 
-    \item \textbf{TravelTourBooking.BLL:} Chứa các lớp Services triển khai Interface, các bộ lọc dữ liệu và logic xử lý tệp tin LINQ to XML phục vụ mục đích xuất nhập dữ liệu.
+Lớp Giao diện (Presentation Layer) là điểm tiếp nhận mọi
+yêu cầu HTTP từ client. Lớp này không chứa bất kỳ logic
+nghiệp vụ nào — nhiệm vụ duy nhất là nhận request, gọi
+xuống BLL và trả về response chuẩn hóa cho client.
 
-    \item \textbf{TravelTourBooking.DAL:} Bao gồm DbContext, các thực thể (Entities), cấu hình Fluent API cho SQL Server và các Repository thực thi quy trình truy xuất dữ liệu.
+% ──────────────────────────────────────
+\subsection{ASP.NET Core Web API và Controllers}\label{sub3.2.1}
 
-    \item \textbf{TravelTourBooking.Common:} Đóng vai trò là dự án chứa các hợp đồng dữ liệu chung, các Enums, các lớp DTO và các đối tượng kết quả chung cho toàn bộ hệ thống.
-\end{itemize}
+\begin{de}\label{def3.2}
+ASP.NET Core Web API là framework xây dựng RESTful API trên
+nền tảng .NET. Controller là class chứa các action method xử
+lý từng HTTP request tương ứng với endpoint cụ thể, được
+đánh dấu bằng các attribute như \texttt{[HttpGet]},
+\texttt{[HttpPost]}, \texttt{[Authorize]}.
+\end{de}
 
-\section{Lớp Nghiệp vụ (Business Logic Layer)}\label{Sec3.2}
+Đoạn~\ref{lst:controller} trình bày \texttt{ToursController}
+— Controller quản lý tour với đầy đủ các action CRUD.
+Mỗi action nhận DTO từ client, gọi \texttt{ITourService}
+và trả về \texttt{ApiResponse<T>} chuẩn hóa.
 
-\subsection{Thiết kế Services và Interfaces}\label{sub3.2.1}
-
-Lớp Nghiệp vụ được thiết kế theo nguyên lý \textit{Interface-First}, đảm bảo rằng mọi thành phần bên ngoài chỉ tương tác với dịch vụ thông qua các hợp đồng (Contracts) được định nghĩa sẵn. Phương pháp này không chỉ giúp giảm thiểu sự phụ thuộc (Decoupling) mà còn tạo điều kiện thuận lợi cho việc thực hiện các bài kiểm thử đơn vị (Unit Testing) thông qua cơ chế Mocking. Các dịch vụ tiêu biểu trong hệ thống bao gồm \texttt{ITourService} quản lý danh mục du lịch, \texttt{IBookingService} quản lý quy trình đặt chỗ và \texttt{IAuthService} xử lý định danh người dùng.
-
-\begin{lstlisting}[style=csharp, caption={Interface ITourService}]
-namespace TravelTourBooking.BLL.Interfaces
+\begin{lstlisting}[style=csharp,
+  caption={ToursController -- CRUD tour với phân quyền},
+  label={lst:controller}]
+[ApiController]
+[Route("api/tours")]
+[Produces("application/json")]
+public class ToursController : ControllerBase
 {
-    public interface ITourService
+    private readonly ITourService _svc;
+    public ToursController(ITourService svc) => _svc = svc;
+
+    // GET api/tours -- phân quyền Admin, Staff
+    [HttpGet]
+    [Authorize(Roles = "Admin,Staff")]
+    [ProducesResponseType(
+        typeof(ApiResponse<PagedResult<TourListDto>>), 200)]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] int?     cateId   = null,
+        [FromQuery] int?     desId    = null,
+        [FromQuery] decimal? priceMin = null,
+        [FromQuery] decimal? priceMax = null)
     {
-        Task<PagedResult> GetToursAsync(
-            int page,
-            int pageSize,
-            int? cateId,
-            int? desId,
-            decimal? priceMin,
-            decimal? priceMax);
+        if (page < 1 || pageSize < 1 || pageSize > 100)
+            return BadRequest(ApiResponse<string>
+                .Fail("page/pageSize khong hop le."));
 
-        Task<TourDetailDto?> GetTourDetailAsync(int tourId);
+        var result = await _svc.GetToursAsync(
+            page, pageSize, cateId, desId, priceMin, priceMax);
+        return Ok(ApiResponse<PagedResult<TourListDto>>.Ok(result));
+    }
 
-        Task<IEnumerable<SearchTourResult>> SearchToursAsync(
-            string? destination,
-            decimal? priceMin,
-            decimal? priceMax,
-            DateOnly? date);
+    // GET api/tours/search -- công khai, không cần đăng nhập
+    [HttpGet("search")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Search(
+        [FromQuery] string?  destination = null,
+        [FromQuery] decimal? priceMin    = null,
+        [FromQuery] decimal? priceMax    = null,
+        [FromQuery] DateOnly? date       = null)
+    {
+        var results = await _svc.SearchToursAsync(
+            destination, priceMin, priceMax, date);
+        return Ok(ApiResponse<IEnumerable<object>>
+            .Ok(results.Cast<object>()));
+    }
 
-        Task<IEnumerable<PopularTourResult>> GetPopularToursAsync();
+    // GET api/tours/{id} -- công khai
+    [HttpGet("{id:int}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var tour = await _svc.GetTourDetailAsync(id);
+        if (tour is null)
+            return NotFound(ApiResponse<string>
+                .Fail($"Tour ID {id} khong ton tai."));
+        return Ok(ApiResponse<TourDetailDto>.Ok(tour));
+    }
 
-        Task<TourDetailDto> CreateTourAsync(TourRequestDto dto);
+    // POST api/tours -- chỉ Admin
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Create(
+        [FromBody] TourRequestDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ApiResponse<string>
+                .Fail("Dư lieu khong hop le."));
+        var created = await _svc.CreateTourAsync(dto);
+        return CreatedAtAction(nameof(GetById),
+            new { id = created.TourId },
+            ApiResponse<TourDetailDto>.Ok(created,
+                "Tao tour thanh cong."));
+    }
 
-        Task<TourDetailDto> UpdateTourAsync(
-            int tourId,
-            TourRequestDto dto);
-
-        Task DeleteTourAsync(int tourId);
+    // DELETE api/tours/{id} -- chỉ Admin, soft-delete
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _svc.DeleteTourAsync(id);
+        return Ok(ApiResponse<string>.Ok("deleted",
+            "Xoa tour thanh cong."));
     }
 }
 \end{lstlisting}
 
-\subsection{Quy tắc Nghiệp vụ (Business Rules)}\label{sub3.2.2}
+\noindent Bảng~\ref{table:endpoints} tổng hợp toàn bộ
+endpoints của hệ thống.
 
-Tầng BLL chịu trách nhiệm thực thi các quy tắc kinh doanh đặc thù, đảm bảo tính toàn vẹn dữ liệu ngay cả trước khi dữ liệu chạm tới cơ sở dữ liệu. Các quy tắc được triển khai bao gồm:
+\begin{longtable}{|l|l|l|l|}
+  \hline
+  \textbf{Method} & \textbf{Endpoint} & \textbf{Mô tả} & \textbf{Quyền} \\
+  \hline
+  GET & \texttt{/api/tours} & Danh sách tour (phân trang, lọc)
+      & Admin, Staff \\
+  GET & \texttt{/api/tours/search} & Tìm kiếm nâng cao
+      & Public \\
+  GET & \texttt{/api/tours/popular} & Tour phổ biến
+      & Public \\
+  GET & \texttt{/api/tours/\{id\}} & Chi tiết tour
+      & Public \\
+  POST & \texttt{/api/tours} & Tạo tour mới
+      & Admin \\
+  PUT & \texttt{/api/tours/\{id\}} & Cập nhật tour
+      & Admin \\
+  DELETE & \texttt{/api/tours/\{id\}} & Xóa tour (soft-delete)
+      & Admin \\
+  \hline
+  POST & \texttt{/api/bookings} & Đặt tour
+      & Customer \\
+  GET & \texttt{/api/bookings/\{id\}} & Chi tiết booking
+      & Customer, Admin \\
+  PATCH & \texttt{/api/bookings/\{id\}/cancel} & Hủy booking
+      & Customer \\
+  GET & \texttt{/api/bookings/history} & Lịch sử đặt tour
+      & Customer \\
+  \hline
+  POST & \texttt{/api/auth/register} & Đăng ký tài khoản
+      & Public \\
+  POST & \texttt{/api/auth/login} & Đăng nhập, nhận JWT
+      & Public \\
+  \hline
+  GET & \texttt{/api/reports/revenue} & Doanh thu theo tour
+      & Admin \\
+  GET & \texttt{/api/reports/revenue-by-month} & Doanh thu tháng
+      & Admin \\
+  GET & \texttt{/api/export/tours/xml} & Xuất XML
+      & Admin \\
+  POST & \texttt{/api/import/tours/xml} & Nhập XML
+      & Admin \\
+  \hline
+  \caption{Danh sách RESTful Endpoints của hệ thống}
+  \label{table:endpoints}
+\end{longtable}
 
-\begin{itemize}
-    \item \textbf{Ràng buộc thực thể:} Tuyệt đối không cho phép xóa một Tour nếu tour đó đang tồn tại các lịch khởi hành (Schedules) ở trạng thái hoạt động (Active).
+% ──────────────────────────────────────
+\subsection{Middleware Pipeline}\label{sub3.2.2}
 
-    \item \textbf{Quy tắc phản hồi:} Chỉ những khách hàng đã có đơn đặt tour chuyển sang trạng thái \textit{Completed} mới có quyền thực hiện đánh giá (Review) dịch vụ.
+\begin{de}\label{def3.3}
+Middleware là các thành phần xử lý request và response trong
+pipeline của ASP.NET Core. Mỗi middleware có thể xử lý request
+trước khi chuyển tiếp cho middleware tiếp theo, hoặc trả về
+response ngay lập tức mà không cần đi tiếp.
+\end{de}
 
-    \item \textbf{Logic hủy bỏ:} Hệ thống áp dụng các kiểm tra trạng thái nghiêm ngặt; không cho phép hủy các Booking đã hoàn tất.Quy trình này được đồng bộ giữa BLL và Stored Procedure \texttt{sp\_CancelBooking}.
+\texttt{ExceptionMiddleware} trong Đoạn~\ref{lst:middleware}
+bắt toàn bộ exception chưa được xử lý trong pipeline, tự động
+ánh xạ sang HTTP status code phù hợp và trả về
+\texttt{ApiResponse<T>} chuẩn.
 
-    \item \textbf{Quản lý số lượng chỗ (Capacity):} Trước khi thực hiện giao dịch, hệ thống phải truy vấn \texttt{AvailableSlots} trong lịch trình để đảm bảo khả năng đáp ứng. Nếu số lượng hành khách vượt quá chỗ trống, một ngoại lệ Validation sẽ được ném ra để ngăn chặn việc đặt chỗ quá tải.
+\begin{lstlisting}[style=csharp,
+  caption={ExceptionMiddleware -- xử lý lỗi tập trung},
+  label={lst:middleware}]
+public class ExceptionMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionMiddleware> _logger;
 
-    \item \textbf{Định danh khách hàng:} Áp dụng quy tắc bắt buộc đối với hành khách người lớn phải cung cấp số CCCD hoặc Hộ chiếu (\texttt{PassengerIdNumber}), trong khi trẻ em có thể bỏ trống trường này.
-\end{itemize}
+    public ExceptionMiddleware(
+        RequestDelegate next,
+        ILogger<ExceptionMiddleware> logger)
+    { _next = next; _logger = logger; }
 
-\begin{lstlisting}[style=csharp, caption={Kiểm tra nghiệp vụ trong BookingService}]
-if (dto.Passengers.Count != dto.NumberOfPeople)
-    throw new ArgumentException(
-        $"Số hành khách ({dto.Passengers.Count}) không khớp NumberOfPeople ({dto.NumberOfPeople}).");
+    public async Task InvokeAsync(HttpContext ctx)
+    {
+        try { await _next(ctx); }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Unhandled exception: {Message}", ex.Message);
+            await HandleExceptionAsync(ctx, ex);
+        }
+    }
 
-// Kiểm tra adult phải có ID (CCCD/Ho chieu)
-var adultsWithoutId = dto.Passengers
-    .Where(p => p.PassengerType == "Adult" &&
-                string.IsNullOrWhiteSpace(p.PassengerIdNumber))
-    .ToList();
+    private static Task HandleExceptionAsync(
+        HttpContext ctx, Exception ex)
+    {
+        ctx.Response.ContentType = "application/json";
 
-if (adultsWithoutId.Any())
-    throw new ArgumentException(
-        "Hành khách người lớn phải có CCCD/Hộ chiếu.");
+        // Ánh xạ loại Exception sang HTTP Status Code
+        ctx.Response.StatusCode = ex switch
+        {
+            KeyNotFoundException        => 404, // Not Found
+            UnauthorizedAccessException => 403, // Forbidden
+            InvalidOperationException   => 409, // Conflict
+            ArgumentException           => 400, // Bad Request
+            _                           => 500  // Internal Error
+        };
+
+        var body = JsonSerializer.Serialize(
+            ApiResponse<string>.Fail(
+                ex.InnerException?.Message ?? ex.Message),
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        return ctx.Response.WriteAsync(body);
+    }
+}
 \end{lstlisting}
 
-\subsection{Xác thực dữ liệu (Validation)}\label{sub3.2.3}
+Thứ tự đăng ký middleware trong \texttt{Program.cs} có ý nghĩa
+quyết định đến hành vi của hệ thống, như được mô tả trong
+Đoạn~\ref{lst:pipeline}.
 
-Hệ thống sử dụng thư viện \textit{FluentValidation} để định nghĩa các quy tắc kiểm tra dữ liệu đầu vào tại lớp BLL. Việc xác thực này được thực hiện tự động trước khi dữ liệu được truyền tới các Services xử lý nghiệp vụ chính. Các quy tắc bao gồm kiểm tra tính hợp lệ của chuỗi dữ liệu, giới hạn giá trị số, định dạng ngày tháng và các logic điều kiện phức tạp, giúp giảm thiểu rủi ro dữ liệu sai lệch đi sâu vào hệ thống.
+\begin{lstlisting}[style=csharp,
+  caption={Middleware Pipeline trong Program.cs},
+  label={lst:pipeline}]
+// ExceptionMiddleware dat dau tien de bat moi exception
+app.UseMiddleware<ExceptionMiddleware>();
 
-\begin{lstlisting}[style=csharp, caption={Validator: TourValidator}]
-public class TourValidator : AbstractValidator<TourRequestDto>
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    public TourValidator()
+    c.SwaggerEndpoint("/swagger/v1/swagger.json",
+        "TravelTourBooking API v1");
+    c.RoutePrefix = "swagger";
+});
+
+app.UseHttpsRedirection();
+app.UseCors("AllowAngular");    // CORS trước Authentication
+app.UseAuthentication();         // Xác thực JWT token
+app.UseAuthorization();          // Phân quyền Role
+app.MapControllers();
+\end{lstlisting}
+
+\begin{cor}
+\texttt{UseAuthentication()} phải đứng trước
+\texttt{UseAuthorization()} vì phân quyền chỉ thực hiện được
+sau khi xác thực danh tính. \texttt{ExceptionMiddleware} đặt
+đầu tiên để bắt được mọi exception từ bất kỳ tầng nào trong
+pipeline phía sau, kể cả lỗi Authentication.
+\end{cor}
+
+% ──────────────────────────────────────
+\subsection{JWT Authentication và RBAC}\label{sub3.2.3}
+
+\begin{thm}\label{thm3.2}
+JWT (JSON Web Token) cho phép xác thực stateless: server không
+lưu session, mọi thông tin cần thiết (AccountId, Email, Role)
+được mã hóa trong token và gửi kèm mỗi request qua header
+\texttt{Authorization: Bearer <token>}.
+\end{thm}
+
+\noindent\begin{proof}
+Tính stateless được đảm bảo vì server chỉ cần verify chữ ký
+(signature) của token bằng \texttt{SecretKey} mà không cần
+tra cứu database — giúp hệ thống có thể scale ngang dễ dàng.
+\QEDAa
+\end{proof}
+
+Khi khách hàng đăng nhập thành công, \texttt{AuthService}
+(Đoạn~\ref{lst:auth}) xác minh mật khẩu bằng BCrypt, truy
+vấn danh sách Role từ bảng \texttt{AccountRoles} và tạo JWT
+token chứa các Claims tương ứng.
+
+\begin{lstlisting}[style=csharp,
+  caption={AuthService.LoginAsync -- xác thực và cấp JWT},
+  label={lst:auth}]
+public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
+{
+    var account = await _context.Accounts
+        .FirstOrDefaultAsync(x => x.Email == dto.Email);
+
+    if (account == null)
+        throw new Exception("Invalid email");
+
+    // Xác minh mật khẩu bằng BCrypt
+    var valid = BCrypt.Net.BCrypt.Verify(
+        dto.Password, account.PasswordHash);
+    if (!valid)
+        throw new Exception("Invalid password");
+
+    // Lấy danh sách Role từ bảng AccountRoles
+    var roles = await _context.AccountRoles
+        .Where(x => x.AccountId == account.AccountId)
+        .Select(x => x.Role.RoleName)
+        .ToListAsync();
+
+    // Tạo JWT token chứa thông tin Role
+    var token = _jwtHelper.GenerateToken(account, roles);
+
+    return new AuthResponseDto
     {
-        RuleFor(x => x.TourName)
+        Token = token,
+        Email = account.Email,
+        Role  = roles.FirstOrDefault()!
+    };
+}
+\end{lstlisting}
+
+Hệ thống phân quyền theo ba Role được tổng hợp trong
+Bảng~\ref{table:rbac}.
+
+\begin{table}[H]
+  \begin{center}
+    \begin{tabular}{|l|c|c|c|}
+      \hline
+      \textbf{Chức năng}
+        & \textbf{Admin} & \textbf{Staff} & \textbf{Customer} \\
+      \hline
+      Xem danh sách / chi tiết tour
+        & \checkmark & \checkmark & \checkmark \\
+      Tìm kiếm tour, xem tour phổ biến
+        & \checkmark & \checkmark & \checkmark \\
+      Tạo / Sửa / Xóa tour
+        & \checkmark & & \\
+      Quản lý Categories, Destinations
+        & \checkmark & & \\
+      Quản lý Employees
+        & \checkmark & & \\
+      Xem danh sách booking
+        & \checkmark & \checkmark & \\
+      Đặt tour, hủy booking
+        & & & \checkmark \\
+      Xem lịch sử booking cá nhân
+        & & & \checkmark \\
+      Đánh giá tour
+        & & & \checkmark \\
+      Xem báo cáo doanh thu
+        & \checkmark & & \\
+      Export / Import XML
+        & \checkmark & & \\
+      \hline
+    \end{tabular}
+  \end{center}
+  \caption{Bảng phân quyền theo Role (RBAC)}
+  \label{table:rbac}
+\end{table}
+
+% ═════════════════════════════════════════════════════════════
+\section{Lớp Nghiệp vụ — Business Logic Layer}\label{Sec3.3}
+% ═════════════════════════════════════════════════════════════
+
+Lớp nghiệp vụ (BLL) là nơi tập trung toàn bộ logic kinh doanh.
+BLL không biết dữ liệu đến từ SQL Server hay bất kỳ nguồn nào
+khác — chỉ giao tiếp với DAL qua Interface.
+
+% ──────────────────────────────────────
+\subsection{Interfaces và Services}\label{sub3.3.1}
+
+\begin{de}\label{def3.4}
+Interface trong BLL đóng vai trò \textit{contract}: định nghĩa
+những gì một Service phải cung cấp mà không quan tâm đến cách
+thực hiện. Nhờ đó, Controller (API) chỉ phụ thuộc vào Interface,
+không phụ thuộc vào implementation cụ thể — tuân thủ nguyên tắc
+Dependency Inversion (chữ D trong SOLID).
+\end{de}
+
+Đoạn~\ref{lst:interface} trình bày \texttt{ITourService} với
+đầy đủ các phương thức, bao gồm cả tìm kiếm qua Stored
+Procedure và lấy tour phổ biến từ View.
+
+\begin{lstlisting}[style=csharp,
+  caption={ITourService -- Interface của BLL},
+  label={lst:interface}]
+public interface ITourService
+{
+    // Lấy danh sách có phân trang + lọc (LINQ to Entities)
+    Task<PagedResult<TourListDto>> GetToursAsync(
+        int page, int pageSize,
+        int? cateId, int? desId,
+        decimal? priceMin, decimal? priceMax);
+
+    // Chi tiết tour (Include Category, Destination, Schedule)
+    Task<TourDetailDto?> GetTourDetailAsync(int tourId);
+
+    // Tìm kiếm qua sp_SearchTours (ADO.NET)
+    Task<IEnumerable<SearchTourResult>> SearchToursAsync(
+        string? destination, decimal? priceMin,
+        decimal? priceMax, DateOnly? date);
+
+    // Tour phổ biến từ vw_PopularTours (EF SqlQueryRaw)
+    Task<IEnumerable<PopularTourResult>> GetPopularToursAsync();
+
+    // CRUD (chỉ Admin)
+    Task<TourDetailDto> CreateTourAsync(TourRequestDto dto);
+    Task<TourDetailDto> UpdateTourAsync(
+        int tourId, TourRequestDto dto);
+    Task DeleteTourAsync(int tourId);  // Soft-delete
+}
+\end{lstlisting}
+
+% ──────────────────────────────────────
+\subsection{Business Rules}\label{sub3.3.2}
+
+\begin{de}\label{def3.5}
+Business Rules là các ràng buộc nghiệp vụ phản ánh quy tắc
+hoạt động thực tế của doanh nghiệp. Trong kiến trúc 3 tầng,
+business rules được kiểm tra tại BLL trước khi gọi xuống DAL,
+đảm bảo tính hợp lệ về nghiệp vụ — không chỉ về cấu trúc dữ liệu.
+\end{de}
+
+Bảng~\ref{table:bizrules} tổng hợp các business rules
+chính trong hệ thống.
+
+\begin{table}[H]
+  \begin{center}
+    \begin{tabular}{|c|l|l|}
+      \hline
+      \textbf{STT} & \textbf{Quy tắc nghiệp vụ} & \textbf{Service} \\
+      \hline
+      1 & \texttt{CateId} phải tồn tại khi tạo/sửa tour
+        & TourService \\
+      2 & \texttt{DesId} phải tồn tại khi tạo/sửa tour
+        & TourService \\
+      3 & Xóa tour dùng soft-delete (\texttt{IsActive=false}),
+          không xóa vật lý & TourService \\
+      4 & Số lượng \texttt{Passengers} phải bằng
+          \texttt{NumberOfPeople} & BookingService \\
+      5 & Ít nhất một hành khách phải là
+          \texttt{IsPrimaryContact} & BookingService \\
+      6 & Hành khách \texttt{Adult} bắt buộc có
+          \texttt{PassengerIdNumber} & BookingService \\
+      7 & \texttt{PassengerType} chỉ nhận giá trị
+          \texttt{Adult} hoặc \texttt{Child} & BookingService \\
+      \hline
+    \end{tabular}
+  \end{center}
+  \caption{Các Business Rules trong hệ thống}
+  \label{table:bizrules}
+\end{table}
+
+Đoạn~\ref{lst:bizrule} minh họa các business rules trong
+\texttt{TourService.CreateTourAsync}: kiểm tra tồn tại của
+\texttt{CateId} và \texttt{DesId} trước khi lưu vào database.
+
+\begin{lstlisting}[style=csharp,
+  caption={Business Rules trong TourService.CreateTourAsync},
+  label={lst:bizrule}]
+public async Task<TourDetailDto> CreateTourAsync(TourRequestDto dto)
+{
+    // Business Rule 1: CateId phải tồn tại
+    if (!await _cateRepo.ExistsAsync(dto.CateId))
+        throw new KeyNotFoundException(
+            $"Danh muc ID {dto.CateId} khong ton tai.");
+
+    // Business Rule 2: DesId phải tồn tại
+    if (!await _desRepo.ExistsAsync(dto.DesId))
+        throw new KeyNotFoundException(
+            $"diem den ID {dto.DesId} khong ton tai.");
+
+    var tour = _mapper.Map<Tour>(dto);
+    tour.IsActive = true;   // Mac dinh active khi tao moi
+
+    var created = await _tourRepo.AddAsync(tour);
+    var detail  = await _tourRepo.GetDetailAsync(created.TourId);
+    return _mapper.Map<TourDetailDto>(detail!);
+}
+
+public async Task DeleteTourAsync(int tourId)
+{
+    var tour = await _tourRepo.GetByIdAsync(tourId)
+        ?? throw new KeyNotFoundException(
+            $"Tour ID {tourId} khong ton tai.");
+
+    // Business Rule 3: Soft-delete thay vì xóa vật lý
+    // Dữ liệu lịch sử booking vẫn được bảo toàn
+    tour.IsActive = false;
+    await _tourRepo.UpdateAsync(tour);
+}
+\end{lstlisting}
+
+% ──────────────────────────────────────
+\subsection{LINQ to Objects}\label{sub3.3.3}
+
+\begin{de}\label{def3.6}
+LINQ to Objects là kỹ thuật dùng cú pháp LINQ để truy vấn
+các collection \texttt{IEnumerable<T>} đang tồn tại trong
+bộ nhớ (RAM), không phát sinh truy vấn SQL xuống database.
+BLL dùng LINQ to Objects để tính toán, lọc và biến đổi
+dữ liệu đã được DAL trả về.
+\end{de}
+
+Đoạn~\ref{lst:linqobj} trích từ \texttt{TourService.GetToursAsync}:
+sau khi DAL trả về danh sách \texttt{Tour}, BLL dùng
+LINQ to Objects để map sang DTO và tính \texttt{AvgRating}
+từ collection \texttt{Reviews} đã được Include.
+
+\begin{lstlisting}[style=csharp,
+  caption={LINQ to Objects trong TourService},
+  label={lst:linqobj}]
+public async Task<PagedResult<TourListDto>> GetToursAsync(
+    int page, int pageSize,
+    int? cateId, int? desId,
+    decimal? priceMin, decimal? priceMax)
+{
+    // DAL trả về IEnumerable<Tour> đã Include Category,
+    // Destination, Reviews
+    var (items, total) = await _tourRepo.GetPagedAsync(
+        page, pageSize, cateId, desId, priceMin, priceMax);
+
+    // LINQ to Objects -- map và tính toán trên collection RAM
+    var dtos = items.Select(t => new TourListDto
+    {
+        TourId       = t.TourId,
+        TourName     = t.TourName,
+        Price        = t.Price,
+        DurationDays = t.DurationDays,
+        MaxCapacity  = t.MaxCapacity,
+        ImageUrl     = t.ImageUrl,
+        CateName     = t.Category?.CateName,
+        DesName      = t.Destination?.DesName,
+
+        // LINQ to Objects: tính AvgRating từ
+        // ICollection<Review> trong RAM
+        AvgRating = t.Reviews.Any()
+            ? Math.Round(
+                t.Reviews.Average(r => (double)r.Rating), 1)
+            : (double?)null
+
+    }).ToList();  
+
+    return new PagedResult<TourListDto>
+    {
+        Items      = dtos,
+        Pagination = new PaginationMeta
+        {
+            Page       = page,
+            PageSize   = pageSize,
+            TotalCount = total
+        }
+    };
+}
+\end{lstlisting}
+
+% ──────────────────────────────────────
+\subsection{Validation với FluentValidation}\label{sub3.3.4}
+
+Hệ thống sử dụng \textbf{FluentValidation} để kiểm tra tính
+hợp lệ của dữ liệu đầu vào. So với Data Annotations,
+FluentValidation tách biệt logic validate ra khỏi DTO class,
+hỗ trợ validate lồng nhau (\texttt{RuleForEach}) và điều kiện
+phức tạp (\texttt{Must}, \texttt{When}).
+
+\begin{lstlisting}[style=csharp,
+  caption={BookingValidator với FluentValidation lồng nhau},
+  label={lst:validator}]
+public class BookingValidator
+    : AbstractValidator<CreateBookingRequestDto>
+{
+    public BookingValidator()
+    {
+        RuleFor(x => x.AccountId)
+            .GreaterThan(0)
+            .WithMessage("AccountId la bat buoc.");
+
+        RuleFor(x => x.ScheduleId)
+            .GreaterThan(0)
+            .WithMessage("ScheduleId la bat buoc.");
+
+        RuleFor(x => x.NumberOfPeople)
+            .GreaterThan(0)
+            .WithMessage("NumberOfPeople phai lon hon 0.");
+
+        // Kiểm tra số hành khách khớp với số người đặt
+        RuleFor(x => x.Passengers)
+            .NotNull()
+            .Must((dto, list) =>
+                list != null && list.Count == dto.NumberOfPeople)
+            .WithMessage(
+                "So hanh khach phai bang NumberOfPeople.");
+
+        // Validate từng hành khách (lồng nhau)
+        RuleForEach(x => x.Passengers)
+            .SetValidator(new PassengerValidator());
+
+        // It nhat 1 khach hang phai la lien lac chinh
+        RuleFor(x => x)
+            .Must(x => x.Passengers.Any(p => p.IsPrimaryContact))
+            .WithMessage("Phai co it nhat 1 lien lac chinh.");
+    }
+}
+
+public class PassengerValidator : AbstractValidator<PassengerDto>
+{
+    public PassengerValidator()
+    {
+        RuleFor(p => p.PassengerName)
+            .NotEmpty().MaximumLength(150);
+
+        RuleFor(p => p.PassengerType)
             .NotEmpty()
-            .WithMessage("Tên tour không được để trống.")
-            .MaximumLength(150)
-            .WithMessage("Tên tour tối đa 150 ký tự.");
+            .Must(t => t == "Adult" || t == "Child");
 
-        RuleFor(x => x.CateId)
-            .GreaterThan(0)
-            .WithMessage("Vui lòng chọn danh mục.");
-
-        RuleFor(x => x.Price)
-            .GreaterThan(0)
-            .WithMessage("Giá tour phải lớn hơn 0.");
-
-        RuleFor(x => x.MaxCapacity)
-            .InclusiveBetween(1, 500)
-            .WithMessage("Sức chứa phải từ 1 đến 500.");
+        // Adult bắt buộc có CCCD/hộ chiếu
+        RuleFor(p => p.PassengerIdNumber)
+            .NotEmpty()
+            .MaximumLength(20)
+            .When(p => p.PassengerType == "Adult")
+            .WithMessage(
+                "Hanh khach nguoi lon phai co CCCD/ho chieu.");
     }
 }
 \end{lstlisting}
 
-\section{Lớp Truy cập Dữ liệu (Data Access Layer)}\label{Sec3.3}
+% ═════════════════════════════════════════════════════════════
+\section{Lớp Dữ liệu — Data Access Layer}\label{Sec3.4}
+% ═════════════════════════════════════════════════════════════
 
-\subsection{Entity Framework Core và Repository Pattern}\label{sub3.3.1}
+Lớp DAL chịu trách nhiệm duy nhất là giao tiếp với SQL Server.
+Hệ thống sử dụng song song hai phương thức truy cập: Entity
+Framework Core (EF Core) cho các query LINQ thông thường và
+ADO.NET cho các trường hợp cần gọi trực tiếp Stored Procedure
+hoặc thao tác DataSet.
 
-Tầng DAL sử dụng Entity Framework Core 8 làm trình ánh xạ đối tượng-quan hệ (ORM) chính. Để quản lý các thực thể và cấu hình một cách mạch lạc, hệ thống áp dụng kỹ thuật \textit{Fluent API} thông qua các lớp \textit{Configuration} riêng biệt. Điều này cho phép định nghĩa các mối quan hệ phức tạp, ràng buộc và chỉ mục mà không làm bẩn các lớp Entity.
+% ──────────────────────────────────────
+\subsection{Entity Framework Core — DbContext và Entities}
+  \label{sub3.4.1}
 
-Mẫu thiết kế \textit{Repository Pattern} được triển khai nhằm tạo ra một lớp trừu tượng trên EF Core. \textit{Generic Repository} xử lý các thao tác CRUD cơ bản như \textit{GetById}, \textit{Add}, \textit{Update}, \textit{Delete}, giúp tái sử dụng mã nguồn một cách tối đa. Trong khi đó, các \textit{Specific Repositories} được xây dựng để giải quyết các truy vấn đặc thù, bao gồm tìm kiếm nâng cao, lọc tour theo đa tiêu chí và xử lý các báo cáo phức tạp thông qua các View đã được ánh xạ vào \texttt{DbSet}.
+\begin{de}\label{def3.7}
+\texttt{DbContext} là lớp trung tâm của EF Core, đóng vai trò
+cầu nối giữa ứng dụng C\# và SQL Server. \texttt{DbContext}
+quản lý connection pool, theo dõi thay đổi của Entity
+(Change Tracking) và dịch biểu thức LINQ thành câu lệnh SQL.
+\end{de}
 
-\begin{lstlisting}[style=csharp, caption={Generic Repository Interface \& Implementation}]
-public interface IRepository<T> where T : class
+\texttt{AppDbContext} trong Đoạn~\ref{lst:dbctx} khai báo
+toàn bộ 13 DbSet tương ứng với 13 bảng trong database, đồng
+thời cấu hình hai View \texttt{vw\_TourRevenue} và
+\texttt{vw\_PopularTours} với \texttt{HasNoKey().ToView()}.
+
+\begin{lstlisting}[style=csharp,
+  caption={AppDbContext -- 13 DbSet và cấu hình View},
+  label={lst:dbctx}]
+public class AppDbContext : DbContext
 {
-    Task<IEnumerable<T>> GetAllAsync();
-    Task<T?> GetByIdAsync(int id);
-    Task<T> AddAsync(T entity);
-    Task UpdateAsync(T entity);
-    Task DeleteAsync(int id);
-}
+    public AppDbContext(
+        DbContextOptions<AppDbContext> options)
+        : base(options) { }
 
-public class GenericRepository<T> : IRepository<T> where T : class
+    // Catalog
+    public DbSet<Category>    Categories   => Set<Category>();
+    public DbSet<Destination> Destinations => Set<Destination>();
+    public DbSet<Tour>        Tours        => Set<Tour>();
+    public DbSet<TourSchedule> TourSchedules
+        => Set<TourSchedule>();
+    public DbSet<Employee>    Employees    => Set<Employee>();
+
+    // Booking & Payment
+    public DbSet<Booking>       Bookings
+        => Set<Booking>();
+    public DbSet<BookingDetail> BookingDetails
+        => Set<BookingDetail>();
+    public DbSet<Review>        Reviews => Set<Review>();
+
+    // Auth
+    public DbSet<Account>         Accounts         { get; set; }
+    public DbSet<Role>            Roles             { get; set; }
+    public DbSet<AccountRole>     AccountRoles      { get; set; }
+    public DbSet<CustomerProfile> CustomerProfiles  { get; set; }
+    public DbSet<Payment>         Payments          { get; set; }
+
+    // Views -- HasNoKey vì không có khóa chính
+    public DbSet<TourRevenueView> TourRevenueView   { get; set; }
+    public DbSet<PopularToursView> PopularToursView { get; set; }
+
+    protected override void OnModelCreating(
+        ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Áp dụng Fluent API Configuration
+        modelBuilder.ApplyConfiguration(new TourConfiguration());
+        modelBuilder.ApplyConfiguration(
+            new TourScheduleConfiguration());
+        modelBuilder.ApplyConfiguration(
+            new BookingConfiguration());
+        modelBuilder.ApplyConfiguration(
+            new BookingDetailConfiguration());
+        modelBuilder.ApplyConfiguration(
+            new AccountRoleConfiguration());
+        modelBuilder.ApplyConfiguration(
+            new CustomerProfileConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleConfiguration());
+
+        // Map View -- readonly, không có khóa chính
+        modelBuilder.Entity<TourRevenueView>()
+            .HasNoKey().ToView("vw_TourRevenue");
+        modelBuilder.Entity<PopularToursView>()
+            .HasNoKey().ToView("vw_PopularTours");
+    }
+}
+\end{lstlisting}
+
+Entity class \texttt{Tour} (Đoạn~\ref{lst:entity}) sử dụng
+Data Annotations để định nghĩa cấu trúc bảng và navigation
+properties cho các quan hệ.
+
+\begin{lstlisting}[style=csharp,
+  caption={Entity Tour với Data Annotations và navigation properties},
+  label={lst:entity}]
+[Table("Tours")]
+public class Tour
+{
+    [Key]
+    public int TourId { get; set; }
+
+    [MaxLength(150)]
+    public string? TourName { get; set; }
+
+    public int? CateId { get; set; }
+    public int? DesId  { get; set; }
+    public int DurationDays { get; set; }
+
+    [Column(TypeName = "decimal(12,2)")]
+    public decimal Price { get; set; }
+
+    public int MaxCapacity { get; set; }
+
+    [MaxLength(255)]
+    public string? Description { get; set; }
+
+    [MaxLength(255)]
+    public string? ImageUrl { get; set; }
+
+    public bool IsActive { get; set; } = true;
+
+    // Navigation properties -- EF tự JOIN khi Include()
+    [ForeignKey(nameof(CateId))]
+    public Category? Category { get; set; }
+
+    [ForeignKey(nameof(DesId))]
+    public Destination? Destination { get; set; }
+
+    public ICollection<TourSchedule> TourSchedules { get; set; }
+        = new List<TourSchedule>();
+    public ICollection<Review> Reviews { get; set; }
+        = new List<Review>();
+}
+\end{lstlisting}
+
+% ──────────────────────────────────────
+\subsection{LINQ to Entities và Repository Pattern}
+  \label{sub3.4.2}
+
+\begin{thm}\label{thm3.3}
+LINQ to Entities dịch biểu thức lambda C\# thành câu SQL tối
+ưu tại runtime thông qua Expression Tree. Cơ chế này đảm bảo
+type-safe và tự động parameterize tham số, hoàn toàn ngăn chặn
+SQL Injection mà không cần lập trình viên xử lý thủ công.
+\end{thm}
+
+\noindent\begin{proof}
+Biểu thức \texttt{Where(t => t.Price >= priceMin)} không thực
+thi ngay mà tạo một Expression Tree. Đến khi gọi
+\texttt{ToListAsync()}, EF Core dịch thành
+\texttt{WHERE Price >= @p0} với \texttt{@p0} là
+\texttt{SqlParameter} — không cho phép nhúng giá trị trực tiếp
+vào câu SQL, triệt tiêu nguy cơ SQL Injection. \QEDAa
+\end{proof}
+
+\texttt{GenericRepository<T>} (Đoạn~\ref{lst:genrepo}) cung
+cấp các thao tác CRUD cơ bản cho mọi Entity.
+\texttt{TourRepository} kế thừa và bổ sung các query đặc thù.
+
+\begin{lstlisting}[style=csharp,
+  caption={GenericRepository<T> -- CRUD cơ bản với EF Core},
+  label={lst:genrepo}]
+public class GenericRepository<T> : IRepository<T>
+    where T : class
 {
     protected readonly AppDbContext _db;
 
-    public GenericRepository(AppDbContext db)
-    {
-        _db = db;
-    }
+    public GenericRepository(AppDbContext db) { _db = db; }
 
-    public async Task<T?> GetByIdAsync(int id)
-        => await _db.Set<T>().FindAsync(id);
+    public async Task<IEnumerable<T>> GetAllAsync() =>
+        await _db.Set<T>().ToListAsync();
+
+    public async Task<T?> GetByIdAsync(int id) =>
+        await _db.Set<T>().FindAsync(id);
 
     public async Task<T> AddAsync(T entity)
     {
@@ -169,158 +875,711 @@ public class GenericRepository<T> : IRepository<T> where T : class
         return entity;
     }
 
-    // ... các phương thức Update, Delete tương tự
+    public async Task UpdateAsync(T entity)
+    {
+        _db.Set<T>().Update(entity);
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var entity = await GetByIdAsync(id);
+        if (entity is not null)
+        {
+            _db.Set<T>().Remove(entity);
+            await _db.SaveChangesAsync();
+        }
+    }
+
+    public async Task<bool> ExistsAsync(int id) =>
+        await _db.Set<T>().FindAsync(id) is not null;
 }
 \end{lstlisting}
 
-\subsection{Truy vấn LINQ to Entities}\label{sub3.3.2}
+\texttt{TourRepository.GetPagedAsync} (Đoạn~\ref{lst:linq})
+minh họa LINQ to Entities với filter động nhiều điều kiện,
+Include navigation properties và phân trang.
 
-Hệ thống tận dụng tối đa sức mạnh của LINQ (Language Integrated Query) để thực hiện các truy vấn dữ liệu linh hoạt ngay trong mã nguồn C\#. Các kỹ thuật như \textit{Eager Loading} (sử dụng \texttt{Include}) được áp dụng để lấy dữ liệu liên quan trong một lần truy vấn duy nhất, giảm thiểu vấn đề N+1. Ngoài ra, logic phân trang (Pagination) và sắp xếp (Sorting) được thực thi trực tiếp tại cấp độ cơ sở dữ liệu để tối ưu hóa băng thông truyền tải dữ liệu giữa SQL Server và Web API.
-
-\begin{lstlisting}[style=csharp, caption={LINQ to Entities trong TourRepository}]
-var query = _db.Tours
-    .Include(t => t.Category)
-    .Include(t => t.Destination)
-    .Where(t => t.IsActive);
-
-if (cateId.HasValue)
-    query = query.Where(t => t.CateId == cateId.Value);
-
-if (priceMin.HasValue)
-    query = query.Where(t => t.Price >= priceMin.Value);
-
-var total = await query.CountAsync();
-
-var items = await query
-    .OrderByDescending(t => t.TourId)
-    .Skip((page - 1) * pageSize)
-    .Take(pageSize)
-    .ToListAsync();
-
-return (items, total);
-\end{lstlisting}
-
-\subsection{Chiến lược truy cập dữ liệu hỗn hợp (Hybrid Approach)}\label{sub3.3.4}
-
-Để đáp ứng các yêu cầu khắt khe về hiệu năng và tính toàn vẹn giao dịch (ACID) của môn học, hệ thống áp dụng mô hình truy cập dữ liệu hỗn hợp:
-
-\begin{itemize}
-    \item \textbf{EF Core:} Được ưu tiên cho các thao tác quản lý dữ liệu thông thường, quản lý vòng đời thực thể và các truy vấn linh hoạt thông qua \texttt{SqlQueryRaw} cho các Views.
-
-    \item \textbf{ADO.NET (Connected \& Disconnected Models):} Được sử dụng khi cần tương tác trực tiếp với các đối tượng T-SQL nâng cao. Mô hình \textit{Connected} (thông qua \texttt{SqlDataReader}) được sử dụng để đọc các dòng dữ liệu lớn với hiệu năng cao. Mô hình \textit{Disconnected} (thông qua \texttt{DataSet} và \texttt{SqlDataAdapter}) được áp dụng để trích xuất dữ liệu từ các Views báo cáo như \texttt{vw\_BookingDetails}, cho phép xử lý dữ liệu ngay cả khi ngắt kết nối với máy chủ.
-\end{itemize}
-
-Đặc biệt, các giao dịch quan trọng như \texttt{sp\_CreateBooking} được thực thi thông qua ADO.NET để đảm bảo khả năng kiểm soát tuyệt đối quy trình \textit{Check-and-Update} trong môi trường đa người dùng, ngăn chặn các hiện tượng tranh chấp chỗ trống (Race conditions).
-
-\begin{lstlisting}[style=csharp, caption={Truy vấn hỗn hợp: EF Core \& ADO.NET}]
-// EF Core: Truy vấn View đơn giản
-var rows = await _db.Database
-    .SqlQueryRaw<PopularTourDto>(
-        "SELECT * FROM vw_PopularTours")
-    .ToListAsync();
-
-// ADO.NET Connected: Gọi SP CreateBooking phức tạp
-await using var conn = new SqlConnection(_connectionString);
-
-await using var cmd = new SqlCommand(
-    "sp_CreateBooking",
-    conn)
+\begin{lstlisting}[style=csharp,
+  caption={LINQ to Entities trong TourRepository.GetPagedAsync},
+  label={lst:linq}]
+public async Task<(IEnumerable<Tour> Items, int TotalCount)>
+    GetPagedAsync(
+        int page, int pageSize,
+        int? cateId, int? desId,
+        decimal? priceMin, decimal? priceMax)
 {
-    CommandType = CommandType.StoredProcedure
-};
+    // IQueryable<T> -- chưa thực thi, chỉ build biểu thức
+    var query = _db.Tours
+        .Include(t => t.Category)     // JOIN Categories
+        .Include(t => t.Destination)  // JOIN Destinations
+        .Include(t => t.Reviews)      // JOIN Reviews
+        .Where(t => t.IsActive);
 
-cmd.Parameters.AddWithValue("@AccountId", accountId);
+    // Filter động -- chỉ thêm WHERE khi tham số không null
+    if (cateId.HasValue)
+        query = query.Where(t => t.CateId == cateId.Value);
+    if (desId.HasValue)
+        query = query.Where(t => t.DesId == desId.Value);
+    if (priceMin.HasValue)
+        query = query.Where(t => t.Price >= priceMin.Value);
+    if (priceMax.HasValue)
+        query = query.Where(t => t.Price <= priceMax.Value);
 
-await conn.OpenAsync();
+    // COUNT trước khi phân trang (không thực thi SELECT)
+    var total = await query.CountAsync();
 
-var result = await cmd.ExecuteScalarAsync();
+    // OFFSET/FETCH qua Skip/Take -- thực thi tại đây
+    var items = await query
+        .OrderByDescending(t => t.TourId)
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
 
-// ADO.NET Disconnected: Lấy View báo cáo bằng DataSet
-var adapter = new SqlDataAdapter(
-    "SELECT * FROM vw_BookingDetails WHERE BookingId = @Id",
-    conn);
-
-var ds = new DataSet();
-
-adapter.Fill(ds, "BookingView");
+    return (items, total);
+}
 \end{lstlisting}
 
-\section{Data Transfer Objects (DTOs) và AutoMapper}\label{Sec3.4}
+% ──────────────────────────────────────
+\subsection{Gọi Stored Procedure và View qua EF Core}
+  \label{sub3.4.3}
 
-Hệ thống TravelBookingDB áp dụng nghiêm ngặt mẫu thiết kế \textit{Data Transfer Object} để trao đổi thông tin giữa các tầng và với môi trường bên ngoài. Việc không tiết lộ trực tiếp các thực thể (Entities) ra lớp trình diễn mang lại ba lợi ích chiến lược:
+Ngoài LINQ to Entities, hệ thống còn gọi Stored Procedure
+và truy vấn View trực tiếp. \texttt{GetPopularAsync}
+(Đoạn~\ref{lst:viewquery}) dùng \texttt{SqlQueryRaw} để
+truy vấn \texttt{vw\_PopularTours}, tận dụng phép tính phức
+tạp đã được định nghĩa sẵn trong View.
 
-\begin{enumerate}
-    \item \textbf{Bảo mật (Security):} Ẩn đi các trường thông tin nhạy cảm của hệ thống như mật khẩu băm (\textit{PasswordHash}) hoặc các cờ trạng thái nội bộ.
+\begin{lstlisting}[style=csharp,
+  caption={Query vw\_PopularTours qua EF SqlQueryRaw},
+  label={lst:viewquery}]
+// Query View -- EF Core map kết quả vào PopularTourResult
+public async Task<IEnumerable<PopularTourResult>>
+    GetPopularAsync()
+{
+    var rows = await _db.Database
+        .SqlQueryRaw<PopularTourResult>(
+            "SELECT * FROM vw_PopularTours " +
+            "ORDER BY BookingCount DESC, AvgRating DESC")
+        .ToListAsync();
+    return rows;
+}
+\end{lstlisting}
 
-    \item \textbf{Hiệu suất (Performance):} Giảm thiểu lưu lượng mạng bằng cách chỉ truyền tải những dữ liệu thực sự cần thiết cho giao diện người dùng, giải quyết vấn đề \textit{Over-fetching}.
+% ──────────────────────────────────────
+\subsection{ADO.NET — Connected và Disconnected Model}
+  \label{sub3.4.4}
 
-    \item \textbf{Tách biệt trách nhiệm:} Ngắt kết nối sự phụ thuộc giữa cấu hình cơ sở dữ liệu và yêu cầu giao diện người dùng, cho phép thay đổi cấu trúc bảng mà không làm hỏng ứng dụng phía Client.
-\end{enumerate}
+\begin{de}\label{def3.8}
+ADO.NET cung cấp hai mô hình truy cập dữ liệu. \textbf{Connected
+model} duy trì kết nối mở trong suốt quá trình đọc dữ liệu qua
+\texttt{SqlDataReader} — phù hợp đọc luồng dữ liệu lớn.
+\textbf{Disconnected model} tải toàn bộ dữ liệu vào
+\texttt{DataSet} qua \texttt{SqlDataAdapter} rồi ngắt kết nối
+— phù hợp khi cần thao tác offline hoặc lập quan hệ nhiều bảng
+trong bộ nhớ.
+\end{de}
 
-Thư viện \textit{AutoMapper} được sử dụng để tự động hóa quy trình ánh xạ giữa Entity và DTO thông qua các \textit{Mapping Profiles} tập trung, giúp mã nguồn tại lớp BLL sạch sẽ và giảm thiểu các lỗi gán giá trị thủ công.
+Đoạn~\ref{lst:adocon} trình bày Connected model: gọi
+\texttt{sp\_SearchTours} qua \texttt{SqlDataReader}, đọc từng
+dòng kết quả và ánh xạ sang \texttt{SearchTourResult}.
 
-\begin{lstlisting}[style=csharp, caption={MappingProfile với AutoMapper}]
+\begin{lstlisting}[style=csharp,
+  caption={ADO.NET Connected Model -- gọi sp\_SearchTours},
+  label={lst:adocon}]
+// Connected model: kết nối mở trong khi SqlDataReader đọc
+public async Task<IEnumerable<SearchTourResult>> SearchAsync(
+    string? destination,
+    decimal? priceMin, decimal? priceMax,
+    DateOnly? date)
+{
+    var results = new List<SearchTourResult>();
+
+    await using var conn = new SqlConnection(_connectionString);
+    await using var cmd = new SqlCommand("sp_SearchTours", conn)
+    {
+        CommandType = CommandType.StoredProcedure
+    };
+
+    // Truyền tham số -- DBNull.Value khi null (optional filter)
+    cmd.Parameters.AddWithValue("@Destination",
+        (object?)destination ?? DBNull.Value);
+    cmd.Parameters.AddWithValue("@PriceMin",
+        (object?)priceMin ?? DBNull.Value);
+    cmd.Parameters.AddWithValue("@PriceMax",
+        (object?)priceMax ?? DBNull.Value);
+    cmd.Parameters.AddWithValue("@Date",
+        date.HasValue
+            ? (object)date.Value.ToDateTime(TimeOnly.MinValue)
+            : DBNull.Value);
+
+    await conn.OpenAsync();
+    await using var reader = await cmd.ExecuteReaderAsync();
+
+    // Đọc từng dòng theo luồng
+    while (await reader.ReadAsync())
+    {
+        results.Add(new SearchTourResult
+        {
+            TourId    = reader.GetInt32("TourId"),
+            TourName  = reader.IsDBNull("TourName")
+                ? null : reader.GetString("TourName"),
+            Price     = reader.GetDecimal("Price"),
+            DesName   = reader.IsDBNull("DesName")
+                ? null : reader.GetString("DesName"),
+            ScheduleId = reader.GetInt32("ScheduleId"),
+            DepartureDate = DateOnly.FromDateTime(
+                reader.GetDateTime("DepartureDate")),
+            AvailableSlots = reader.GetInt32("AvailableSlots")
+        });
+    }
+    return results;
+}
+\end{lstlisting}
+
+Đoạn~\ref{lst:adodis} trình bày Disconnected model: nạp Tours
+và Schedules vào \texttt{DataSet}, thiết lập quan hệ
+\texttt{Tour\_Schedules} trong bộ nhớ mà không cần giữ kết nối.
+
+\begin{lstlisting}[style=csharp,
+  caption={ADO.NET Disconnected Model -- DataSet + DataRelation},
+  label={lst:adodis}]
+// Disconnected model: DataSet + SqlDataAdapter
+public DataSet GetToursDataSet()
+{
+    var ds = new DataSet("TourCatalog");
+
+    using var conn = new SqlConnection(_connectionString);
+
+    // Adapter 1: nạp bảng Tours
+    using var adapter = new SqlDataAdapter(
+        @"SELECT T.TourId, T.TourName, T.Price,
+                 C.CateName, D.DesName
+          FROM   Tours T
+          LEFT JOIN Categories   C ON T.CateId = C.CateId
+          LEFT JOIN Destinations D ON T.DesId  = D.DesId
+          WHERE  T.IsActive = 1",
+        conn);
+    adapter.Fill(ds, "Tours");
+
+    // Adapter 2: nạp bảng Schedules vào cùng DataSet
+    using var schedAdapter = new SqlDataAdapter(
+        @"SELECT ScheduleId, TourId, DepartureDate,
+                 ReturnDate, AvailableSlots, Status
+          FROM   TourSchedules WHERE Status = N'Open'",
+        conn);
+    schedAdapter.Fill(ds, "Schedules");
+
+    // Lập quan hệ trong bộ nhớ -- không cần kết nối DB
+    ds.Relations.Add("Tour_Schedules",
+        ds.Tables["Tours"]!.Columns["TourId"]!,
+        ds.Tables["Schedules"]!.Columns["TourId"]!);
+
+    return ds;  // Trả về DataSet độc lập với DB
+}
+\end{lstlisting}
+
+% ═════════════════════════════════════════════════════════════
+\section{Đối tượng trao đổi dữ liệu}\label{Sec3.5}
+% ═════════════════════════════════════════════════════════════
+
+% ──────────────────────────────────────
+\subsection{Data Transfer Objects (DTO)}\label{sub3.5.1}
+
+\begin{thm}\label{thm3.4}
+Việc sử dụng DTO thay vì trả Entity trực tiếp ra API là bắt
+buộc trong kiến trúc nhiều tầng vì ba lý do: (1) Entity chứa
+thông tin nhạy cảm như \texttt{PasswordHash}; (2) Navigation
+properties gây vòng lặp tuần hoàn khi JSON serialize; (3) Cần
+kiểm soát chính xác dữ liệu nào được phép hiển thị theo Role.
+\end{thm}
+
+\noindent\begin{proof}
+Entity \texttt{Account} chứa \texttt{PasswordHash} -- nếu
+serialize trực tiếp, client nhận được chuỗi BCrypt hash.
+\texttt{AuthResponseDto} chỉ chứa \texttt{Token}, \texttt{Email},
+\texttt{Role} -- thông tin nhạy cảm được che giấu hoàn toàn.
+\QEDAa
+\end{proof}
+
+Hệ thống phân biệt rõ Request DTO và Response DTO. Đoạn~\ref{lst:dto}
+trình bày \texttt{TourRequestDto} (Request) với Data Annotations
+validate, và \texttt{TourListDto} + \texttt{TourDetailDto}
+(Response) với các trường phù hợp từng ngữ cảnh hiển thị.
+
+\begin{lstlisting}[style=csharp,
+  caption={Request DTO và Response DTO cho Tour},
+  label={lst:dto}]
+// ── Request DTO: nhan tuclient khi tao/sua tour
+public class TourRequestDto
+{
+    [Required(ErrorMessage = "Ten Tour khong duoc de trong.")]
+    [MaxLength(150)]
+    public string TourName { get; set; } = string.Empty;
+
+    [Required]
+    public int CateId { get; set; }
+
+    [Required]
+    public int DesId { get; set; }
+
+    [Range(1, 30, ErrorMessage = "Số ngày phải từ 1 đến 30.")]
+    public int DurationDays { get; set; }
+
+    [Range(1, 999_999_999,
+        ErrorMessage = "Giá phải lớn hơn 0.")]
+    public decimal Price { get; set; }
+
+    [Range(1, 500,
+        ErrorMessage = "Sức chứa phải từ 1 đến 500.")]
+    public int MaxCapacity { get; set; }
+
+    [MaxLength(255)]
+    public string? Description { get; set; }
+
+    [MaxLength(255)]
+    public string? ImageUrl { get; set; }
+}
+
+// ── Response DTO (danh sách): trả về client, gọn nhẹ
+public class TourListDto
+{
+    public int     TourId      { get; set; }
+    public string? TourName    { get; set; }
+    public decimal Price       { get; set; }
+    public int     DurationDays { get; set; }
+    public string? CateName    { get; set; }
+    public string? DesName     { get; set; }
+    public double? AvgRating   { get; set; } // Tính từ Reviews
+}
+
+// ── Response DTO (chi tiết): đầy đủ hơn TourListDto
+public class TourDetailDto
+{
+    public int     TourId      { get; set; }
+    public string? TourName    { get; set; }
+    public decimal Price       { get; set; }
+    public string? Description { get; set; }
+    public string? CateName    { get; set; }
+    public string? DesName     { get; set; }
+    public string? Country     { get; set; }
+    public string? City        { get; set; }
+    public double? AvgRating   { get; set; }
+    public int     TotalReviews { get; set; }
+    // Kèm danh sách lịch khởi hành
+    public IEnumerable<ScheduleResponseDto> Schedules { get; set; }
+        = new List<ScheduleResponseDto>();
+}
+\end{lstlisting}
+
+Hình~\ref{fig:dto} minh họa luồng dữ liệu hoàn chỉnh qua
+các tầng với DTO làm lớp bảo vệ.
+
+% ──────────────────────────────────────
+\subsection{AutoMapper}\label{sub3.5.2}
+
+\begin{de}\label{def3.9}
+AutoMapper là thư viện tự động ánh xạ (map) giữa các object
+có cấu trúc tương tự, loại bỏ code mapping thủ công lặp lại.
+\texttt{MappingProfile} định nghĩa quy tắc ánh xạ; AutoMapper
+sử dụng Convention-based mapping cho các property cùng tên và
+\texttt{ForMember} cho các trường hợp cần tùy chỉnh.
+\end{de}
+
+Đoạn~\ref{lst:mapper} trình bày \texttt{MappingProfile} thực
+tế của hệ thống, bao gồm mapping phức tạp như tính
+\texttt{AvgRating} từ collection \texttt{Reviews},
+\texttt{ForMember} cho trường hợp đặc biệt như ignore
+\texttt{IsActive} khi map \texttt{TourRequestDto} sang
+\texttt{Tour}.
+
+\begin{lstlisting}[style=csharp,
+  caption={MappingProfile -- AutoMapper thực tế của hệ thống},
+  label={lst:mapper}]
 public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<Tour, TourListDto>()
-            .ForMember(
-                d => d.CateName,
-                o => o.MapFrom(t => t.Category.CateName))
-            .ForMember(
-                d => d.AvgRating,
-                o => o.MapFrom(t =>
-                    t.Reviews.Any()
-                        ? Math.Round(
-                            t.Reviews.Average(r => (double)r.Rating),
-                            1)
-                        : (double?)null));
+        // Category: map cả hai chiều
+        CreateMap<Category, CategoryResponseDto>();
+        CreateMap<CategoryRequestDto, Category>()
+            .ForMember(d => d.CateId, o => o.Ignore());
 
+        // TourSchedule -> ScheduleResponseDto
+        // Lấy tên nhân viên từ navigation property
+        CreateMap<TourSchedule, ScheduleResponseDto>()
+            .ForMember(d => d.EmployeeName, o => o.MapFrom(s =>
+                s.Employee != null ? s.Employee.FullName : null));
+
+        // Tour -> TourListDto: tính AvgRating từ Reviews
+        CreateMap<Tour, TourListDto>()
+            .ForMember(d => d.CateName, o => o.MapFrom(t =>
+                t.Category != null ? t.Category.CateName : null))
+            .ForMember(d => d.DesName, o => o.MapFrom(t =>
+                t.Destination != null
+                    ? t.Destination.DesName : null))
+            .ForMember(d => d.AvgRating, o => o.MapFrom(t =>
+                t.Reviews.Any()
+                    ? Math.Round(
+                        t.Reviews.Average(r => (double)r.Rating),1)
+                    : (double?)null));
+
+        // Tour -> TourDetailDto: thêm Country, City, Schedules
+        CreateMap<Tour, TourDetailDto>()
+            .ForMember(d => d.Country, o => o.MapFrom(t =>
+                t.Destination != null ? t.Destination.Country : null))
+            .ForMember(d => d.City, o => o.MapFrom(t =>
+                t.Destination != null ? t.Destination.City : null))
+            .ForMember(d => d.TotalReviews,
+                o => o.MapFrom(t => t.Reviews.Count))
+            .ForMember(d => d.Schedules,
+                o => o.MapFrom(t => t.TourSchedules));
+
+        // TourRequestDto -> Tour: ignore TourId và IsActive
+        // (IsActive được set thủ công trong Service)
         CreateMap<TourRequestDto, Tour>()
-            .ForMember(
-                d => d.TourId,
-                o => o.Ignore());
+            .ForMember(d => d.TourId,   o => o.Ignore())
+            .ForMember(d => d.IsActive, o => o.Ignore());
     }
 }
 \end{lstlisting}
 
-\section{Dependency Injection và Cấu hình hệ thống}\label{Sec3.5}
+% ──────────────────────────────────────
+\subsection{Chuẩn hóa Response với ApiResponse<T>}\label{sub3.5.3}
 
-Hệ thống tận dụng cơ chế \textit{Dependency Injection} (DI) mặc định của ASP.NET Core để quản lý vòng đời của tất cả các thành phần quan trọng trong hệ thống. Tại lớp \texttt{Program.cs}, các thành phần được đăng ký với các \textit{Life cycles} phù hợp:
+\begin{de}\label{def3.10}
+\texttt{ApiResponse<T>} là wrapper chuẩn hóa toàn bộ response
+của API. Mọi endpoint đều trả về cùng một cấu trúc JSON, giúp
+client xử lý response nhất quán và dễ debug khi có lỗi.
+\end{de}
 
-\begin{itemize}
-    \item \textbf{Scoped:} Áp dụng cho \texttt{AppDbContext}, các Repositories và các Services nghiệp vụ. Điều này đảm bảo rằng mỗi yêu cầu HTTP sẽ nhận được một thể hiện (Instance) duy nhất của dịch vụ, giúp quản lý trạng thái giao dịch một cách nhất quán.
+\begin{lstlisting}[style=csharp,
+  caption={ApiResponse<T> -- wrapper chuẩn hóa response},
+  label={lst:apiresponse}]
+public class ApiResponse<T>
+{
+    public bool    Success { get; init; }
+    public T?      Data    { get; init; }
+    public string? Message { get; init; }
 
-    \item \textbf{Singleton:} Sử dụng cho các cấu hình hệ thống hoặc các lớp Helper độc lập, nơi một thể hiện duy nhất được chia sẻ trong toàn bộ vòng đời ứng dụng.
-\end{itemize}
+    // Tạo response thành công
+    public static ApiResponse<T> Ok(T? data,
+        string? message = null) =>
+        new ApiResponse<T>
+        {
+            Success = true, Data = data, Message = message
+        };
 
-Việc áp dụng DI giúp hệ thống trở nên linh hoạt, dễ dàng thay thế các triển khai cụ thể và hỗ trợ đắc lực cho việc phát triển theo hướng \textit{Test-driven Development} (TDD).
-
-\begin{lstlisting}[style=csharp, caption={Cấu hình DI trong Program.cs}]
-var builder = WebApplication.CreateBuilder(args);
-
-// Database & ADO Singleton
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlServer(
-        builder.Configuration.GetConnectionString(
-            "DefaultConnection")));
-
-builder.Services.AddSingleton(_ =>
-    new AdoTourRepository(
-        builder.Configuration.GetConnectionString(
-            "DefaultConnection")!));
-
-// Scoped Repositories & Services
-builder.Services.AddScoped<ITourRepository, TourRepository>();
-builder.Services.AddScoped<ITourService, TourService>();
-
-// Mapping & Validation
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<TourValidator>();
+    // Tạo response lỗi
+    public static ApiResponse<T> Fail(
+        string? message = null) =>
+        new ApiResponse<T>
+        {
+            Success = false, Data = default, Message = message
+        };
+}
 \end{lstlisting}
 
-\section{Lời kết chương}\label{Sec3.6}
+Đoạn~\ref{lst:jsonex} trình bày cấu trúc JSON thực tế
+client nhận được trong hai trường hợp: thành công và lỗi.
 
-Kiến trúc 3-layer của hệ thống TravelBookingDB đảm bảo sự phân tách trách nhiệm rõ ràng, tạo nền tảng vững chắc cho việc bảo trì và mở rộng. Việc kết hợp linh hoạt giữa EF Core cho các tác vụ thông thường và ADO.NET cho các giao dịch phức tạp đã tối ưu hóa được cả tốc độ phát triển lẫn hiệu năng vận hành. Đây là cơ sở quan trọng để triển khai các chức năng nghiệp vụ chi tiết trong các chương tiếp theo, đồng thời hỗ trợ tốt cho việc triển khai Unit Test trong tương lai.
+\begin{lstlisting}[style=sql,
+  caption={Cấu trúc JSON response chuẩn hóa},
+  label={lst:jsonex}]
+-- Response thành công (HTTP 200)
+{
+  "success": true,
+  "data": {
+    "tourId": 1,
+    "tourName": "Tour Da Lat 3N2D",
+    "price": 2500000
+  },
+  "message": null
+}
+
+-- Response loi (HTTP 404)
+{
+  "success": false,
+  "data": null,
+  "message": "Tour ID 99 khong ton tai."
+}
+\end{lstlisting}
+
+% ═════════════════════════════════════════════════════════════
+\section{Dependency Injection và cấu hình hệ thống}\label{Sec3.6}
+% ═════════════════════════════════════════════════════════════
+
+\begin{de}\label{def3.11}
+Dependency Injection (DI) là cơ chế kết nối các lớp trong
+kiến trúc 3 tầng mà không tạo sự phụ thuộc trực tiếp.
+Controller không tự \texttt{new TourService()} mà nhận
+\texttt{ITourService} qua constructor -- ASP.NET Core DI
+Container tự tạo và inject instance phù hợp theo vòng đời
+đã đăng ký.
+\end{de}
+
+\begin{lem}\label{lem3.1}
+Repositories và Services đăng ký với vòng đời
+\texttt{Scoped}: mỗi HTTP request nhận một instance riêng,
+nhưng mọi class trong cùng request đều chia sẻ chung một
+\texttt{AppDbContext}. Điều này đảm bảo Unit of Work:
+tất cả thay đổi trong một request được commit hoặc rollback
+cùng nhau thông qua một \texttt{SaveChangesAsync()}.
+\end{lem}
+
+\begin{lstlisting}[style=csharp,
+  caption={Program.cs -- đăng ký DI đầy đủ của hệ thống},
+  label={lst:di}]
+var builder = WebApplication.CreateBuilder(args);
+var cfg = builder.Configuration;
+
+// ── 1. Database (Scoped DbContext)
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseSqlServer(
+        cfg.GetConnectionString("DefaultConnection")));
+
+// ── 2. ADO.NET (Singleton -- không dùng DbContext)
+builder.Services.AddSingleton(_ =>
+    new AdoTourRepository(
+        cfg.GetConnectionString("DefaultConnection")!));
+
+// ── 3. DAL Repositories (Scoped)
+builder.Services.AddScoped<ITourRepository,        TourRepository>();
+builder.Services.AddScoped<ICategoryRepository,    CategoryRepository>();
+builder.Services.AddScoped<IDestinationRepository, DestinationRepository>();
+builder.Services.AddScoped<IScheduleRepository,    ScheduleRepository>();
+builder.Services.AddScoped<IBookingRepository,     BookingRepository>();
+builder.Services.AddScoped<IPaymentRepository,     PaymentRepository>();
+builder.Services.AddScoped<IReportRepository,      ReportRepository>();
+
+// ── 4. BLL Services (Scoped)
+builder.Services.AddScoped<ITourService,       TourService>();
+builder.Services.AddScoped<ICategoryService,   CategoryService>();
+builder.Services.AddScoped<IBookingService,    BookingService>();
+builder.Services.AddScoped<IAuthService,       AuthService>();
+builder.Services.AddScoped<IReviewService,     ReviewService>();
+builder.Services.AddScoped<IReportService,     ReportService>();
+builder.Services.AddScoped<IPaymentService,    PaymentService>();
+builder.Services.AddScoped<JwtHelper>();
+
+// ── 5. AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// ── 6. FluentValidation
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining
+    <BookingValidator>();
+
+// ── 7. JWT Authentication
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var key = Encoding.UTF8.GetBytes(
+            cfg["JwtSettings:SecretKey"]!);
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer           = true,
+                ValidateAudience         = true,
+                ValidateLifetime         = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer    = cfg["JwtSettings:Issuer"],
+                ValidAudience  = cfg["JwtSettings:Audience"],
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(key)
+            };
+    });
+builder.Services.AddAuthorization();
+
+// ── 8. CORS cho Angular
+builder.Services.AddCors(opt =>
+    opt.AddPolicy("AllowAngular", p =>
+        p.WithOrigins("http://localhost:4200")
+         .AllowAnyHeader().AllowAnyMethod()));
+
+// ── 9. Swagger với JWT support
+builder.Services.AddSwaggerGen(s =>
+{
+    s.SwaggerDoc("v1", new OpenApiInfo {
+        Title   = "TravelTourBooking API",
+        Version = "v1"
+    });
+    s.AddSecurityDefinition("Bearer",
+        new OpenApiSecurityScheme {
+            Name        = "Authorization",
+            Type        = SecuritySchemeType.Http,
+            Scheme      = "bearer",
+            BearerFormat = "JWT",
+            In          = ParameterLocation.Header
+        });
+});
+
+builder.Services.AddControllers();
+var app = builder.Build();
+
+// ── Middleware pipeline (thứ tự bắt buộc)
+app.UseMiddleware<ExceptionMiddleware>(); // Đầu tiên
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseHttpsRedirection();
+app.UseCors("AllowAngular");
+app.UseAuthentication();  // Trước Authorization
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
+\end{lstlisting}
+
+\begin{rem}
+\texttt{AdoTourRepository} được đăng ký với vòng đời
+\texttt{Singleton} (không phải \texttt{Scoped}) vì nó không
+dùng \texttt{AppDbContext} — mỗi method tự quản lý
+\texttt{SqlConnection} riêng thông qua \texttt{await using},
+đảm bảo connection được đóng ngay khi ra khỏi phạm vi sử dụng.
+\end{rem}
+
+% ═════════════════════════════════════════════════════════════
+\section{LINQ to XML -- Xuất và Nhập dữ liệu}\label{Sec3.7}
+% ═════════════════════════════════════════════════════════════
+
+\begin{de}\label{def3.12}
+LINQ to XML là API trong .NET cho phép tạo, truy vấn và biến
+đổi tài liệu XML bằng cú pháp LINQ quen thuộc thông qua các
+lớp \texttt{XDocument} và \texttt{XElement}. So với
+\texttt{XmlDocument} truyền thống, LINQ to XML có cú pháp
+ngắn gọn hơn, hỗ trợ functional construction (tạo cây XML
+bằng một biểu thức duy nhất) và tích hợp trực tiếp với
+LINQ to Objects.
+\end{de}
+
+Hệ thống sử dụng \texttt{XmlSerializer} trong
+\texttt{XmlService} (Đoạn~\ref{lst:xmlservice}) để
+serialize và deserialize object C\# sang định dạng XML
+chuẩn, phục vụ chức năng xuất nhập dữ liệu tour.
+
+\begin{lstlisting}[style=csharp,
+  caption={XmlService -- Export và Import dữ liệu XML},
+  label={lst:xmlservice}]
+public static class XmlService
+{
+    // Serialize object sang chuỗi XML (Export)
+    public static string ToXml<T>(T obj)
+    {
+        var xs = new XmlSerializer(typeof(T));
+        using var ms = new MemoryStream();
+        xs.Serialize(ms, obj);
+        return Encoding.UTF8.GetString(ms.ToArray());
+    }
+}
+\end{lstlisting}
+
+\begin{ex}\label{ex3.1}
+Để xuất danh sách tour ra XML, Controller gọi
+\texttt{XmlService.ToXml(tours)} -- \texttt{XmlSerializer}
+tự động ánh xạ từng property của \texttt{TourListDto} thành
+phần tử XML tương ứng. File XML kết quả có thể được lưu
+trữ, trao đổi với hệ thống khác hoặc nhập lại vào hệ thống.
+\end{ex}
+
+Đoạn~\ref{lst:xmlsample} minh họa cấu trúc XML được tạo
+khi xuất danh sách tour.
+
+\begin{lstlisting}[style=sql,
+  caption={Cấu trúc file XML xuất từ hệ thống},
+  label={lst:xmlsample}]
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfTourListDto>
+  <TourListDto>
+    <TourId>1</TourId>
+    <TourName>Tour Da Lat 3N2D</TourName>
+    <Price>2500000</Price>
+    <DurationDays>3</DurationDays>
+    <MaxCapacity>20</MaxCapacity>
+    <CateName>Adventure</CateName>
+    <DesName>Da Lat</DesName>
+    <AvgRating>4.5</AvgRating>
+  </TourListDto>
+  <TourListDto>
+    <TourId>2</TourId>
+    <TourName>Tour Phu Quoc 4N3D</TourName>
+    <Price>5000000</Price>
+    <DurationDays>4</DurationDays>
+    <MaxCapacity>25</MaxCapacity>
+    <CateName>Luxury</CateName>
+    <DesName>Phu Quoc</DesName>
+    <AvgRating>4.8</AvgRating>
+  </TourListDto>
+</ArrayOfTourListDto>
+\end{lstlisting}
+
+% ═════════════════════════════════════════════════════════════
+\section{Tổng kết chương}\label{Sec3.8}
+% ═════════════════════════════════════════════════════════════
+
+Chương này đã trình bày đầy đủ kiến trúc phần mềm của hệ
+thống Travel Tour Booking theo mô hình 3 tầng. Bảng~\ref{table:summary}
+tổng hợp các kỹ thuật đã áp dụng theo từng tầng.
+
+\begin{table}[H]
+  \begin{center}
+    \begin{tabular}{|l|l|l|}
+      \hline
+      \textbf{Tầng} & \textbf{Kỹ thuật} & \textbf{Mục đích} \\
+      \hline
+      \multirow{4}{*}{Presentation}
+        & ASP.NET Core Web API
+          & Nhận và trả HTTP request \\
+        & JWT + RBAC (3 Role)
+          & Xác thực và phân quyền \\
+        & ExceptionMiddleware
+          & Xử lý lỗi tập trung \\
+        & Swagger UI
+          & Document và kiểm thử API \\
+      \hline
+      \multirow{4}{*}{Business Logic}
+        & Interface + Service
+          & Tách biệt contract và thực thi \\
+        & Business Rules
+          & Đảm bảo tính hợp lệ nghiệp vụ \\
+        & LINQ to Objects
+          & Xử lý collection trong RAM \\
+        & FluentValidation
+          & Kiểm tra dữ liệu đầu vào \\
+      \hline
+      \multirow{6}{*}{Data Access}
+        & EF Core DbContext
+          & Kết nối và ánh xạ 13 bảng \\
+        & LINQ to Entities
+          & Query type-safe, chống Injection \\
+        & Generic + Specific Repository
+          & Tách biệt logic truy cập DB \\
+        & EF SqlQueryRaw
+          & Gọi View T-SQL \\
+        & ADO.NET Connected
+          & Gọi SP, đọc SqlDataReader \\
+        & ADO.NET Disconnected
+          & DataSet + DataRelation offline \\
+      \hline
+      \multirow{4}{*}{Shared / Cross-cutting}
+        & DTO (Request + Response)
+          & Bảo vệ Entity, kiểm soát dữ liệu \\
+        & AutoMapper
+          & Tự động ánh xạ Entity $\leftrightarrow$ DTO \\
+        & ApiResponse\texttt{<T>}
+          & Chuẩn hóa JSON response \\
+        & Dependency Injection
+          & Kết nối các tầng qua Interface \\
+      \hline
+    \end{tabular}
+  \end{center}
+  \caption{Tổng hợp kỹ thuật áp dụng theo từng tầng}
+  \label{table:summary}
+\end{table}
+
+Nhờ kiến trúc 3 tầng, mỗi thành viên trong nhóm có thể
+phát triển độc lập theo phân công (TV1: Database, TV2: DAL,
+TV3: BLL, TV4: API, TV5: Test) mà không bị ảnh hưởng lẫn
+nhau. Tầng BLL chỉ phụ thuộc vào Interface của DAL — khi
+TV2 thay đổi implementation Repository, TV3 không cần sửa
+bất kỳ dòng code nào trong Service, miễn là Interface
+không thay đổi.
