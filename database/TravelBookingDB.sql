@@ -449,7 +449,7 @@ C.CateName,
 D.DesName,
 AVG(CAST(R.Rating AS DECIMAL(3,1))) AS AvgRating,
 COUNT(DISTINCT R.ReviewId) AS TotalReviews,
-COUNT(DISTINCT B.BookingId) AS BookingCount
+COUNT(DISTINCT B.BookingId) AS TotalBookings
 FROM Tours T
 LEFT JOIN Reviews R ON T.TourId = R.TourId
 LEFT JOIN Categories C ON T.CateId = C.CateId

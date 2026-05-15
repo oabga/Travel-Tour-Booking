@@ -11,7 +11,7 @@ namespace TravelTourBooking.DAL.EFCore.Entities
         public int TourId { get; set; }
         public string TourName { get; set; } = string.Empty;
         public string DesName { get; set; } = string.Empty;
-        public double AvgRating { get; set; }
+        public decimal? AvgRating { get; set; }
         public int TotalBookings { get; set; }
     }
 }

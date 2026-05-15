@@ -38,8 +38,8 @@ namespace TravelTourBooking.BLL.Services
                 CateName = t.Category?.CateName,
                 DesName = t.Destination?.DesName,
                 AvgRating = t.Reviews.Any()
-                               ? Math.Round(t.Reviews.Average(r => (double)r.Rating), 1)
-                               : null
+                               ? Math.Round(t.Reviews.Average(r => (decimal)r.Rating), 1)
+                               : (decimal?)null
             }).ToList();   // LINQ to Objects materialise
 
             return new PagedResult<TourListDto>

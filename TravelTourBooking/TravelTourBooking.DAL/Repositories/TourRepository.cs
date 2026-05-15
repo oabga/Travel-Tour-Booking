@@ -111,7 +111,7 @@ namespace TravelTourBooking.DAL.Repositories
         public async Task<IEnumerable<PopularTourResult>> GetPopularAsync()
         {
             var rows = await _db.Database
-                .SqlQueryRaw<PopularTourResult>("SELECT * FROM vw_PopularTours ORDER BY BookingCount DESC, AvgRating DESC")
+                .SqlQueryRaw<PopularTourResult>("SELECT * FROM vw_PopularTours ORDER BY TotalBookings DESC, AvgRating DESC")
                 .ToListAsync();
             return rows;
         }

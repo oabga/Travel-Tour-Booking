@@ -11,8 +11,8 @@ namespace TravelTourBooking.Common.DTOs
         public int TourId { get; set; }
         public string TourName { get; set; } = string.Empty;
         public string DesName { get; set; } = string.Empty;
-        public int TotalBookings { get; set; }
-        public decimal TotalRevenue { get; set; }
+        public int? TotalBookings { get; set; }
+        public decimal? TotalRevenue { get; set; }
     }
 
     public class MonthlyRevenueDto
@@ -20,8 +20,8 @@ namespace TravelTourBooking.Common.DTOs
         public int RevenueYear { get; set; }
         public int RevenueMonth { get; set; }
         public int TotalBookings { get; set; }
-        public decimal TotalRevenue { get; set; }
-        public decimal AvgOrderValue { get; set; }
+        public decimal? TotalRevenue { get; set; }
+        public decimal? AvgOrderValue { get; set; }
     }
 
     public class PopularTourDto
@@ -29,7 +29,7 @@ namespace TravelTourBooking.Common.DTOs
         public int TourId { get; set; }
         public string TourName { get; set; } = string.Empty;
         public string DesName { get; set; } = string.Empty;
-        public double AvgRating { get; set; }
+        public decimal? AvgRating { get; set; }
         public int TotalBookings { get; set; }
     }
 
@@ -42,7 +42,7 @@ namespace TravelTourBooking.Common.DTOs
         public int TotalSlots { get; set; }
         public int BookedSlots { get; set; }
         public int AvailableSlots { get; set; }
-        public decimal OccupancyPercent { get; set; }
+        public decimal? OccupancyPercent { get; set; }
     }
 
     public class RevenueReportQueryDto
