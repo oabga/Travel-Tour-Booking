@@ -403,7 +403,7 @@ public async Task<int> ImportToursFromXmlAsync(string xmlContent)
 
 % [TV4] Chụp màn hình Swagger UI đang chạy, lưu thành file
 %       rồi thay \framebox bên dưới bằng: \includegraphics[width=14cm]{swagger.png}
-
+\subsection{Kiểm thử API với Swagger}\label{sub4.5.1}
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{image/swagger/tours.png}
@@ -473,7 +473,7 @@ public async Task<int> ImportToursFromXmlAsync(string xmlContent)
 % [TV4] Chụp màn hình Postman kết quả test (Collection Runner hoặc request/response),
 %       lưu thành file rồi thay \framebox bên dưới.
 
-\subsection{Kịch bản kiểm thử API với Postman}\label{sub4.5.1}
+\subsection{Kiểm thử API với Postman}\label{sub4.5.2}
 
 Để đảm bảo tính chính xác và luồng hoạt động thực tế của hệ thống, các API được kiểm thử theo một kịch bản hoàn chỉnh trên Postman bao gồm 6 bước như sau:
 
@@ -514,7 +514,11 @@ Sử dụng token của Khách hàng để thực hiện quy trình đặt tour 
 \begin{figure}[H]
   \centering
   % Tạm thời dùng framebox tạo chỗ trống. Khi có ảnh thật, bạn comment dòng framebox lại và dùng includegraphics.
-  \framebox[14cm][c]{\rule{0pt}{6cm} [Chèn screenshot Postman: Đặt tour \& Thanh toán]}
+  \includegraphics[width=0.8\textwidth]{image/postman/booking_payment/post_booking.png} \\[2ex]
+  \includegraphics[width=0.8\textwidth]{image/postman/booking_payment/get_booking_id.png} \\[2ex]
+  \includegraphics[width=0.8\textwidth]{image/postman/booking_payment/post_payment.png} \\[2ex]
+  \includegraphics[width=0.8\textwidth]{image/postman/booking_payment/get_total_paid.png} \\[2ex]
+  \includegraphics[width=0.8\textwidth]{image/postman/booking_payment/get_remaining.png} \\[2ex]
   % \includegraphics[width=\textwidth]{image/postman/step4_booking.png}
   \caption{Postman --- Bước 4: Đặt tour và Thanh toán}\label{fig:pm_booking}
 \end{figure}
@@ -524,9 +528,9 @@ Khách hàng thực hiện đánh giá tour (\texttt{POST /api/reviews}), xem l�
 
 \begin{figure}[H]
   \centering
-  \framebox[14cm][c]{\rule{0pt}{6cm} [Chèn screenshot Postman: Review/Cancel/History]}
-  % \includegraphics[width=\textwidth]{image/postman/step5_after.png}
-  \caption{Postman --- Bước 5: Đánh giá, hủy và lịch sử booking}\label{fig:pm_after}
+  \includegraphics[width=\textwidth]{image/postman/tour_done/cancel.png} \\[2ex]
+  \includegraphics[width=\textwidth]{image/postman/tour_done/get_booking_history.png} \\[2ex]
+  \caption{Postman --- Bước 5: Thực hiện hủy và lịch sử booking}\label{fig:pm_after}
 \end{figure}
 
 \textbf{Bước 6: Báo cáo thống kê (Quyền Admin)} \\
@@ -534,11 +538,13 @@ Admin gọi các endpoint báo cáo để truy xuất doanh thu, danh sách tour
 
 \begin{figure}[H]
   \centering
-  \framebox[14cm][c]{\rule{0pt}{6cm} [Chèn screenshot Postman: Báo cáo Admin]}
-  % \includegraphics[width=\textwidth]{image/postman/step6_reports.png}
+  \includegraphics[width=\textwidth]{image/postman/reports/get_revenue.png} \\[2ex]
+  \includegraphics[width=\textwidth]{image/postman/reports/get_revenue_monthly.png} \\[2ex]
+  \includegraphics[width=\textwidth]{image/postman/reports/get_popular_tours.png} \\[2ex]
+  \includegraphics[width=\textwidth]{image/postman/reports/get_occupancy.png} \\[2ex]
   \caption{Postman --- Bước 6: Trích xuất báo cáo thống kê}\label{fig:pm_reports}
 \end{figure}
-\section{Dashboard (nếu có)}\label{Sec4.6}
+\section{Dashboard}\label{Sec4.6}
 
 % [TV4/TV5] Nếu nhóm xây dựng giao diện Frontend/Dashboard,
 % mô tả ngắn công nghệ sử dụng và chèn screenshot.
@@ -558,6 +564,6 @@ bảo vệ route \texttt{/dashboard} --- chỉ tài khoản Admin mới truy c�
 
 \begin{figure}[H]
   \centering
-  \framebox[14cm][c]{\rule{0pt}{6cm} [Chèn screenshot Dashboard]}
+  \includegraphics[width=\textwidth]{image/dashboard_admin.png} \\[2ex]
   \caption{Giao diện Dashboard báo cáo}\label{fig:dashboard}
 \end{figure}
