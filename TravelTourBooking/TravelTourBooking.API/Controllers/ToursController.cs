@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TravelTourBooking.BLL.Interfaces;
 using TravelTourBooking.Common.DTOs;
@@ -8,8 +8,16 @@ namespace TravelTourBooking.API.Controllers
     [ApiController]
     [Route("api/tours")]
     [Produces("application/json")]
-    public class ToursController(ITourService svc) : ControllerBase
+    public class ToursController : ControllerBase
     {
+        private readonly ITourService svc;
+        private readonly IWebHostEnvironment env;
+
+        public ToursController(ITourService svc, IWebHostEnvironment env)
+        {
+            this.svc = svc;
+            this.env = env;
+        }
         // ── GET /api/tours?page=1&pageSize=10&cateId=&desId=&priceMin=&priceMax=
         //Danh sách tour — phân trang và lọc theo danh mục, điểm đến, khoảng giá
         //chỉ admin, staff mới dc xem
@@ -78,10 +86,23 @@ namespace TravelTourBooking.API.Controllers
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponse<TourDetailDto>), 201)]
         [ProducesResponseType(typeof(ApiResponse<string>), 400)]
-        public async Task<IActionResult> Create([FromBody] TourRequestDto dto)
+        public async Task<IActionResult> Create([FromForm] TourRequestDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ApiResponse<string>.Fail("Dữ liệu không hợp lệ."));
+
+            // handle uploaded image
+            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(dto.ImageFile.FileName);
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var saveDir = Path.Combine(env.WebRootPath ?? "wwwroot", "images", "tours");
+                Directory.CreateDirectory(saveDir);
+                var filePath = Path.Combine(saveDir, fileName);
+                await using var fs = System.IO.File.Create(filePath);
+                await dto.ImageFile.CopyToAsync(fs);
+                dto.ImageUrl = $"/images/tours/{fileName}";
+            }
 
             var created = await svc.CreateTourAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.TourId },
@@ -92,12 +113,34 @@ namespace TravelTourBooking.API.Controllers
         //Cập nhật tour — chỉ Admin
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
+        [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(ApiResponse<TourDetailDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse<string>), 404)]
-        public async Task<IActionResult> Update(int id, [FromBody] TourRequestDto dto)
+        public async Task<IActionResult> Update(int id, [FromForm] TourRequestDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ApiResponse<string>.Fail("Dữ liệu không hợp lệ."));
+
+            var existing = await svc.GetTourDetailAsync(id);
+            if (existing is null)
+                return NotFound(ApiResponse<string>.Fail($"Tour ID {id} không tồn tại."));
+
+            // Save new file if provided; otherwise preserve existing ImageUrl
+            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(dto.ImageFile.FileName);
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var saveDir = Path.Combine(env.WebRootPath ?? "wwwroot", "images", "tours");
+                Directory.CreateDirectory(saveDir);
+                var filePath = Path.Combine(saveDir, fileName);
+                await using var fs = System.IO.File.Create(filePath);
+                await dto.ImageFile.CopyToAsync(fs);
+                dto.ImageUrl = $"/images/tours/{fileName}";
+            }
+            else
+            {
+                dto.ImageUrl = existing.ImageUrl; // preserve existing URL if no new upload
+            }
 
             var updated = await svc.UpdateTourAsync(id, dto);
             return Ok(ApiResponse<TourDetailDto>.Ok(updated, "Cập nhật tour thành công."));
@@ -113,6 +156,23 @@ namespace TravelTourBooking.API.Controllers
         {
             await svc.DeleteTourAsync(id);
             return Ok(ApiResponse<string>.Ok("deleted", "Xóa tour thành công."));
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("export/xml")]
+        public async Task<IActionResult> ExportXml()
+        {
+            var xmlData = await svc.ExportToursToXmlAsync();
+            return File(System.Text.Encoding.UTF8.GetBytes(xmlData), "application/xml", "tours_export.xml");
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("import/xml")]
+        public async Task<IActionResult> ImportXml(IFormFile file)
+        {
+            if (file == null || file.Length == 0) return BadRequest(ApiResponse<string>.Fail("File rỗng."));
+            using var stream = file.OpenReadStream();
+            int count = await svc.ImportToursFromXmlAsync(stream);
+            return Ok(ApiResponse<string>.Ok("Success", $"Nhập thành công {count} tour từ XML."));
         }
     }
 }

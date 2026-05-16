@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { EmployeeService } from '../../../services/employee.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { EmployeeDto } from '../../../shared/models';
 
 @Component({
@@ -25,31 +26,38 @@ import { EmployeeDto } from '../../../shared/models';
         <div class="card-body">
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row g-3 align-items-end">
             <div class="col-md-3">
-              <label class="form-label">Ho ten *</label>
+              <label class="form-label">Họ tên *</label>
               <input type="text" class="form-control" formControlName="fullName">
             </div>
             <div class="col-md-2">
-              <label class="form-label">Vai tro</label>
-              <input type="text" class="form-control" formControlName="role" placeholder="HDV / Admin">
+              <label class="form-label">Vai trò</label>
+              <input type="text" class="form-control" formControlName="role" placeholder="Staff / Admin">
             </div>
             <div class="col-md-2">
-              <label class="form-label">SDT</label>
+              <label class="form-label">SĐT</label>
               <input type="text" class="form-control" formControlName="phone">
             </div>
-            <div class="col-md-3">
-              <label class="form-label">Email</label>
+            <div class="col-md-2">
+              <label class="form-label">Email *</label>
               <input type="email" class="form-control" formControlName="email">
             </div>
-            <div class="col-md-2">
+            <!-- Chỉ hiện field mật khẩu khi tạo mới (chưa có editId) -->
+            @if (!editId) {
+              <div class="col-md-2">
+                <label class="form-label">Mật khẩu *</label>
+                <input type="password" class="form-control" formControlName="password">
+              </div>
+            }
+            <div class="col-md-12 mt-3">
               <button type="submit" class="btn btn-primary me-1" [disabled]="form.invalid">
-                {{ editId ? 'Luu' : 'Them' }}
+                {{ editId ? 'Lưu' : 'Tạo tài khoản' }}
               </button>
-              <button type="button" class="btn btn-secondary" (click)="showForm=false">Huy</button>
+              <button type="button" class="btn btn-secondary" (click)="showForm=false">Hủy</button>
             </div>
           </form>
         </div>
       </div>
-    }
+      }
 
     <div class="table-responsive">
       <table class="table table-hover align-middle">
@@ -80,44 +88,58 @@ import { EmployeeDto } from '../../../shared/models';
   `
 })
 export class EmployeeManageComponent implements OnInit {
-  items: EmployeeDto[] = [];
-  showForm = false;
-  editId: number | null = null;
-  msg = '';
-  msgOk = false;
-
-  form = this.fb.nonNullable.group({
-    fullName: ['', Validators.required],
-    role: [''],
-    phone: [''],
-    email: ['']
-  });
-
-  constructor(private fb: FormBuilder, private svc: EmployeeService) {}
-
-  ngOnInit(): void { this.load(); }
-  load(): void { this.svc.getAll().subscribe(d => this.items = d); }
-
-  openForm(): void {
-    this.showForm = true; this.editId = null;
-    this.form.reset({ fullName: '', role: '', phone: '', email: '' });
-  }
-
-  onEdit(e: EmployeeDto): void {
-    this.showForm = true; this.editId = e.employeeId;
-    this.form.patchValue({ fullName: e.fullName || '', role: e.role || '', phone: e.phone || '', email: e.email || '' });
-  }
-
-  onSubmit(): void {
-    if (this.form.invalid) return;
-    const val = this.form.getRawValue();
-    const dto: EmployeeDto = { employeeId: this.editId || 0, ...val };
-    const obs = this.editId ? this.svc.update(this.editId, dto) : this.svc.create(dto);
-    obs.subscribe({
-      next: () => { this.msg = 'Thanh cong!'; this.msgOk = true; this.showForm = false; this.load(); },
-      error: err => { this.msg = err.error?.message || 'Loi.'; this.msgOk = false; }
+    items: EmployeeDto[] = [];
+    showForm = false;
+    editId: number | null = null;
+    msg = '';
+    msgOk = false;
+    form = this.fb.nonNullable.group({
+        fullName: ['', Validators.required],
+        role: ['Staff'],
+        phone: [''],
+        email: ['', [Validators.required, Validators.email]],
+        password: [''] // Thêm trường password
     });
-  }
+    constructor(
+        private fb: FormBuilder,
+        private svc: EmployeeService,
+        private authSvc: AuthService // Thêm AuthService vào constructor
+    ) { }
+    ngOnInit(): void { this.load(); }
+    load(): void { this.svc.getAll().subscribe(d => this.items = d); }
+    openForm(): void {
+        this.showForm = true; this.editId = null;
+        this.form.reset({ fullName: '', role: 'Staff', phone: '', email: '', password: '' });
+        // Yêu cầu mật khẩu khi tạo mới
+        this.form.get('password')?.setValidators(Validators.required);
+        this.form.get('password')?.updateValueAndValidity();
+    }
+    onEdit(e: EmployeeDto): void {
+        this.showForm = true; this.editId = e.employeeId;
+        this.form.patchValue({ fullName: e.fullName || '', role: e.role || '', phone: e.phone || '', email: e.email || '', password: '' });
+        // Không yêu cầu mật khẩu khi edit
+        this.form.get('password')?.clearValidators();
+        this.form.get('password')?.updateValueAndValidity();
+    }
+    onSubmit(): void {
+        if (this.form.invalid) return;
+        const val = this.form.getRawValue();
+        if (this.editId) {
+            // Trường hợp Cập nhật Employee (Không cập nhật mật khẩu ở đây)
+            const dto: EmployeeDto = { employeeId: this.editId, ...val };
+            this.svc.update(this.editId, dto).subscribe({
+                next: () => { this.msg = 'Cập nhật thành công!'; this.msgOk = true; this.showForm = false; this.load(); },
+                error: err => { this.msg = err.error?.message || 'Cập nhật lỗi.'; this.msgOk = false; }
+            });
+        } else {
+            // Trường hợp Tạo tài khoản Staff mới
+            this.authSvc.registerStaff(val).subscribe({
+                next: () => { this.msg = 'Tạo tài khoản thành công!'; this.msgOk = true; this.showForm = false; this.load(); },
+                error: err => { this.msg = err.error?.message || 'Tạo lỗi.'; this.msgOk = false; }
+            });
+        }
+    }
+
 
   onDelete(id: number): void {
     if (!confirm('Xac nhan xoa?')) return;

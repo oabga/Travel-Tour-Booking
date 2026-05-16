@@ -18,10 +18,12 @@ import { BookingHistory } from '../../../shared/models';
           <div class="spinner-border text-primary"></div>
         </div>
       } @else if (bookings.length === 0) {
-        <div class="empty-state">
-          <i class="bi bi-journal-x"></i>
-          <p>Ban chua co booking nao.</p>
-          <a routerLink="/tours" class="btn btn-primary">Tim tour ngay</a>
+        <div class="empty-state text-center py-5">
+          <i class="bi bi-journal-x" style="font-size: 3rem; color: #ccc;"></i>
+          <p class="mt-3 text-muted">{{ isAdminOrStaff ? 'Chưa có booking nào trong hệ thống.' : 'Ban chua co booking nao.' }}</p>
+          @if (!isAdminOrStaff) {
+            <a routerLink="/tours" class="btn btn-primary mt-2">Tim tour ngay</a>
+          }
         </div>
       } @else {
         <div class="table-responsive">
@@ -55,7 +57,7 @@ import { BookingHistory } from '../../../shared/models';
                   </td>
                   <td>{{ b.bookingDate | date:'dd/MM/yyyy HH:mm' }}</td>
                   <td>
-                    <a [routerLink]="['/bookings', b.bookingId]"
+                    <a [routerLink]="isAdminOrStaff ? ['/admin/bookings', b.bookingId] : ['/bookings', b.bookingId]"
                        class="btn btn-sm btn-outline-primary">
                       <i class="bi bi-eye"></i>
                     </a>
@@ -72,18 +74,29 @@ import { BookingHistory } from '../../../shared/models';
 export class BookingHistoryComponent implements OnInit {
   bookings: BookingHistory[] = [];
   loading = true;
+  isAdminOrStaff = false;
 
   constructor(
     private bookingSvc: BookingService,
-    private auth: AuthService
+    public auth: AuthService
   ) {}
 
   ngOnInit(): void {
-    const id = this.auth.userId();
-    if (!id) { this.loading = false; return; }
-    this.bookingSvc.getByAccount(id).subscribe({
-      next: data => { this.bookings = data; this.loading = false; },
-      error: () => this.loading = false
-    });
+    const role = this.auth.userRole();
+    this.isAdminOrStaff = role === 'Admin' || role === 'Staff';
+
+    if (this.isAdminOrStaff) {
+      this.bookingSvc.getAll().subscribe({
+        next: data => { this.bookings = data; this.loading = false; },
+        error: () => this.loading = false
+      });
+    } else {
+      const id = this.auth.userId();
+      if (!id) { this.loading = false; return; }
+      this.bookingSvc.getByAccount(id).subscribe({
+        next: data => { this.bookings = data; this.loading = false; },
+        error: () => this.loading = false
+      });
+    }
   }
 }

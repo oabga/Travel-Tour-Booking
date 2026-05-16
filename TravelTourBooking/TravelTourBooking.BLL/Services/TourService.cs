@@ -1,9 +1,11 @@
-﻿using AutoMapper;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using TravelTourBooking.BLL.Interfaces;
 using TravelTourBooking.Common.DTOs;
 using TravelTourBooking.DAL.EFCore.Entities;
@@ -106,15 +108,58 @@ namespace TravelTourBooking.BLL.Services
             return mapper.Map<TourDetailDto>(detail!);
         }
 
-        // ── DELETE (soft delete) ───────
         public async Task DeleteTourAsync(int tourId)
         {
             var tour = await tourRepo.GetByIdAsync(tourId)
                 ?? throw new KeyNotFoundException($"Tour ID {tourId} không tồn tại.");
 
-            // Soft-delete: chỉ set IsActive = false, không xóa vật lý
             tour.IsActive = false;
             await tourRepo.UpdateAsync(tour);
+        }
+
+        public async Task<string> ExportToursToXmlAsync()
+        {
+            var tours = (await tourRepo.GetAllAsync())
+                .Select(t => new TourXmlDto
+                {
+                    TourName = t.TourName ?? string.Empty,
+                    CateId = t.CateId ?? 0,
+                    DesId = t.DesId ?? 0,
+                    DurationDays = t.DurationDays,
+                    Price = t.Price,
+                    MaxCapacity = t.MaxCapacity,
+                    Description = t.Description,
+                    ImageUrl = t.ImageUrl
+                }).ToList();
+            var serializer = new XmlSerializer(typeof(List<TourXmlDto>));
+            using var writer = new StringWriter();
+            serializer.Serialize(writer, tours);
+            return writer.ToString();
+        }
+        public async Task<int> ImportToursFromXmlAsync(Stream xmlStream)
+        {
+            var serializer = new XmlSerializer(typeof(List<TourXmlDto>));
+            var tours = (List<TourXmlDto>)serializer.Deserialize(xmlStream)!;
+
+            int count = 0;
+            foreach (var dto in tours)
+            {
+                var tour = new Tour
+                {
+                    TourName = dto.TourName,
+                    CateId = dto.CateId,
+                    DesId = dto.DesId,
+                    DurationDays = dto.DurationDays,
+                    Price = dto.Price,
+                    MaxCapacity = dto.MaxCapacity,
+                    Description = dto.Description,
+                    ImageUrl = dto.ImageUrl,
+                    IsActive = true
+                };
+                await tourRepo.AddAsync(tour);
+                count++;
+            }
+            return count;
         }
     }
 }

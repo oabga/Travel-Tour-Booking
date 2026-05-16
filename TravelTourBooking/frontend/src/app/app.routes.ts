@@ -57,8 +57,14 @@ export const routes: Routes = [
       .then(m => m.ProfileComponent)
   },
   {
+    path: 'change-password',
+    canActivate: [authGuard],
+    loadComponent: () => import('./shared/components/change-password/change-password.component')
+            .then(m => m.ChangePasswordComponent)
+  },
+  {
     path: 'admin',
-    canActivate: [roleGuard(['Admin'])],
+      canActivate: [roleGuard(['Admin', 'Staff'])],
     loadComponent: () => import('./features/admin/admin-layout.component')
       .then(m => m.AdminLayoutComponent),
     children: [
@@ -96,6 +102,21 @@ export const routes: Routes = [
         path: 'reports',
         loadComponent: () => import('./features/admin/reports/reports.component')
           .then(m => m.ReportsComponent)
+      },
+      {
+        path: 'change-password',
+        loadComponent: () => import('./shared/components/change-password/change-password.component')
+            .then(m => m.ChangePasswordComponent)
+      },
+      {
+        path: 'bookings',
+        loadComponent: () => import('./features/bookings/booking-history/booking-history.component')
+            .then(m => m.BookingHistoryComponent)
+      },
+      {
+        path: 'bookings/:id',
+        loadComponent: () => import('./features/bookings/booking-detail/booking-detail.component')
+            .then(m => m.BookingDetailComponent)
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
