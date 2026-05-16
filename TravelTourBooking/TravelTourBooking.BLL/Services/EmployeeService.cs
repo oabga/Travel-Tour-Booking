@@ -87,15 +87,24 @@ public class EmployeeService : IEmployeeService
         var emp = await _context.Employees
             .FirstOrDefaultAsync(x =>
                 x.EmployeeId == id);
-
         if (emp == null)
         {
             throw new Exception(
                 "Employee not found");
         }
-
+        if (!string.IsNullOrEmpty(emp.Email))
+        {
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(x => x.Email == emp.Email);
+            if (account != null)
+            {
+                var accountRoles = await _context.AccountRoles
+                    .Where(x => x.AccountId == account.AccountId).ToListAsync();
+                _context.AccountRoles.RemoveRange(accountRoles);
+                _context.Accounts.Remove(account);
+            }
+        }
         _context.Employees.Remove(emp);
-
         await _context.SaveChangesAsync();
     }
 }

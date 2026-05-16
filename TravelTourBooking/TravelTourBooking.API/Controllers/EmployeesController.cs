@@ -40,8 +40,7 @@ public class EmployeesController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(
-        int id)
+    public async Task<IActionResult> Delete(int id)
     {
         await _service.DeleteAsync(id);
         return Ok("Deleted successfully");

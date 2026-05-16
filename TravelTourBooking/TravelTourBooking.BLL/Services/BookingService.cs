@@ -111,4 +111,9 @@ public class BookingService(IBookingRepository bookingRepo) : IBookingService
             }).ToList()
         };
     }
+
+    public async Task<IEnumerable<BookingHistoryDto>> GetAllBookingsAsync()
+    {
+        return await bookingRepo.GetAllBookingHistoryAsync();
+    }
 }

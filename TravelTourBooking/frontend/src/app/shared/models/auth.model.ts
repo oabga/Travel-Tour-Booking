@@ -16,6 +16,7 @@ export interface AuthResponse {
   token: string;
   email: string;
   role: string;
+  requirePasswordChange?: boolean;
 }
 
 export interface JwtPayload {

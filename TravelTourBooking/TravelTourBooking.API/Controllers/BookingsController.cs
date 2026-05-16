@@ -69,4 +69,13 @@ public class BookingsController(IBookingService svc) : ControllerBase
         var history = await svc.GetBookingsByAccountAsync(id);
         return Ok(ApiResponse<IEnumerable<BookingHistoryDto>>.Ok(history));
     }
+
+    [HttpGet("all")]
+    [Authorize(Roles = "Admin,Staff")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingHistoryDto>>), 200)]
+    public async Task<IActionResult> GetAllBookings()
+    {
+        var history = await svc.GetAllBookingsAsync();
+        return Ok(ApiResponse<IEnumerable<BookingHistoryDto>>.Ok(history));
+    }
 }

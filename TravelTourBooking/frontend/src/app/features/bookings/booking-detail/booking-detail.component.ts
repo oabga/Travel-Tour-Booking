@@ -20,7 +20,11 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
       <div class="container py-4">
         <nav aria-label="breadcrumb" class="mb-3">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a routerLink="/bookings">Lich su</a></li>
+            <li class="breadcrumb-item">
+              <a [routerLink]="auth.userRole() === 'Customer' ? '/bookings' : '/admin/bookings'">
+                {{ auth.userRole() === 'Customer' ? 'Lich su' : 'Danh sách Booking' }}
+              </a>
+            </li>
             <li class="breadcrumb-item active">Booking #{{ booking.bookingId }}</li>
           </ol>
         </nav>

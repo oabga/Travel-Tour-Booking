@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -59,6 +59,14 @@ import { AuthService } from '../../../core/services/auth.service';
                   @if (auth.userRole() === 'Customer') {
                     <li><a class="dropdown-item" routerLink="/profile">
                       <i class="bi bi-person me-2"></i>Ho so
+                    </a></li>
+                    <li><a class="dropdown-item" routerLink="/change-password">
+                      <i class="bi bi-shield-lock me-2"></i>Đổi mật khẩu
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                  } @else {
+                    <li><a class="dropdown-item" routerLink="/admin/change-password">
+                      <i class="bi bi-shield-lock me-2"></i>Đổi mật khẩu
                     </a></li>
                     <li><hr class="dropdown-divider"></li>
                   }

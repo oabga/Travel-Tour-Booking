@@ -162,4 +162,23 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         _db.BookingDetails.AddRange(details);
         await _db.SaveChangesAsync();
     }
+
+    public async Task<IEnumerable<BookingHistoryDto>> GetAllBookingHistoryAsync()
+    {
+        var bookings = await _db.Bookings
+            .Include(b => b.Schedule).ThenInclude(s => s!.Tour).ThenInclude(t => t!.Destination)
+            .OrderByDescending(b => b.BookingDate).ToListAsync();
+
+        return bookings.Select(b => new BookingHistoryDto
+        {
+            BookingId = b.BookingId,
+            TourName = b.Schedule?.Tour?.TourName,
+            DesName = b.Schedule?.Tour?.Destination?.DesName,
+            DepartureDate = b.Schedule?.DepartureDate?.ToDateTime(TimeOnly.MinValue),
+            NumberOfPeople = b.NumberOfPeople,
+            TotalAmount = b.TotalAmount,
+            Status = b.Status,
+            BookingDate = b.BookingDate
+        }).ToList();
+    }
 }

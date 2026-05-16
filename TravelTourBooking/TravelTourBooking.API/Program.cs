@@ -11,6 +11,7 @@ using TravelTourBooking.BLL.Interfaces;
 using TravelTourBooking.BLL.Services;
 using TravelTourBooking.BLL.Validators;
 using TravelTourBooking.DAL.EFCore;
+using TravelTourBooking.DAL.EFCore.Entities;
 using TravelTourBooking.DAL.Repositories;
 using TravelTourBooking.DAL.Repositories.Interfaces;
 
@@ -138,9 +139,40 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseCors("AllowAngular");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // Kiểm tra xem Role Admin đã có trong bảng Roles chưa
+    var adminRole = db.Roles.FirstOrDefault(r => r.RoleName == "Admin");
+    if (adminRole == null)
+    {
+        adminRole = new Role { RoleName = "Admin" };
+        db.Roles.Add(adminRole);
+        db.SaveChanges();
+    }
+    // Kiểm tra xem đã có tài khoản nào được gán quyền Admin chưa
+    if (!db.Accounts.Any(a => a.Email == "admin@traveltour.com"))
+    {
+        var hash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
+        var admin = new Account
+        {
+            Email = "admin@traveltour.com",
+            PasswordHash = hash,
+            CreatedAt = DateTime.UtcNow
+        };
+        db.Accounts.Add(admin);
+        db.SaveChanges();
+        db.AccountRoles.Add(new AccountRole { AccountId = admin.AccountId, RoleId = adminRole.RoleId });
+        db.Employees.Add(new Employee { FullName = "System Admin", Email = admin.Email, Phone = "0000000000", Role = "Admin" });
+        db.SaveChanges();
+    }
+}
 
 app.Run();

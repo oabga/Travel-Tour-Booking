@@ -23,4 +23,7 @@ public interface IBookingService
     /// Lịch sử booking của một tài khoản.
     /// </summary>
     Task<IEnumerable<BookingHistoryDto>> GetBookingsByAccountAsync(int accountId);
+
+    Task<IEnumerable<BookingHistoryDto>> GetAllBookingsAsync();
+
 }
