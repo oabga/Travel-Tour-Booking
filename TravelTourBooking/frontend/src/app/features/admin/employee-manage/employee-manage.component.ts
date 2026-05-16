@@ -1,7 +1,8 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { EmployeeService } from '../../../services/employee.service';
+import { RoleService, RoleDto } from '../../../services/role.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { EmployeeDto } from '../../../shared/models';
 
@@ -18,7 +19,7 @@ import { EmployeeDto } from '../../../shared/models';
     </div>
 
     @if (msg) {
-      <div class="alert" [class.alert-success]="msgOk" [class.alert-danger]="!msgOk">{{ msg }}</div>
+      <div class="alert shadow-sm" [class.alert-success]="msgOk" [class.alert-danger]="!msgOk">{{ msg }}</div>
     }
 
     @if (showForm) {
@@ -30,8 +31,13 @@ import { EmployeeDto } from '../../../shared/models';
               <input type="text" class="form-control" formControlName="fullName">
             </div>
             <div class="col-md-2">
-              <label class="form-label">Vai trò</label>
-              <input type="text" class="form-control" formControlName="role" placeholder="Staff / Admin">
+              <label class="form-label">Vai trò *</label>
+              <select class="form-select" formControlName="role">
+                <option value="">-- Chọn vai trò --</option>
+                @for (r of roles; track r.roleId) {
+                  <option [value]="r.roleName">{{ r.roleName }}</option>
+                }
+              </select>
             </div>
             <div class="col-md-2">
               <label class="form-label">SĐT</label>
@@ -49,10 +55,10 @@ import { EmployeeDto } from '../../../shared/models';
               </div>
             }
             <div class="col-md-12 mt-3">
-              <button type="submit" class="btn btn-primary me-1" [disabled]="form.invalid">
-                {{ editId ? 'Lưu' : 'Tạo tài khoản' }}
+              <button type="submit" class="btn btn-primary me-1 px-4" [disabled]="form.invalid">
+                {{ editId ? 'Lưu thay đổi' : 'Tạo tài khoản' }}
               </button>
-              <button type="button" class="btn btn-secondary" (click)="showForm=false">Hủy</button>
+              <button type="button" class="btn btn-light border" (click)="showForm=false">Hủy</button>
             </div>
           </form>
         </div>
@@ -60,23 +66,29 @@ import { EmployeeDto } from '../../../shared/models';
       }
 
     <div class="table-responsive">
-      <table class="table table-hover align-middle">
+      <table class="table table-hover align-middle shadow-sm bg-white rounded">
         <thead class="table-light">
           <tr><th>ID</th><th>Ho ten</th><th>Vai tro</th><th>SDT</th><th>Email</th><th></th></tr>
         </thead>
         <tbody>
           @for (e of items; track e.employeeId) {
             <tr>
-              <td>{{ e.employeeId }}</td>
-              <td>{{ e.fullName }}</td>
-              <td>{{ e.role }}</td>
+              <td><span class="badge bg-light text-dark border">{{ e.employeeId }}</span></td>
+              <td class="fw-semibold">{{ e.fullName }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-danger': e.role === 'Admin',
+                  'bg-info': e.role === 'Staff',
+                  'bg-success': e.role === 'Guide' || e.role === 'Manager'
+                }">{{ e.role }}</span>
+              </td>
               <td>{{ e.phone }}</td>
               <td>{{ e.email }}</td>
               <td>
-                <button class="btn btn-sm btn-outline-primary me-1" (click)="onEdit(e)">
+                <button class="btn btn-sm btn-outline-primary me-1 border-0" (click)="onEdit(e)">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" (click)="onDelete(e.employeeId)">
+                <button class="btn btn-sm btn-outline-danger border-0" (click)="onDelete(e.employeeId)">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>
@@ -89,23 +101,28 @@ import { EmployeeDto } from '../../../shared/models';
 })
 export class EmployeeManageComponent implements OnInit {
     items: EmployeeDto[] = [];
+    roles: RoleDto[] = [];
     showForm = false;
     editId: number | null = null;
     msg = '';
     msgOk = false;
     form = this.fb.nonNullable.group({
         fullName: ['', Validators.required],
-        role: ['Staff'],
+        role: ['', Validators.required],
         phone: [''],
         email: ['', [Validators.required, Validators.email]],
-        password: [''] // Thêm trường password
+        password: ['']
     });
     constructor(
         private fb: FormBuilder,
         private svc: EmployeeService,
-        private authSvc: AuthService // Thêm AuthService vào constructor
+        private roleSvc: RoleService,
+        private authSvc: AuthService
     ) { }
-    ngOnInit(): void { this.load(); }
+    ngOnInit(): void { 
+        this.load();
+        this.roleSvc.getAll().subscribe(d => this.roles = d);
+    }
     load(): void { this.svc.getAll().subscribe(d => this.items = d); }
     openForm(): void {
         this.showForm = true; this.editId = null;

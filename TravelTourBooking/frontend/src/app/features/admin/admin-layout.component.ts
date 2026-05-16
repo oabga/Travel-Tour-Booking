@@ -1,4 +1,4 @@
-﻿import { Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -11,24 +11,44 @@ import { AuthService } from '../../core/services/auth.service';
     <div class="d-flex">
       <nav class="sidebar d-flex flex-column flex-shrink-0" style="width:250px">
         <div class="p-3 border-bottom border-secondary">
-          <h5 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Admin Panel</h5>
+          <h5 class="mb-0">
+            @if (isAdmin) {
+              <i class="bi bi-speedometer2 me-2"></i>Admin Panel
+            } @else {
+              <i class="bi bi-person-workspace me-2"></i>Staff Panel
+            }
+          </h5>
         </div>
         <ul class="nav flex-column p-2 flex-grow-1">
-          <li class="nav-item">
-            <a class="nav-link" routerLink="dashboard" routerLinkActive="active">
-              <i class="bi bi-bar-chart-line me-2"></i>Dashboard
-            </a>
-          </li>
+
+          <!-- DASHBOARD: chỉ Admin -->
+          @if (isAdmin) {
+            <li class="nav-item">
+              <a class="nav-link" routerLink="dashboard" routerLinkActive="active">
+                <i class="bi bi-bar-chart-line me-2"></i>Dashboard
+              </a>
+            </li>
+          }
+
+          <!-- TOUR: Admin = quản lý CRUD, Staff = chỉ xem -->
           <li class="nav-item">
             <a class="nav-link" routerLink="tours" routerLinkActive="active">
-              <i class="bi bi-map me-2"></i>Quản lý Tour
+              <i class="bi bi-map me-2"></i>
+              {{ isAdmin ? 'Quản lý Tour' : 'Danh sách Tour' }}
             </a>
           </li>
-          
-          <!-- BOOKING DÀNH CHO CẢ ADMIN VÀ STAFF -->
+
+          <!-- BOOKING: cả Admin và Staff -->
           <li class="nav-item">
             <a class="nav-link" routerLink="bookings" routerLinkActive="active">
               <i class="bi bi-card-list me-2"></i>Danh sách Booking
+            </a>
+          </li>
+
+          <!-- KHÁCH HÀNG: cả Admin và Staff (để tư vấn) -->
+          <li class="nav-item">
+            <a class="nav-link" routerLink="customers" routerLinkActive="active">
+              <i class="bi bi-people me-2"></i>Khách hàng
             </a>
           </li>
 

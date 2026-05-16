@@ -1,22 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormArray, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormArray, Validators } from '@angular/forms';
 import { BookingService } from '../../../services/booking.service';
 import { ScheduleService } from '../../../services/schedule.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ScheduleResponse } from '../../../shared/models';
+import { AccountService } from '../../../services/account.service';
+import { VoucherService } from '../../../services/voucher.service';
+import { ScheduleResponse, CustomerList } from '../../../shared/models';
 
 @Component({
   selector: 'app-booking-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
   template: `
     <div class="container py-4">
       <h3 class="mb-4"><i class="bi bi-cart-plus me-2"></i>Dat tour</h3>
 
       @if (schedule) {
-        <div class="alert alert-info">
+        <div class="alert alert-info shadow-sm border-0">
           <strong>Lich khoi hanh #{{ schedule.scheduleId }}</strong> —
           Ngay di: {{ schedule.departureDate }} | Ve: {{ schedule.returnDate }}
           | Con {{ schedule.availableSlots }} cho
@@ -27,10 +29,10 @@ import { ScheduleResponse } from '../../../shared/models';
       }
 
       @if (errorMsg) {
-        <div class="alert alert-danger">{{ errorMsg }}</div>
+        <div class="alert alert-danger shadow-sm border-0">{{ errorMsg }}</div>
       }
       @if (successMsg) {
-        <div class="alert alert-success">
+        <div class="alert alert-success shadow-sm border-0">
           {{ successMsg }}
           <a [routerLink]="['/bookings', createdBookingId]" class="alert-link ms-2">
             Xem chi tiet booking
@@ -42,18 +44,55 @@ import { ScheduleResponse } from '../../../shared/models';
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body">
             <div class="row g-3">
-              <div class="col-md-4">
+              @if (isAdminOrStaff) {
+                <div class="col-md-12">
+                  <label class="form-label text-primary fw-bold">Chon khach hang (Staff dat ho)</label>
+                  <select class="form-select border-primary" formControlName="accountId">
+                    <option [ngValue]="null">-- Chon khach hang --</option>
+                    @for (c of customers; track c.accountId) {
+                      <option [ngValue]="c.accountId">{{ c.fullName }} ({{ c.email }})</option>
+                    }
+                  </select>
+                </div>
+              }
+
+              <div class="col-md-3">
                 <label class="form-label">So nguoi</label>
                 <input type="number" class="form-control" formControlName="numberOfPeople"
                        min="1" [max]="schedule?.availableSlots || 100"
                        (change)="onPeopleChange()">
               </div>
-              <div class="col-md-4">
+
+              <!-- VOUCHER SECTION -->
+              <div class="col-md-3">
+                <label class="form-label">Ma giam gia</label>
+                <div class="input-group">
+                  <input type="text" class="form-control text-uppercase" [(ngModel)]="voucherCode" 
+                         [ngModelOptions]="{standalone: true}" placeholder="NHAP MA">
+                  <button class="btn btn-outline-secondary" type="button" (click)="applyVoucher()" [disabled]="!voucherCode || applyingVoucher">
+                    @if (applyingVoucher) {
+                       <span class="spinner-border spinner-border-sm"></span>
+                    } @else {
+                       Ap dung
+                    }
+                  </button>
+                </div>
+                @if (voucherMsg) {
+                  <div class="small mt-1" [class.text-success]="voucherOk" [class.text-danger]="!voucherOk">
+                    {{ voucherMsg }}
+                  </div>
+                }
+              </div>
+
+              <div class="col-md-3">
                 <label class="form-label">Giam gia (%)</label>
                 <input type="number" class="form-control" formControlName="discountPercent"
-                       min="0" max="100">
+                       min="0" max="100" [readonly]="!isAdminOrStaff">
+                @if (!isAdminOrStaff) {
+                  <small class="text-muted">Dung ma de duoc giam gia.</small>
+                }
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="form-label">Ghi chu</label>
                 <input type="text" class="form-control" formControlName="notes"
                        placeholder="Ghi chu (tuy chon)">
@@ -70,9 +109,9 @@ import { ScheduleResponse } from '../../../shared/models';
             <div class="card border-0 shadow-sm mb-3" [formGroupName]="i">
               <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
-                  <h6 class="mb-0">Hanh khach {{ i + 1 }}</h6>
+                  <h6 class="mb-0 text-secondary">Hanh khach {{ i + 1 }}</h6>
                   @if (passengers.length > 1) {
-                    <button type="button" class="btn btn-sm btn-outline-danger"
+                    <button type="button" class="btn btn-sm btn-outline-danger border-0"
                             (click)="removePassenger(i)">
                       <i class="bi bi-trash"></i>
                     </button>
@@ -80,31 +119,31 @@ import { ScheduleResponse } from '../../../shared/models';
                 </div>
                 <div class="row g-3">
                   <div class="col-md-4">
-                    <label class="form-label">Ho ten *</label>
+                    <label class="form-label small text-muted">Ho ten *</label>
                     <input type="text" class="form-control" formControlName="passengerName">
                   </div>
                   <div class="col-md-2">
-                    <label class="form-label">Loai *</label>
+                    <label class="form-label small text-muted">Loai *</label>
                     <select class="form-select" formControlName="passengerType">
                       <option value="Adult">Nguoi lon</option>
                       <option value="Child">Tre em</option>
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label">CCCD/Ho chieu</label>
+                    <label class="form-label small text-muted">CCCD/Ho chieu</label>
                     <input type="text" class="form-control" formControlName="passengerIdNumber"
                            placeholder="12 so CCCD">
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label">SDT</label>
+                    <label class="form-label small text-muted">SDT</label>
                     <input type="text" class="form-control" formControlName="passengerPhone">
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label">Ngay sinh</label>
+                    <label class="form-label small text-muted">Ngay sinh</label>
                     <input type="date" class="form-control" formControlName="passengerDOB">
                   </div>
                   <div class="col-md-3">
-                    <div class="form-check mt-4">
+                    <div class="form-check mt-4 pt-2">
                       <input type="checkbox" class="form-check-input"
                              formControlName="isPrimaryContact" [id]="'primary'+i">
                       <label class="form-check-label" [for]="'primary'+i">Lien he chinh</label>
@@ -116,11 +155,11 @@ import { ScheduleResponse } from '../../../shared/models';
           }
         </div>
 
-        <div class="d-flex gap-2 mb-4">
-          <button type="button" class="btn btn-outline-primary" (click)="addPassenger()">
+        <div class="d-flex gap-2 mb-4 mt-4">
+          <button type="button" class="btn btn-outline-primary px-4 shadow-sm" (click)="addPassenger()">
             <i class="bi bi-plus-circle me-1"></i>Them hanh khach
           </button>
-          <button type="submit" class="btn btn-primary" [disabled]="loading || form.invalid">
+          <button type="submit" class="btn btn-primary px-5 shadow-sm" [disabled]="loading || form.invalid">
             @if (loading) {
               <span class="spinner-border spinner-border-sm me-1"></span>
             }
@@ -137,8 +176,17 @@ export class BookingFormComponent implements OnInit {
   errorMsg = '';
   successMsg = '';
   createdBookingId = 0;
+  isAdminOrStaff = false;
+  customers: CustomerList[] = [];
+
+  // Voucher properties
+  voucherCode = '';
+  voucherMsg = '';
+  voucherOk = false;
+  applyingVoucher = false;
 
   form = this.fb.group({
+    accountId: [null as number | null],
     numberOfPeople: [1, [Validators.required, Validators.min(1)]],
     discountPercent: [0, [Validators.min(0), Validators.max(100)]],
     notes: [''],
@@ -151,14 +199,52 @@ export class BookingFormComponent implements OnInit {
     private router: Router,
     private bookingSvc: BookingService,
     private scheduleSvc: ScheduleService,
-    private auth: AuthService
-  ) {}
+    private auth: AuthService,
+    private accountSvc: AccountService,
+    private voucherSvc: VoucherService
+  ) {
+    const role = this.auth.userRole();
+    this.isAdminOrStaff = role === 'Admin' || role === 'Staff';
+  }
 
   ngOnInit(): void {
     const scheduleId = Number(this.route.snapshot.paramMap.get('scheduleId'));
     this.scheduleSvc.getById(scheduleId).subscribe({
       next: s => this.schedule = s,
       error: () => this.errorMsg = 'Khong tim thay lich khoi hanh.'
+    });
+
+    if (this.isAdminOrStaff) {
+      this.accountSvc.getAllCustomers().subscribe(data => this.customers = data);
+      this.form.controls.accountId.setValidators(Validators.required);
+    } else {
+      this.form.controls.discountPercent.disable();
+    }
+  }
+
+  applyVoucher(): void {
+    if (!this.voucherCode) return;
+    this.applyingVoucher = true;
+    this.voucherMsg = '';
+    
+    this.voucherSvc.validate(this.voucherCode).subscribe({
+      next: res => {
+        this.applyingVoucher = false;
+        if (res.isValid) {
+          this.voucherOk = true;
+          this.voucherMsg = res.message;
+          this.form.patchValue({ discountPercent: res.discountPercent });
+        } else {
+          this.voucherOk = false;
+          this.voucherMsg = res.message;
+          this.form.patchValue({ discountPercent: 0 });
+        }
+      },
+      error: () => {
+        this.applyingVoucher = false;
+        this.voucherOk = false;
+        this.voucherMsg = 'Khong the kiem tra ma luc nay.';
+      }
     });
   }
 
@@ -199,15 +285,24 @@ export class BookingFormComponent implements OnInit {
     this.errorMsg = '';
     this.successMsg = '';
 
-    const userId = this.auth.userId();
-    if (!userId) { this.errorMsg = 'Khong xac dinh duoc tai khoan.'; this.loading = false; return; }
-
     const val = this.form.getRawValue();
+    let finalAccountId = val.accountId;
+
+    if (!this.isAdminOrStaff) {
+        finalAccountId = this.auth.userId();
+    }
+
+    if (!finalAccountId) { 
+        this.errorMsg = 'Khong xac dinh duoc tai khoan khach hang.'; 
+        this.loading = false; 
+        return; 
+    }
+
     this.bookingSvc.create({
-      accountId: userId,
+      accountId: finalAccountId,
       scheduleId: this.schedule.scheduleId,
-        numberOfPeople: val.numberOfPeople ?? 0,
-        discountPercent: val.discountPercent ?? 0,
+      numberOfPeople: val.numberOfPeople ?? 0,
+      discountPercent: val.discountPercent ?? 0,
       notes: val.notes || undefined,
       passengers: val.passengers.map(p => ({
         passengerName: p.passengerName ?? '',
@@ -230,3 +325,4 @@ export class BookingFormComponent implements OnInit {
     });
   }
 }
+

@@ -40,7 +40,7 @@ export const routes: Routes = [
   },
   {
     path: 'bookings/new/:scheduleId',
-    canActivate: [roleGuard(['Customer'])],
+    canActivate: [roleGuard(['Customer', 'Staff', 'Admin'])],
     loadComponent: () => import('./features/bookings/booking-form/booking-form.component')
       .then(m => m.BookingFormComponent)
   },
@@ -117,6 +117,11 @@ export const routes: Routes = [
         path: 'bookings/:id',
         loadComponent: () => import('./features/bookings/booking-detail/booking-detail.component')
             .then(m => m.BookingDetailComponent)
+      },
+      {
+        path: 'customers',
+        loadComponent: () => import('./features/admin/staff-customers/staff-customers.component')
+            .then(m => m.StaffCustomersComponent)
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
