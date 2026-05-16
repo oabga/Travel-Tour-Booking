@@ -39,3 +39,13 @@ export interface UpdateProfileDto {
   dateOfBirth?: string;
   address?: string;
 }
+
+export interface CustomerList {
+  accountId: number;
+  email: string | null;
+  fullName: string | null;
+  phone: string | null;
+  dateOfBirth: string | null;
+  address: string | null;
+  createdAt: string;
+}

@@ -122,7 +122,14 @@ export class ScheduleManageComponent implements OnInit {
   ngOnInit(): void {
     this.load();
     this.tourSvc.getAll(1, 100).subscribe(r => this.tours = r.items);
-    this.empSvc.getAll().subscribe(e => this.employees = e);
+    this.empSvc.getAll().subscribe(e => {
+      // Chỉ lọc lấy những nhân viên có vai trò là Hướng dẫn viên
+      this.employees = e.filter(emp => 
+        emp.role?.toLowerCase() === 'guide' || 
+        emp.role?.toLowerCase() === 'hướng dẫn viên' ||
+        emp.role?.toLowerCase() === 'huong dan vien'
+      );
+    });
   }
 
   load(): void { this.svc.getAll().subscribe(d => this.items = d); }

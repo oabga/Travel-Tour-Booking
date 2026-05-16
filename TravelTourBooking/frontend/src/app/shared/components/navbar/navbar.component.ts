@@ -1,4 +1,4 @@
-﻿import { Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -41,6 +41,13 @@ import { AuthService } from '../../../core/services/auth.service';
               <li class="nav-item">
                 <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">
                   <i class="bi bi-speedometer2 me-1"></i>Admin
+                </a>
+              </li>
+            }
+            @if (auth.isAuthenticated() && auth.userRole() === 'Staff') {
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/admin/bookings" routerLinkActive="active">
+                  <i class="bi bi-person-workspace me-1"></i>Staff Panel
                 </a>
               </li>
             }

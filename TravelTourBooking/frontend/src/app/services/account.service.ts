@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { CustomerProfile, UpdateProfileDto } from '../shared/models';
+import { ApiResponse, CustomerProfile, UpdateProfileDto, CustomerList } from '../shared/models';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
@@ -23,4 +23,11 @@ export class AccountService {
       `${this.url}/${accountId}/booking-count`, { params: { year } }
     );
   }
+
+  // ── Danh sách khách hàng (Staff/Admin) ─────────────────────────────────
+  getAllCustomers(): Observable<CustomerList[]> {
+    return this.http.get<ApiResponse<CustomerList[]>>(`${this.url}/customers`)
+      .pipe(map(r => r.data));
+  }
 }
+
