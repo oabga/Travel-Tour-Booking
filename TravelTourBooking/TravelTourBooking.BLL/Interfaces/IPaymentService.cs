@@ -13,14 +13,23 @@ namespace TravelTourBooking.BLL.Interfaces
     {
         /// <summary>
         /// payment của 1 booking
-        /// </summary>
-        Task<int> CreatePaymentAsync(CreatePaymentDto dto);
-
+        /// </summary>        
+        Task<int> CreateBankTransferAsync(CreatePaymentDto dto); 
+        Task<int> CreateCashPaymentAsync(CreateCashPaymentDto dto);
         /// <summary>
         /// lịch sử payment của 1 booking
         /// </summary>
         Task<IEnumerable<PaymentDto>> GetPaymentsByBookingAsync(int bookingId);
 
+        /// <summary>
+        /// confirm payment
+        /// </summary>
+        Task<bool> ConfirmPaymentAsync(int paymentId);
+
+        /// <summary>
+        /// refund
+        /// </summary>
+        Task<bool> RefundPaymentAsync(int paymentId);
         /// <summary>
         /// lấy số tiền đã trả
         /// </summary>

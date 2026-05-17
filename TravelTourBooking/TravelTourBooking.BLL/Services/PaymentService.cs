@@ -19,7 +19,7 @@ public class PaymentService : IPaymentService
     }
 
 
-    public async Task<int> CreatePaymentAsync(CreatePaymentDto dto)
+    public async Task<int> CreateBankTransferAsync(CreatePaymentDto dto)
     {
         var booking = await _bookingRepository.GetByIdAsync(dto.BookingId);
 
@@ -29,8 +29,6 @@ public class PaymentService : IPaymentService
         if (dto.Amount <= 0)
             throw new Exception("Invalid payment amount");
 
-        var invoiceCode = await _paymentRepository.GenerateInvoiceCodeAsync(dto.BookingId);
-
         var payment = new Payment
         {
             BookingId = dto.BookingId,
@@ -39,7 +37,31 @@ public class PaymentService : IPaymentService
             Status = "Pending",
             TransactionCode = dto.TransactionCode,
             PaymentDate = DateTime.Now,
-            InvoiceCode = invoiceCode
+            InvoiceCode = await _paymentRepository.GenerateInvoiceCodeAsync(dto.BookingId)
+        };
+
+        return await _paymentRepository.CreatePaymentAsync(payment);
+    }
+
+    public async Task<int> CreateCashPaymentAsync(CreateCashPaymentDto dto)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(dto.BookingId);
+
+        if (booking == null)
+            throw new Exception("Booking not found");
+
+        if (dto.Amount <= 0)
+            throw new Exception("Invalid payment amount");
+
+        var payment = new Payment
+        {
+            BookingId = dto.BookingId,
+            Amount = dto.Amount,
+            PaymentMethod = "Cash",
+            Status = "Completed",
+            TransactionCode = $"CASH-{Guid.NewGuid():N}"[..10],
+            PaymentDate = DateTime.Now,
+            InvoiceCode = await _paymentRepository.GenerateInvoiceCodeAsync(dto.BookingId)
         };
 
         return await _paymentRepository.CreatePaymentAsync(payment);
@@ -61,6 +83,42 @@ public class PaymentService : IPaymentService
             InvoiceCode = p.InvoiceCode,
             TransactionCode = p.TransactionCode
         });
+    }
+
+    public async Task<bool> ConfirmPaymentAsync(int paymentId)
+    {
+        var payment = await _paymentRepository.GetByIdAsync(paymentId);
+
+        if (payment == null)
+            throw new Exception("Payment not found");
+
+        if (payment.Status == "Completed")
+            return true;
+
+        payment.Status = "Completed";
+
+        payment.TransactionCode ??= $"TXN-{DateTime.Now:yyyyMMdd}-{Random.Shared.Next(10000, 99999)}";
+
+        await _paymentRepository.UpdateAsync(payment);
+
+        return true;
+    }
+
+    public async Task<bool> RefundPaymentAsync(int paymentId)
+    {
+        var payment = await _paymentRepository.GetByIdAsync(paymentId);
+
+        if (payment == null)
+            throw new Exception("Payment not found");
+
+        if (payment.Status != "Completed")
+            throw new Exception("Only completed payments can be refunded");
+
+        payment.Status = "Refunded";
+
+        await _paymentRepository.UpdateAsync(payment);
+
+        return true;
     }
 
     public async Task<decimal> GetTotalPaidAsync(int bookingId)

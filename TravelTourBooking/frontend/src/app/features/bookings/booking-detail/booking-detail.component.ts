@@ -156,12 +156,25 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
                       <small class="text-muted">
                         {{ pay.paymentDate | date:'dd/MM/yyyy' }} — {{ pay.paymentMethod }}
                       </small>
+
+                      @if (auth.userRole() !== 'Customer' && pay.status === 'Pending') {
+                        <div class="mt-2">
+                          <button class="btn btn-sm btn-success"
+                                  (click)="confirmPayment(pay.paymentId)">
+                            Confirm
+                          </button>
+                        </div>
+                      }
+
+                      @if (pay.status === 'Completed') {
+                        <span class="badge bg-success mt-1">Completed</span>
+                      }
                     </div>
                   }
                 }
               </div>
             </div>
-
+            @if (auth.userRole()  === 'Customer' || auth.userRole() === 'Staff') {
             <!-- Payment Form -->
             @if (booking.bookingStatus !== 'Cancelled' && remaining > 0) {
               <div class="card border-0 shadow-sm">
@@ -172,19 +185,23 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
                       <label class="form-label">So tien (VND)</label>
                       <input type="number" class="form-control" formControlName="amount">
                     </div>
+                    
                     <div class="mb-2">
                       <label class="form-label">Phuong thuc</label>
                       <select class="form-select" formControlName="paymentMethod">
+                        @if (auth.userRole()  === 'Customer') {
                         <option value="BankTransfer">Chuyen khoan</option>
                         <option value="VNPay">VNPay</option>
-                        <option value="MoMo">MoMo</option>
-                        <option value="Cash">Tien mat</option>
+                        <option value="MoMo">MoMo</option>}
+                        @if (auth.userRole() === 'Staff') {
+                        <option value="Cash">Tien mat</option>}
                       </select>
                     </div>
+                    @if (auth.userRole()  === 'Customer') {
                     <div class="mb-2">
                       <label class="form-label">Ma giao dich</label>
                       <input type="text" class="form-control" formControlName="transactionCode">
-                    </div>
+                    </div>}
                     <button type="submit" class="btn btn-success w-100 mt-2"
                             [disabled]="payLoading || payForm.invalid">
                       @if (payLoading) {
@@ -195,6 +212,7 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
                   </form>
                 </div>
               </div>
+            } 
             }
           </div>
         </div>
@@ -239,6 +257,12 @@ export class BookingDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAll();
+
+    const role = this.auth.userRole();
+
+    this.payForm.patchValue({
+      paymentMethod: role === 'Staff' ? 'Cash' : 'BankTransfer'
+    });
   }
 
   private loadAll(): void {
@@ -259,6 +283,14 @@ export class BookingDetailComponent implements OnInit {
     this.paymentSvc.getRemaining(bookingId).subscribe(v => this.remaining = v);
   }
 
+  confirmPayment(id: number) {
+  this.paymentSvc.confirm(id).subscribe({
+    next: () => {
+      this.loadPayments(this.booking!.bookingId);
+    }
+  });
+}
+
   cancelBooking(): void {
     if (!this.booking) return;
     this.cancelling = true;
@@ -277,29 +309,37 @@ export class BookingDetailComponent implements OnInit {
     });
   }
 
+  private handleSuccess = () => {
+  this.payLoading = false;
+  this.msg = 'Thanh toan thanh cong!';
+  this.msgOk = true;
+  this.loadPayments(this.booking!.bookingId);
+  };
+
+  private handleError = (err: any) => {
+    this.payLoading = false;
+    this.msg = err.error?.message || 'Thanh toan that bai.';
+    this.msgOk = false;
+  };
+
   submitPayment(): void {
     if (!this.booking || this.payForm.invalid) return;
     this.payLoading = true;
     const val = this.payForm.getRawValue();
-    this.paymentSvc.create({
+    console.log('FORM VALUE:', this.payForm.value);
+    console.log('CONTROL:', this.payForm.get('paymentMethod')?.value);
+    if (val.paymentMethod === 'Cash') {
+    this.paymentSvc.createCashPayment({
       bookingId: this.booking.bookingId,
-      amount: val.amount,
-      paymentMethod: val.paymentMethod,
-      status: 'Completed',
-      transactionCode: val.transactionCode || undefined
-    }).subscribe({
-      next: () => {
-        this.payLoading = false;
-        this.msg = 'Thanh toan thanh cong!';
-        this.msgOk = true;
-        this.payForm.reset({ amount: 0, paymentMethod: 'BankTransfer', transactionCode: '' });
-        this.loadPayments(this.booking!.bookingId);
-      },
-      error: err => {
-        this.payLoading = false;
-        this.msg = err.error?.message || 'Thanh toan that bai.';
-        this.msgOk = false;
-      }
-    });
+      amount: val.amount
+    }).subscribe(this.handleSuccess, this.handleError);
+    return;
+    }
+    this.paymentSvc.createBankTransfer({
+    bookingId: this.booking.bookingId,
+    amount: val.amount,
+    paymentMethod: val.paymentMethod,
+    transactionCode: val.transactionCode
+  }).subscribe(this.handleSuccess, this.handleError);   
   }
 }

@@ -6,6 +6,10 @@ public interface IPaymentRepository
 {
     Task<int> CreatePaymentAsync(Payment payment);
 
+    Task<Payment?> GetByIdAsync(int paymentId);
+    Task UpdateAsync(Payment payment);
+
+
     Task<IEnumerable<Payment>> GetPaymentsByBookingAsync(int bookingId);
 
     Task<IEnumerable<Payment>> GetCompletedPaymentsByBookingAsync(int bookingId);

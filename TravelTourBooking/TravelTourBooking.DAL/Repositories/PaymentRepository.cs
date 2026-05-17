@@ -23,6 +23,17 @@ public class PaymentRepository : IPaymentRepository
         return payment.PaymentId;
     }
 
+    public async Task<Payment?> GetByIdAsync(int paymentId)
+    {
+        return await _context.Payments
+            .FirstOrDefaultAsync(p => p.PaymentId == paymentId);
+    }
+
+    public async Task UpdateAsync(Payment payment)
+    {
+        _context.Payments.Update(payment);
+        await _context.SaveChangesAsync();
+    }
     public async Task<IEnumerable<Payment>> GetCompletedPaymentsByBookingAsync(int bookingId)
     {
         return await _context.Payments

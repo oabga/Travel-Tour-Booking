@@ -8,7 +8,6 @@ public class CreatePaymentDto
 
     public string? PaymentMethod { get; set; }
 
-    public string? Status { get; set; }
 
     public string? TransactionCode { get; set; }
 }

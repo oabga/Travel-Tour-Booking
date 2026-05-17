@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TravelTourBooking.BLL.Interfaces;
 using TravelTourBooking.Common.DTOs;
 
@@ -15,12 +16,36 @@ public class PaymentsController : ControllerBase
         _service = service;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create(CreatePaymentDto dto)
-    {
-        var id = await _service.CreatePaymentAsync(dto);
+    //[HttpPost]
+    //public async Task<IActionResult> Create(CreatePaymentDto dto)
+    //{
+    //    var id = await _service.CreatePaymentAsync(dto);
 
+    //    return Ok(id);
+    //}
+    [HttpPost("bank-transfer")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> CreateBankTransfer(CreatePaymentDto dto)
+    {
+        var id = await _service.CreateBankTransferAsync(dto);
         return Ok(id);
+    }
+
+
+    [HttpPost("cash")]
+    [Authorize(Roles = "Staff")]
+    public async Task<IActionResult> CreateCash(CreateCashPaymentDto dto)
+    {
+        var id = await _service.CreateCashPaymentAsync(dto);
+        return Ok(id);
+    }
+
+    [HttpPut("{id}/confirm")]
+    [Authorize(Roles = "Staff,Admin")]
+    public async Task<IActionResult> Confirm(int id)
+    {
+        var result = await _service.ConfirmPaymentAsync(id);
+        return Ok(result);
     }
 
     [HttpGet("booking/{bookingId}")]

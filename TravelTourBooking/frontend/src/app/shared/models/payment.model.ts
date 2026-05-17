@@ -13,6 +13,10 @@ export interface CreatePaymentDto {
   bookingId: number;
   amount: number;
   paymentMethod?: string;
-  status?: string;
   transactionCode?: string;
+}
+
+export interface CreateCashPaymentDto {
+  bookingId: number;
+  amount: number;
 }

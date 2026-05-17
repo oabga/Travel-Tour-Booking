@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { PaymentDto, CreatePaymentDto } from '../shared/models';
+import { PaymentDto, CreatePaymentDto, CreateCashPaymentDto } from '../shared/models';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
@@ -10,8 +10,22 @@ export class PaymentService {
 
   constructor(private http: HttpClient) {}
 
-  create(dto: CreatePaymentDto): Observable<number> {
-    return this.http.post<number>(this.url, dto);
+  createBankTransfer(dto: CreatePaymentDto): Observable<number> {
+    return this.http.post<number>(
+      `${this.url}/bank-transfer`,
+      dto
+    );
+  }
+
+  createCashPayment(dto: CreateCashPaymentDto): Observable<number> {
+    return this.http.post<number>(
+      `${this.url}/cash`,
+      dto
+    );
+  }
+  
+  confirm(id: number): Observable<boolean> {
+    return this.http.put<boolean>(`${this.url}/${id}/confirm`, {});
   }
 
   getByBooking(bookingId: number): Observable<PaymentDto[]> {
