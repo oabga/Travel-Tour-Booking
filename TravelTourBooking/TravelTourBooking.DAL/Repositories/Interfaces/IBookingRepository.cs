@@ -34,4 +34,7 @@ public interface IBookingRepository : IRepository<Booking>
     /// Thêm danh sách hành khách.
     /// </summary>
     Task AddPassengersAsync(IEnumerable<BookingDetail> details);
+
+    Task<IEnumerable<BookingHistoryDto>> GetAllBookingHistoryAsync();
+
 }

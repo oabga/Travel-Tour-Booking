@@ -80,5 +80,13 @@ export class AuthService {
     } catch {
       return null;
     }
-  }
+    }
+
+    registerStaff(dto: any): Observable<any> {
+        return this.http.post(`${this.apiUrl}/register-staff`, dto);
+    }
+
+    changePassword(dto: any): Observable<any> {
+        return this.http.post(`${this.apiUrl}/change-password`, dto);
+    }
 }

@@ -18,7 +18,7 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         _connectionString = cfg.GetConnectionString("DefaultConnection")!;
     }
 
-    // ── sp_CreateBooking (ADO.NET Connected model) ─────────────────────────
+    // ── Tạo Booking (SP) ──────────────────────────────────────────────────
     public async Task<int> CreateBookingSpAsync(
         int accountId, int scheduleId, int numberOfPeople, decimal discountPercent)
     {
@@ -44,7 +44,7 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         return Convert.ToInt32(result);
     }
 
-    // ── sp_CancelBooking (ADO.NET Connected model) ─────────────────────────
+    // ── Hủy Booking (SP) ──────────────────────────────────────────────────
     public async Task CancelBookingSpAsync(int bookingId)
     {
         await using var conn = new SqlConnection(_connectionString);
@@ -59,7 +59,7 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         await cmd.ExecuteNonQueryAsync();
     }
 
-    // ── vw_BookingDetails (ADO.NET Disconnected model — DataSet) ───────────
+    // ── Chi tiết Booking (View) ───────────────────────────────────────────
     public async Task<BookingDetailViewDto?> GetBookingDetailViewAsync(int bookingId)
     {
         await using var conn = new SqlConnection(_connectionString);
@@ -121,7 +121,7 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
         return dto;
     }
 
-    // ── Get booking with details (LINQ to Entities) ────────────────────────
+    // ── Get booking with details ──────────────────────────────────────────
     public async Task<Booking?> GetWithDetailsAsync(int bookingId) =>
         await _db.Bookings
             .Include(b => b.BookingDetails)
@@ -130,7 +130,7 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
                     .ThenInclude(t => t!.Destination)
             .FirstOrDefaultAsync(b => b.BookingId == bookingId);
 
-    // ── Booking history by account (LINQ to Entities) ──────────────────────
+    // ── Lịch sử Booking ───────────────────────────────────────────────────
     public async Task<IEnumerable<BookingHistoryDto>> GetByAccountAsync(int accountId)
     {
         // LINQ to Entities — Include + Select
@@ -161,5 +161,24 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
     {
         _db.BookingDetails.AddRange(details);
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<BookingHistoryDto>> GetAllBookingHistoryAsync()
+    {
+        var bookings = await _db.Bookings
+            .Include(b => b.Schedule).ThenInclude(s => s!.Tour).ThenInclude(t => t!.Destination)
+            .OrderByDescending(b => b.BookingDate).ToListAsync();
+
+        return bookings.Select(b => new BookingHistoryDto
+        {
+            BookingId = b.BookingId,
+            TourName = b.Schedule?.Tour?.TourName,
+            DesName = b.Schedule?.Tour?.Destination?.DesName,
+            DepartureDate = b.Schedule?.DepartureDate?.ToDateTime(TimeOnly.MinValue),
+            NumberOfPeople = b.NumberOfPeople,
+            TotalAmount = b.TotalAmount,
+            Status = b.Status,
+            BookingDate = b.BookingDate
+        }).ToList();
     }
 }

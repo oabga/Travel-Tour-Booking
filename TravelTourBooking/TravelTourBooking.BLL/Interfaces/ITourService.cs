@@ -26,5 +26,8 @@ namespace TravelTourBooking.BLL.Interfaces
         Task<TourDetailDto> CreateTourAsync(TourRequestDto dto);
         Task<TourDetailDto> UpdateTourAsync(int tourId, TourRequestDto dto);
         Task DeleteTourAsync(int tourId);
+
+        Task<string> ExportToursToXmlAsync();
+        Task<int> ImportToursFromXmlAsync(Stream xmlStream);
     }
 }

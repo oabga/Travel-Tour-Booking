@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace TravelTourBooking.Common.DTOs
 {
@@ -28,6 +29,8 @@ namespace TravelTourBooking.Common.DTOs
 
         [MaxLength(255)]
         public string? ImageUrl { get; set; }
+
+        public IFormFile? ImageFile { get; set; }
     }
 
     public class TourListDto
@@ -59,5 +62,17 @@ namespace TravelTourBooking.Common.DTOs
         public decimal? AvgRating { get; set; }
         public int TotalReviews { get; set; }
         public IEnumerable<ScheduleResponseDto> Schedules { get; set; } = [];
+    }
+
+    public class TourXmlDto
+    {
+        public string TourName { get; set; } = string.Empty;
+        public int CateId { get; set; }
+        public int DesId { get; set; }
+        public int DurationDays { get; set; }
+        public decimal Price { get; set; }
+        public int MaxCapacity { get; set; }
+        public string? Description { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

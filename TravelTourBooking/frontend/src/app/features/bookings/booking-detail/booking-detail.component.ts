@@ -20,7 +20,11 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
       <div class="container py-4">
         <nav aria-label="breadcrumb" class="mb-3">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a routerLink="/bookings">Lich su</a></li>
+            <li class="breadcrumb-item">
+              <a [routerLink]="auth.userRole() === 'Customer' ? '/bookings' : '/admin/bookings'">
+                {{ auth.userRole() === 'Customer' ? 'Lich su' : 'Danh sách Booking' }}
+              </a>
+            </li>
             <li class="breadcrumb-item active">Booking #{{ booking.bookingId }}</li>
           </ol>
         </nav>
@@ -115,13 +119,14 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
               </div>
             </div>
 
-            <!-- Cancel Button -->
-            @if (booking.bookingStatus === 'Pending' && auth.userRole() === 'Customer') {
+            <!-- Cancel Button: Customer hủy Pending của mình; Staff/Admin hủy Pending hoặc Confirmed -->
+            @if (canCancel) {
               <button class="btn btn-danger" (click)="cancelBooking()" [disabled]="cancelling">
                 @if (cancelling) {
                   <span class="spinner-border spinner-border-sm me-1"></span>
                 }
-                <i class="bi bi-x-circle me-1"></i>Huy booking
+                <i class="bi bi-x-circle me-1"></i>
+                {{ auth.userRole() === 'Customer' ? 'Hủy booking' : 'Hủy hộ khách' }}
               </button>
             }
           </div>
@@ -207,6 +212,16 @@ export class BookingDetailComponent implements OnInit {
   msg = '';
   msgOk = false;
   payLoading = false;
+
+  // Customer: chỉ hủy Pending; Staff/Admin: hủy cả Pending và Confirmed
+  get canCancel(): boolean {
+    if (!this.booking) return false;
+    const role = this.auth.userRole();
+    const status = this.booking.bookingStatus;
+    if (role === 'Customer') return status === 'Pending';
+    if (role === 'Staff' || role === 'Admin') return status === 'Pending' || status === 'Confirmed';
+    return false;
+  }
 
   payForm = this.fb.nonNullable.group({
     amount: [0, [Validators.required, Validators.min(1)]],

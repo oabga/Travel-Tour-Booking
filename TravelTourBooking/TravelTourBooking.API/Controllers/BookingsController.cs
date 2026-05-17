@@ -12,9 +12,10 @@ public class BookingsController(IBookingService svc) : ControllerBase
 {
     /// <summary>
     /// POST /api/bookings — Đặt tour → gọi sp_CreateBooking + INSERT BookingDetails.
+    /// Customer tự đặt, Staff/Admin đặt hộ khách (truyền AccountId của khách vào body).
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,Staff,Admin")]
     [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 201)]
     [ProducesResponseType(typeof(ApiResponse<string>), 400)]
     [ProducesResponseType(typeof(ApiResponse<string>), 409)]
@@ -27,6 +28,7 @@ public class BookingsController(IBookingService svc) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.BookingId },
             ApiResponse<BookingResponseDto>.Ok(result, "Đặt tour thành công."));
     }
+    
 
     /// <summary>
     /// GET /api/bookings/{id} — Chi tiết booking (vw_BookingDetails + danh sách hành khách).
@@ -46,9 +48,10 @@ public class BookingsController(IBookingService svc) : ControllerBase
 
     /// <summary>
     /// PUT /api/bookings/{id}/cancel — Hủy booking → gọi sp_CancelBooking.
+    /// Customer hủy tour của mình; Staff/Admin hủy hộ khách khi có yêu cầu.
     /// </summary>
     [HttpPut("{id:int}/cancel")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = "Customer,Staff,Admin")]
     [ProducesResponseType(typeof(ApiResponse<string>), 200)]
     [ProducesResponseType(typeof(ApiResponse<string>), 404)]
     [ProducesResponseType(typeof(ApiResponse<string>), 409)]
@@ -67,6 +70,15 @@ public class BookingsController(IBookingService svc) : ControllerBase
     public async Task<IActionResult> GetByAccount(int id)
     {
         var history = await svc.GetBookingsByAccountAsync(id);
+        return Ok(ApiResponse<IEnumerable<BookingHistoryDto>>.Ok(history));
+    }
+
+    [HttpGet("all")]
+    [Authorize(Roles = "Admin,Staff")]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingHistoryDto>>), 200)]
+    public async Task<IActionResult> GetAllBookings()
+    {
+        var history = await svc.GetAllBookingsAsync();
         return Ok(ApiResponse<IEnumerable<BookingHistoryDto>>.Ok(history));
     }
 }

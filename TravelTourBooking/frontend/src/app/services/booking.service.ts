@@ -32,4 +32,9 @@ export class BookingService {
     return this.http.get<ApiResponse<BookingHistory[]>>(`${this.url}/account/${accountId}`)
       .pipe(map(r => r.data));
   }
+
+  getAll(): Observable<BookingHistory[]> {
+    return this.http.get<ApiResponse<BookingHistory[]>>(`${this.url}/all`)
+      .pipe(map(r => r.data));
+  }
 }

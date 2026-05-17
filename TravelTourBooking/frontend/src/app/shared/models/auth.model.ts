@@ -16,6 +16,7 @@ export interface AuthResponse {
   token: string;
   email: string;
   role: string;
+  requirePasswordChange?: boolean;
 }
 
 export interface JwtPayload {
@@ -37,4 +38,14 @@ export interface UpdateProfileDto {
   phone?: string;
   dateOfBirth?: string;
   address?: string;
+}
+
+export interface CustomerList {
+  accountId: number;
+  email: string | null;
+  fullName: string | null;
+  phone: string | null;
+  dateOfBirth: string | null;
+  address: string | null;
+  createdAt: string;
 }
