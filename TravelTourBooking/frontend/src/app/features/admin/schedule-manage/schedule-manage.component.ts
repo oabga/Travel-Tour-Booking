@@ -162,7 +162,14 @@ export class ScheduleManageComponent implements OnInit {
       : this.svc.create({ ...dto, employeeId: dto.employeeId ?? undefined });
     obs.subscribe({
       next: () => { this.msg = 'Thành công!'; this.msgOk = true; this.showForm = false; this.load(); },
-      error: err => { this.msg = err.error?.message || 'Lỗi.'; this.msgOk = false; }
+      error: err => {
+        if (err.error?.errors) {
+          this.msg = Object.values(err.error.errors).flat().join(', ');
+        } else {
+          this.msg = err.error?.message || 'Lỗi.';
+        }
+        this.msgOk = false;
+      }
     });
   }
 

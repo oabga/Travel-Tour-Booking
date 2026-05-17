@@ -226,7 +226,7 @@ export class BookingFormComponent implements OnInit {
     if (!this.voucherCode) return;
     this.applyingVoucher = true;
     this.voucherMsg = '';
-    
+
     this.voucherSvc.validate(this.voucherCode).subscribe({
       next: res => {
         this.applyingVoucher = false;
@@ -289,13 +289,81 @@ export class BookingFormComponent implements OnInit {
     let finalAccountId = val.accountId;
 
     if (!this.isAdminOrStaff) {
-        finalAccountId = this.auth.userId();
+      finalAccountId = this.auth.userId();
     }
 
-    if (!finalAccountId) { 
-        this.errorMsg = 'Không xác định được tài khoản khách hàng.'; 
-        this.loading = false; 
-        return; 
+    if (!finalAccountId) {
+      this.errorMsg = 'Không xác định được tài khoản khách hàng.';
+      this.loading = false;
+      return;
+    }
+
+    const passengers = val.passengers;
+    const primaryContacts = passengers.filter(p => !!p.isPrimaryContact);
+
+    if (primaryContacts.length === 0) {
+      this.errorMsg = 'Phải chọn ít nhất 1 hành khách làm liên hệ chính.';
+      this.loading = false;
+      return;
+    }
+    if (primaryContacts.length > 1) {
+      this.errorMsg = 'Chỉ được phép chọn duy nhất 1 hành khách làm liên hệ chính.';
+      this.loading = false;
+      return;
+    }
+
+    const primary = primaryContacts[0];
+    if (!primary.passengerPhone || !primary.passengerPhone.trim()) {
+      this.errorMsg = `Người liên hệ chính (${primary.passengerName || 'Hành khách'}) phải có số điện thoại liên lạc.`;
+      this.loading = false;
+      return;
+    }
+
+    if (primary.passengerType !== 'Adult') {
+      this.errorMsg = 'Người liên hệ chính (IsPrimaryContact) bắt buộc phải là người lớn (Adult).';
+      this.loading = false;
+      return;
+    }
+
+    const hasAdult = passengers.some(p => p.passengerType === 'Adult');
+    if (!hasAdult) {
+      this.errorMsg = 'Đoàn hành khách đặt tour bắt buộc phải có ít nhất một người lớn (Adult) đi kèm.';
+      this.loading = false;
+      return;
+    }
+
+    const today = new Date();
+    for (const p of passengers) {
+      if (!p.passengerDOB) {
+        this.errorMsg = `Hành khách '${p.passengerName || 'không tên'}' bắt buộc phải nhập Ngày sinh.`;
+        this.loading = false;
+        return;
+      }
+
+      const dob = new Date(p.passengerDOB);
+      if (dob > today) {
+        this.errorMsg = `Ngày sinh của hành khách '${p.passengerName}' không được nằm ở tương lai.`;
+        this.loading = false;
+        return;
+      }
+
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+
+      if (p.passengerType === 'Child' && age >= 12) {
+        this.errorMsg = `Hành khách '${p.passengerName}' được chọn là Trẻ em nhưng ngày sinh thể hiện đã ${age} tuổi. Trẻ em phải dưới 12 tuổi.`;
+        this.loading = false;
+        return;
+      }
+
+      if (p.passengerType === 'Adult' && age < 12) {
+        this.errorMsg = `Hành khách '${p.passengerName}' được chọn là Người lớn nhưng ngày sinh thể hiện mới ${age} tuổi. Người lớn phải từ 12 tuổi trở lên.`;
+        this.loading = false;
+        return;
+      }
     }
 
     this.bookingSvc.create({

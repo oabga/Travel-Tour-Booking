@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +53,10 @@ namespace TravelTourBooking.BLL.Services
         {
             if (!await repo.ExistsAsync(id))
                 throw new KeyNotFoundException($"Danh mục ID {id} không tồn tại.");
+
+            if (await repo.HasToursAsync(id))
+                throw new InvalidOperationException("Không thể xóa danh mục này vì đang có các tour thuộc danh mục này.");
+
             await repo.DeleteAsync(id);
         }
     }

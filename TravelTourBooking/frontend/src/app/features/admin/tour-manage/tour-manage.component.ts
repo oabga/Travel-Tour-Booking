@@ -282,7 +282,17 @@ export class TourManageComponent implements OnInit {
 
   onDelete(id: number): void {
     if (confirm('Xóa tour này?')) {
-      this.tourSvc.delete(id).subscribe(() => this.loadTours());
+      this.tourSvc.delete(id).subscribe({
+        next: () => {
+          this.msg = 'Xóa tour thành công.';
+          this.msgOk = true;
+          this.loadTours();
+        },
+        error: err => {
+          this.msg = err.error?.message || 'Xóa tour thất bại.';
+          this.msgOk = false;
+        }
+      });
     }
   }
 

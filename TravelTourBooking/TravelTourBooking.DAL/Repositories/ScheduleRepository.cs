@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,5 +31,8 @@ namespace TravelTourBooking.DAL.Repositories
                 .Include(s => s.Tour)
                 .Include(s => s.Employee)
                 .FirstOrDefaultAsync(s => s.ScheduleId == id);
+
+        public async Task<bool> HasBookingsAsync(int scheduleId) =>
+            await _db.Bookings.AnyAsync(b => b.ScheduleId == scheduleId);
     }
 }

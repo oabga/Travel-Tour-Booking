@@ -63,8 +63,10 @@ Controllers/
  PaymentsController.cs
  ReportsController.cs
  ReviewsController.cs
+ RolesController.cs
  SchedulesController.cs
  ToursController.cs
+ VouchersController.cs
 Middleware/
  ExceptionMiddleware.cs
  JwtMiddleware.cs

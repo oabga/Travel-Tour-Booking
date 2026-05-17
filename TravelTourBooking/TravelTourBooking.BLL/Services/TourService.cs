@@ -99,6 +99,9 @@ namespace TravelTourBooking.BLL.Services
             var existing = await tourRepo.GetByIdAsync(tourId)
                 ?? throw new KeyNotFoundException($"Tour ID {tourId} không tồn tại.");
 
+            if (await tourRepo.HasBookingsAsync(tourId))
+                throw new InvalidOperationException("Không thể cập nhật thông tin tour này vì đã có khách hàng đặt tour.");
+
             if (!await cateRepo.ExistsAsync(dto.CateId))
                 throw new KeyNotFoundException($"Danh mục ID {dto.CateId} không tồn tại.");
             if (!await desRepo.ExistsAsync(dto.DesId))
@@ -113,11 +116,13 @@ namespace TravelTourBooking.BLL.Services
 
         public async Task DeleteTourAsync(int tourId)
         {
-            var tour = await tourRepo.GetByIdAsync(tourId)
-                ?? throw new KeyNotFoundException($"Tour ID {tourId} không tồn tại.");
+            if (!await tourRepo.ExistsAsync(tourId))
+                throw new KeyNotFoundException($"Tour ID {tourId} không tồn tại.");
 
-            tour.IsActive = false;
-            await tourRepo.UpdateAsync(tour);
+            if (await tourRepo.HasBookingsAsync(tourId))
+                throw new InvalidOperationException("Không thể xóa tour này vì đã có khách hàng đặt tour.");
+
+            await tourRepo.DeleteAsync(tourId);
         }
 
         public async Task<string> ExportToursToXmlAsync()

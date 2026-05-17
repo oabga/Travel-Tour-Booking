@@ -24,8 +24,50 @@ public class BookingService(IBookingRepository bookingRepo) : IBookingService
                 $"Hành khách người lớn ({string.Join(", ", adultsWithoutId.Select(p => p.PassengerName))}) " +
                 "phải có CCCD/Hộ chiếu (PassengerIdNumber).");
 
-        if (!dto.Passengers.Any(p => p.IsPrimaryContact))
+        var primaryContacts = dto.Passengers.Where(p => p.IsPrimaryContact).ToList();
+        if (primaryContacts.Count == 0)
             throw new ArgumentException("Phải có ít nhất 1 hành khách là liên hệ chính (IsPrimaryContact).");
+        if (primaryContacts.Count > 1)
+            throw new ArgumentException("Chỉ được phép chọn duy nhất 1 hành khách là liên hệ chính.");
+
+        var primaryContact = primaryContacts[0];
+        if (string.IsNullOrWhiteSpace(primaryContact.PassengerPhone))
+            throw new ArgumentException($"Hành khách liên hệ chính ({primaryContact.PassengerName}) phải nhập số điện thoại để liên lạc.");
+
+        if (primaryContact.PassengerType != "Adult")
+            throw new ArgumentException("Người liên hệ chính (IsPrimaryContact) bắt buộc phải là người lớn (Adult).");
+
+        var hasAdult = dto.Passengers.Any(p => p.PassengerType == "Adult");
+        if (!hasAdult)
+            throw new ArgumentException("Đoàn hành khách đặt tour bắt buộc phải có ít nhất một người lớn (Adult) đi kèm.");
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        foreach (var p in dto.Passengers)
+        {
+            if (p.PassengerDOB == null)
+            {
+                throw new ArgumentException($"Hành khách '{p.PassengerName}' bắt buộc phải nhập Ngày sinh.");
+            }
+
+            var dob = p.PassengerDOB.Value;
+            if (dob > today)
+            {
+                throw new ArgumentException($"Ngày sinh của hành khách '{p.PassengerName}' không được nằm ở tương lai.");
+            }
+
+            int age = today.Year - dob.Year;
+            if (dob > today.AddYears(-age)) age--;
+
+            if (p.PassengerType == "Child" && age >= 12)
+            {
+                throw new ArgumentException($"Hành khách '{p.PassengerName}' được chọn là Trẻ em nhưng ngày sinh ({dob:dd/MM/yyyy}) thể hiện đã {age} tuổi. Trẻ em phải dưới 12 tuổi.");
+            }
+
+            if (p.PassengerType == "Adult" && age < 12)
+            {
+                throw new ArgumentException($"Hành khách '{p.PassengerName}' được chọn là Người lớn nhưng ngày sinh ({dob:dd/MM/yyyy}) thể hiện mới {age} tuổi. Người lớn phải từ 12 tuổi trở lên.");
+            }
+        }
 
         // Gọi SP để tạo booking
         int newBookingId = await bookingRepo.CreateBookingSpAsync(
