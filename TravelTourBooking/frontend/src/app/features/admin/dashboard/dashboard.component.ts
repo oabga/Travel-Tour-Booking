@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BaseChartDirective } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { ReportService } from '../../../services/report.service';
 import { MonthlyRevenueDto, PopularTourDto, TourRevenueDto, OccupancyRateDto } from '../../../shared/models';
@@ -10,7 +10,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, NgChartsModule],
   template: `
     <h3 class="mb-4"><i class="bi bi-bar-chart-line me-2"></i>Dashboard</h3>
 
@@ -20,28 +20,28 @@ Chart.register(...registerables);
         <div class="card border-0 shadow-sm text-center p-3">
           <i class="bi bi-cash-stack fs-1 text-success"></i>
           <h4 class="mt-2">{{ totalRevenue | number:'1.0-0' }}</h4>
-          <small class="text-muted">Tong doanh thu (VND)</small>
+          <small class="text-muted">Tổng doanh thu (VND)</small>
         </div>
       </div>
       <div class="col-md-3">
         <div class="card border-0 shadow-sm text-center p-3">
           <i class="bi bi-journal-check fs-1 text-primary"></i>
           <h4 class="mt-2">{{ totalBookings }}</h4>
-          <small class="text-muted">Tong booking</small>
+          <small class="text-muted">Tổng booking</small>
         </div>
       </div>
       <div class="col-md-3">
         <div class="card border-0 shadow-sm text-center p-3">
           <i class="bi bi-map fs-1 text-info"></i>
           <h4 class="mt-2">{{ tourRevenues.length }}</h4>
-          <small class="text-muted">Tours co doanh thu</small>
+          <small class="text-muted">Tours có doanh thu</small>
         </div>
       </div>
       <div class="col-md-3">
         <div class="card border-0 shadow-sm text-center p-3">
           <i class="bi bi-star fs-1 text-warning"></i>
           <h4 class="mt-2">{{ popularTours.length }}</h4>
-          <small class="text-muted">Tour pho bien</small>
+          <small class="text-muted">Tour phổ biến</small>
         </div>
       </div>
     </div>
@@ -50,7 +50,7 @@ Chart.register(...registerables);
     <div class="row g-4 mb-4">
       <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
-          <div class="card-header"><h5 class="mb-0">Doanh thu theo thang</h5></div>
+          <div class="card-header"><h5 class="mb-0">Doanh thu theo tháng</h5></div>
           <div class="card-body">
             @if (monthlyChartData.datasets[0].data.length > 0) {
               <canvas baseChart
@@ -58,14 +58,14 @@ Chart.register(...registerables);
                       [options]="barOptions"
                       type="bar"></canvas>
             } @else {
-              <p class="text-muted text-center py-4">Chua co du lieu.</p>
+              <p class="text-muted text-center py-4">Chưa có dữ liệu.</p>
             }
           </div>
         </div>
       </div>
       <div class="col-lg-4">
         <div class="card border-0 shadow-sm">
-          <div class="card-header"><h5 class="mb-0">Tour pho bien</h5></div>
+          <div class="card-header"><h5 class="mb-0">Tour phổ biến</h5></div>
           <div class="card-body">
             @if (popularChartData.datasets[0].data.length > 0) {
               <canvas baseChart
@@ -73,7 +73,7 @@ Chart.register(...registerables);
                       [options]="pieOptions"
                       type="doughnut"></canvas>
             } @else {
-              <p class="text-muted text-center py-4">Chua co du lieu.</p>
+              <p class="text-muted text-center py-4">Chưa có dữ liệu.</p>
             }
           </div>
         </div>
@@ -82,17 +82,17 @@ Chart.register(...registerables);
 
     <!-- Occupancy Table -->
     <div class="card border-0 shadow-sm">
-      <div class="card-header"><h5 class="mb-0">Ty le lap day (Occupancy Rate)</h5></div>
+      <div class="card-header"><h5 class="mb-0">Tỷ lệ lấp đầy (Occupancy Rate)</h5></div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
               <th>Tour</th>
-              <th>Ngay di</th>
-              <th>Tong cho</th>
-              <th>Da dat</th>
-              <th>Con trong</th>
-              <th>Ty le</th>
+              <th>Ngày đi</th>
+              <th>Tổng chỗ</th>
+              <th>Đã đặt</th>
+              <th>Còn trống</th>
+              <th>Tỷ lệ</th>
             </tr>
           </thead>
           <tbody>

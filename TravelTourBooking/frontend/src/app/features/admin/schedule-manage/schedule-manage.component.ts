@@ -12,9 +12,9 @@ import { ScheduleResponse, EmployeeDto, TourList } from '../../../shared/models'
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Quan ly lich khoi hanh</h3>
+      <h3 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Quản lý lịch khởi hành</h3>
       <button class="btn btn-primary" (click)="openForm()">
-        <i class="bi bi-plus-circle me-1"></i>Them
+        <i class="bi bi-plus-circle me-1"></i>Thêm
       </button>
     </div>
 
@@ -35,28 +35,28 @@ import { ScheduleResponse, EmployeeDto, TourList } from '../../../shared/models'
               </select>
             </div>
             <div class="col-md-2">
-              <label class="form-label">Ngay di *</label>
+              <label class="form-label">Ngày đi *</label>
               <input type="date" class="form-control" formControlName="departureDate">
             </div>
             <div class="col-md-2">
-              <label class="form-label">Ngay ve *</label>
+              <label class="form-label">Ngày về *</label>
               <input type="date" class="form-control" formControlName="returnDate">
             </div>
             <div class="col-md-2">
-              <label class="form-label">So cho *</label>
+              <label class="form-label">Số chỗ *</label>
               <input type="number" class="form-control" formControlName="availableSlots">
             </div>
             <div class="col-md-2">
-              <label class="form-label">Huong dan vien</label>
+              <label class="form-label">Hướng dẫn viên</label>
               <select class="form-select" formControlName="employeeId">
-                <option [ngValue]="null">-- Khong --</option>
+                <option [ngValue]="null">-- Không --</option>
                 @for (e of employees; track e.employeeId) {
                   <option [ngValue]="e.employeeId">{{ e.fullName }}</option>
                 }
               </select>
             </div>
             <div class="col-md-1">
-              <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Luu</button>
+              <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Lưu</button>
             </div>
           </form>
         </div>
@@ -67,8 +67,8 @@ import { ScheduleResponse, EmployeeDto, TourList } from '../../../shared/models'
       <table class="table table-hover align-middle">
         <thead class="table-light">
           <tr>
-            <th>ID</th><th>Tour</th><th>Ngay di</th><th>Ngay ve</th>
-            <th>Cho trong</th><th>HDV</th><th></th>
+            <th>ID</th><th>Tour</th><th>Ngày đi</th><th>Ngày về</th>
+            <th>Chỗ trống</th><th>HDV</th><th></th>
           </tr>
         </thead>
         <tbody>
@@ -161,16 +161,16 @@ export class ScheduleManageComponent implements OnInit {
       ? this.svc.update(this.editId, { ...dto, employeeId: dto.employeeId ?? undefined })
       : this.svc.create({ ...dto, employeeId: dto.employeeId ?? undefined });
     obs.subscribe({
-      next: () => { this.msg = 'Thanh cong!'; this.msgOk = true; this.showForm = false; this.load(); },
-      error: err => { this.msg = err.error?.message || 'Loi.'; this.msgOk = false; }
+      next: () => { this.msg = 'Thành công!'; this.msgOk = true; this.showForm = false; this.load(); },
+      error: err => { this.msg = err.error?.message || 'Lỗi.'; this.msgOk = false; }
     });
   }
 
   onDelete(id: number): void {
-    if (!confirm('Xac nhan xoa?')) return;
+    if (!confirm('Xác nhận xóa?')) return;
     this.svc.delete(id).subscribe({
-      next: () => { this.msg = 'Da xoa.'; this.msgOk = true; this.load(); },
-      error: err => { this.msg = err.error?.message || 'Xoa that bai.'; this.msgOk = false; }
+      next: () => { this.msg = 'Đã xóa.'; this.msgOk = true; this.load(); },
+      error: err => { this.msg = err.error?.message || 'Xóa thất bại.'; this.msgOk = false; }
     });
   }
 }

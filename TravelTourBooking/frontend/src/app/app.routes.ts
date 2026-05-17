@@ -23,6 +23,41 @@ export const routes: Routes = [
       .then(m => m.TourDetailComponent)
   },
   {
+    path: 'about',
+    loadComponent: () => import('./features/pages/about/about.component')
+      .then(m => m.AboutComponent)
+  },
+  {
+    path: 'guide-booking',
+    loadComponent: () => import('./features/pages/guide-booking/guide-booking.component')
+      .then(m => m.GuideBookingComponent)
+  },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./features/pages/privacy/privacy.component')
+      .then(m => m.PrivacyComponent)
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/pages/terms/terms.component')
+      .then(m => m.TermsComponent)
+  },
+  {
+    path: 'faq',
+    loadComponent: () => import('./features/pages/faq/faq.component')
+      .then(m => m.FaqComponent)
+  },
+  {
+    path: 'pricing',
+    loadComponent: () => import('./features/pages/pricing/pricing.component')
+      .then(m => m.PricingComponent)
+  },
+  {
+    path: 'contact',
+    loadComponent: () => import('./features/pages/contact/contact.component')
+      .then(m => m.ContactComponent)
+  },
+  {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login.component')
       .then(m => m.LoginComponent)

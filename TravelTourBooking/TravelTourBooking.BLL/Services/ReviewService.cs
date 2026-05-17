@@ -39,4 +39,23 @@ public class ReviewService : IReviewService
 
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<ReviewResponseDto>> GetReviewsByTourAsync(int tourId)
+    {
+        return await _context.Reviews
+            .Where(r => r.TourId == tourId)
+            .OrderByDescending(r => r.ReviewDate)
+            .Select(r => new ReviewResponseDto
+            {
+                ReviewId = r.ReviewId,
+                Rating = r.Rating,
+                Comment = r.Comment,
+                ReviewDate = r.ReviewDate,
+                UserName = _context.CustomerProfiles
+                    .Where(cp => cp.AccountId == r.AccountId)
+                    .Select(cp => cp.FullName)
+                    .FirstOrDefault() ?? "Ẩn danh"
+            })
+            .ToListAsync();
+    }
 }

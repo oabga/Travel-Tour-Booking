@@ -58,4 +58,5 @@ export interface PopularTourResult {
   desName: string | null;
   avgRating: number;
   totalBookings: number;
+  imageUrl: string | null;
 }

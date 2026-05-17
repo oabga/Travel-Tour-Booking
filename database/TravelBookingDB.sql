@@ -540,27 +540,38 @@ INSERT INTO CustomerProfiles VALUES
 (3,N'Lê Hoàng Cường','0913333333','1990-09-10',N'Đà Nẵng');
 
 INSERT INTO Categories (CateName, Description) VALUES
-(N'Adventure',  N'Outdoor & thám hiểm'),
-(N'Luxury',     N'Nghỉ dưỡng cao cấp'),
-(N'Family',     N'Phù hợp gia đình'),
-(N'Beach',      N'Tour biển');
+(N'Tour Miền Tây',   N'Tour khám phá miền Tây'),
+(N'Tour Phan Thiết', N'Tour biển Phan Thiết'),
+(N'Đà Nẵng',         N'Tour Đà Nẵng'),
+(N'Phú Quốc',        N'Tour đảo Phú Quốc'),
+(N'Miền Bắc',        N'Tour miền Bắc'),
+(N'Đà Lạt',          N'Tour Đà Lạt'),
+(N'Hồ Chí Minh',    N'Tour TP.HCM'),
+(N'Tour Đảo',        N'Tour đảo'),
+(N'Nha Trang',       N'Tour Nha Trang');
 
 INSERT INTO Destinations (DesName, Country, City, Description) VALUES
-(N'Đà Lạt',   N'Việt Nam',  N'Lâm Đồng',  N'Thành phố sương mù'),
-(N'Phú Quốc', N'Việt Nam',  N'Kiên Giang', N'Đảo ngọc'),
-(N'Nha Trang', N'Việt Nam', N'Khánh Hòa',  N'Thành phố biển'),
-(N'Bangkok',   N'Thái Lan', N'Bangkok',    N'Thủ đô Thái Lan');
+(N'Đà Lạt',      N'Việt Nam', N'Lâm Đồng',   N'Thành phố sương mù'),
+(N'Phú Quốc',    N'Việt Nam', N'Kiên Giang', N'Đảo ngọc'),
+(N'Nha Trang',   N'Việt Nam', N'Khánh Hòa',  N'Thành phố biển'),
+(N'Đà Nẵng',     N'Việt Nam', N'Đà Nẵng',    N'Thành phố biển'),
+(N'Phan Thiết',  N'Việt Nam', N'Bình Thuận', N'Biển Phan Thiết'),
+(N'Miền Tây',    N'Việt Nam', N'Cần Thơ',    N'Đồng bằng sông Cửu Long'),
+(N'Hồ Chí Minh', N'Việt Nam', N'TP.HCM',     N'Thành phố lớn nhất'),
+(N'Miền Bắc',    N'Việt Nam', N'Hà Nội',     N'Miền Bắc'),
+(N'Bangkok',      N'Thái Lan', N'Bangkok',    N'Thủ đô Thái Lan');
 
 INSERT INTO Employees (FullName, Role, Phone, Email) VALUES
 (N'Nguyễn Văn A', N'Guide',    '0901234567', 'guide_a@travel.com'),
 (N'Trần Thị B',   N'Guide',    '0902345678', 'guide_b@travel.com'),
 (N'Lê Văn C',     N'Manager',  '0903333333', 'manager@travel.com');
 
+-- CateId: 6=Đà Lạt, 4=Phú Quốc, 9=Nha Trang, 5=Miền Bắc
 INSERT INTO Tours (TourName, CateId, DesId, DurationDays, Price, MaxCapacity, Description, ImageUrl, IsActive) VALUES
-(N'Tour Đà Lạt 3N2Đ',    1, 1, 3, 2500000, 20, N'Khám phá thành phố sương mù', NULL, 1),
-(N'Tour Phú Quốc 4N3Đ',  2, 2, 4, 5000000, 25, N'Nghỉ dưỡng đảo ngọc',         NULL, 1),
-(N'Tour Nha Trang 2N1Đ', 4, 3, 2, 1800000, 15, N'Biển xanh cát trắng',          NULL, 1),
-(N'Tour Bangkok 5N4Đ',   2, 4, 5, 7500000, 20, N'Khám phá xứ chùa vàng',        NULL, 1);
+(N'Tour Đà Lạt 3N2Đ',    6, 1, 3, 2500000, 20, N'Khám phá thành phố sương mù', NULL, 1),
+(N'Tour Phú Quốc 4N3Đ',  4, 2, 4, 5000000, 25, N'Nghỉ dưỡng đảo ngọc',         NULL, 1),
+(N'Tour Nha Trang 2N1Đ', 9, 3, 2, 1800000, 15, N'Biển xanh cát trắng',          NULL, 1),
+(N'Tour Bangkok 5N4Đ',    5, 9, 5, 7500000, 20, N'Khám phá xứ chùa vàng',        NULL, 1);
 
 INSERT INTO TourSchedules (TourId, DepartureDate, ReturnDate, AvailableSlots, EmployeeId, Status) VALUES
 (1, '2026-06-01', '2026-06-03', 5,  1, N'Open'),

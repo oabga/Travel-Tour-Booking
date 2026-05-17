@@ -6,6 +6,7 @@ import { TourService } from '../../../services/tour.service';
 import { ReviewService } from '../../../services/review.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TourDetail } from '../../../shared/models';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-tour-detail',
@@ -29,7 +30,7 @@ import { TourDetail } from '../../../shared/models';
           <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
               @if (tour.imageUrl) {
-                <img [src]="'https://localhost:7008' + tour.imageUrl" 
+                <img [src]="environment.imageBaseUrl + tour.imageUrl" 
                      class="card-img-top" 
                      style="height:400px;object-fit:cover"
                      [alt]="tour.tourName"
@@ -111,6 +112,32 @@ import { TourDetail } from '../../../shared/models';
                 </div>
               </div>
             }
+
+            @if (reviews.length > 0) {
+              <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                  <h5><i class="bi bi-chat-square-text me-2"></i>Đánh giá từ khách hàng ({{ reviews.length }})</h5>
+                  @for (r of reviews; track r.reviewId) {
+                    <div class="border-bottom py-3">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div>
+                          <strong>{{ r.userName }}</strong>
+                          <span class="text-warning ms-2">
+                            @for (s of [1,2,3,4,5]; track s) {
+                              <i class="bi" [class.bi-star-fill]="s <= r.rating" [class.bi-star]="s > r.rating"></i>
+                            }
+                          </span>
+                        </div>
+                        <small class="text-muted">{{ r.reviewDate | date:'dd/MM/yyyy' }}</small>
+                      </div>
+                      @if (r.comment) {
+                        <p class="text-muted mb-0 mt-1">{{ r.comment }}</p>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
           </div>
 
           <div class="col-lg-4">
@@ -161,8 +188,10 @@ import { TourDetail } from '../../../shared/models';
   `
 })
 export class TourDetailComponent implements OnInit {
+    readonly environment = environment;
     tour: TourDetail | null = null;
     loading = true;
+    reviews: any[] = [];
 
     reviewForm = this.fb.nonNullable.group({
         rating: [5, Validators.required],
@@ -186,9 +215,9 @@ export class TourDetailComponent implements OnInit {
             next: t => { this.tour = t; this.loading = false; },
             error: () => { this.tour = null; this.loading = false; }
         });
+        this.reviewSvc.getByTour(id).subscribe(r => this.reviews = r);
     }
 
-    // THÊM HÀM NÀY ĐỂ XỬ LÝ ẢNH LỖI
     handleImageError(event: any): void {
         event.target.src = '/assets/images/default-tour.jpg';
     }

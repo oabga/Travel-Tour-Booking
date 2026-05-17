@@ -15,13 +15,13 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
   imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
   template: `
     <div class="container py-4">
-      <h3 class="mb-4"><i class="bi bi-cart-plus me-2"></i>Dat tour</h3>
+      <h3 class="mb-4"><i class="bi bi-cart-plus me-2"></i>Đặt tour</h3>
 
       @if (schedule) {
         <div class="alert alert-info shadow-sm border-0">
-          <strong>Lich khoi hanh #{{ schedule.scheduleId }}</strong> —
-          Ngay di: {{ schedule.departureDate }} | Ve: {{ schedule.returnDate }}
-          | Con {{ schedule.availableSlots }} cho
+          <strong>Lịch khởi hành #{{ schedule.scheduleId }}</strong> —
+          Ngày đi: {{ schedule.departureDate }} | Về: {{ schedule.returnDate }}
+          | Còn {{ schedule.availableSlots }} chỗ
           @if (schedule.employeeName) {
             | HDV: {{ schedule.employeeName }}
           }
@@ -35,7 +35,7 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
         <div class="alert alert-success shadow-sm border-0">
           {{ successMsg }}
           <a [routerLink]="['/bookings', createdBookingId]" class="alert-link ms-2">
-            Xem chi tiet booking
+            Xem chi tiết booking
           </a>
         </div>
       }
@@ -46,9 +46,9 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
             <div class="row g-3">
               @if (isAdminOrStaff) {
                 <div class="col-md-12">
-                  <label class="form-label text-primary fw-bold">Chon khach hang (Staff dat ho)</label>
+                  <label class="form-label text-primary fw-bold">Chọn khách hàng (Staff đặt hộ)</label>
                   <select class="form-select border-primary" formControlName="accountId">
-                    <option [ngValue]="null">-- Chon khach hang --</option>
+                    <option [ngValue]="null">-- Chọn khách hàng --</option>
                     @for (c of customers; track c.accountId) {
                       <option [ngValue]="c.accountId">{{ c.fullName }} ({{ c.email }})</option>
                     }
@@ -57,7 +57,7 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
               }
 
               <div class="col-md-3">
-                <label class="form-label">So nguoi</label>
+                <label class="form-label">Số người</label>
                 <input type="number" class="form-control" formControlName="numberOfPeople"
                        min="1" [max]="schedule?.availableSlots || 100"
                        (change)="onPeopleChange()">
@@ -65,15 +65,15 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
 
               <!-- VOUCHER SECTION -->
               <div class="col-md-3">
-                <label class="form-label">Ma giam gia</label>
+                <label class="form-label">Mã giảm giá</label>
                 <div class="input-group">
                   <input type="text" class="form-control text-uppercase" [(ngModel)]="voucherCode" 
-                         [ngModelOptions]="{standalone: true}" placeholder="NHAP MA">
+                         [ngModelOptions]="{standalone: true}" placeholder="NHẬP MÃ">
                   <button class="btn btn-outline-secondary" type="button" (click)="applyVoucher()" [disabled]="!voucherCode || applyingVoucher">
                     @if (applyingVoucher) {
                        <span class="spinner-border spinner-border-sm"></span>
                     } @else {
-                       Ap dung
+                       Áp dụng
                     }
                   </button>
                 </div>
@@ -85,31 +85,31 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
               </div>
 
               <div class="col-md-3">
-                <label class="form-label">Giam gia (%)</label>
+                <label class="form-label">Giảm giá (%)</label>
                 <input type="number" class="form-control" formControlName="discountPercent"
                        min="0" max="100" [readonly]="!isAdminOrStaff">
                 @if (!isAdminOrStaff) {
-                  <small class="text-muted">Dung ma de duoc giam gia.</small>
+                  <small class="text-muted">Dùng mã để được giảm giá.</small>
                 }
               </div>
               <div class="col-md-3">
-                <label class="form-label">Ghi chu</label>
+                <label class="form-label">Ghi chú</label>
                 <input type="text" class="form-control" formControlName="notes"
-                       placeholder="Ghi chu (tuy chon)">
+                       placeholder="Ghi chú (tùy chọn)">
               </div>
             </div>
           </div>
         </div>
 
         <!-- Passengers -->
-        <h5 class="mb-3"><i class="bi bi-people me-2"></i>Danh sach hanh khach</h5>
+        <h5 class="mb-3"><i class="bi bi-people me-2"></i>Danh sách hành khách</h5>
 
         <div formArrayName="passengers">
           @for (p of passengers.controls; track i; let i = $index) {
             <div class="card border-0 shadow-sm mb-3" [formGroupName]="i">
               <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
-                  <h6 class="mb-0 text-secondary">Hanh khach {{ i + 1 }}</h6>
+                  <h6 class="mb-0 text-secondary">Hành khách {{ i + 1 }}</h6>
                   @if (passengers.length > 1) {
                     <button type="button" class="btn btn-sm btn-outline-danger border-0"
                             (click)="removePassenger(i)">
@@ -119,34 +119,34 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
                 </div>
                 <div class="row g-3">
                   <div class="col-md-4">
-                    <label class="form-label small text-muted">Ho ten *</label>
+                    <label class="form-label small text-muted">Họ tên *</label>
                     <input type="text" class="form-control" formControlName="passengerName">
                   </div>
                   <div class="col-md-2">
-                    <label class="form-label small text-muted">Loai *</label>
+                    <label class="form-label small text-muted">Loại *</label>
                     <select class="form-select" formControlName="passengerType">
-                      <option value="Adult">Nguoi lon</option>
-                      <option value="Child">Tre em</option>
+                      <option value="Adult">Người lớn</option>
+                      <option value="Child">Trẻ em</option>
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small text-muted">CCCD/Ho chieu</label>
+                    <label class="form-label small text-muted">CCCD/Hộ chiếu</label>
                     <input type="text" class="form-control" formControlName="passengerIdNumber"
-                           placeholder="12 so CCCD">
+                           placeholder="12 số CCCD">
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small text-muted">SDT</label>
+                    <label class="form-label small text-muted">SĐT</label>
                     <input type="text" class="form-control" formControlName="passengerPhone">
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small text-muted">Ngay sinh</label>
+                    <label class="form-label small text-muted">Ngày sinh</label>
                     <input type="date" class="form-control" formControlName="passengerDOB">
                   </div>
                   <div class="col-md-3">
                     <div class="form-check mt-4 pt-2">
                       <input type="checkbox" class="form-check-input"
                              formControlName="isPrimaryContact" [id]="'primary'+i">
-                      <label class="form-check-label" [for]="'primary'+i">Lien he chinh</label>
+                      <label class="form-check-label" [for]="'primary'+i">Liên hệ chính</label>
                     </div>
                   </div>
                 </div>
@@ -157,13 +157,13 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
 
         <div class="d-flex gap-2 mb-4 mt-4">
           <button type="button" class="btn btn-outline-primary px-4 shadow-sm" (click)="addPassenger()">
-            <i class="bi bi-plus-circle me-1"></i>Them hanh khach
+            <i class="bi bi-plus-circle me-1"></i>Thêm hành khách
           </button>
           <button type="submit" class="btn btn-primary px-5 shadow-sm" [disabled]="loading || form.invalid">
             @if (loading) {
               <span class="spinner-border spinner-border-sm me-1"></span>
             }
-            <i class="bi bi-check-circle me-1"></i>Xac nhan dat tour
+            <i class="bi bi-check-circle me-1"></i>Xác nhận đặt tour
           </button>
         </div>
       </form>
@@ -211,7 +211,7 @@ export class BookingFormComponent implements OnInit {
     const scheduleId = Number(this.route.snapshot.paramMap.get('scheduleId'));
     this.scheduleSvc.getById(scheduleId).subscribe({
       next: s => this.schedule = s,
-      error: () => this.errorMsg = 'Khong tim thay lich khoi hanh.'
+      error: () => this.errorMsg = 'Không tìm thấy lịch khởi hành.'
     });
 
     if (this.isAdminOrStaff) {
@@ -243,7 +243,7 @@ export class BookingFormComponent implements OnInit {
       error: () => {
         this.applyingVoucher = false;
         this.voucherOk = false;
-        this.voucherMsg = 'Khong the kiem tra ma luc nay.';
+        this.voucherMsg = 'Không thể kiểm tra mã lúc này.';
       }
     });
   }
@@ -293,7 +293,7 @@ export class BookingFormComponent implements OnInit {
     }
 
     if (!finalAccountId) { 
-        this.errorMsg = 'Khong xac dinh duoc tai khoan khach hang.'; 
+        this.errorMsg = 'Không xác định được tài khoản khách hàng.'; 
         this.loading = false; 
         return; 
     }
@@ -315,12 +315,12 @@ export class BookingFormComponent implements OnInit {
     }).subscribe({
       next: res => {
         this.loading = false;
-        this.successMsg = 'Dat tour thanh cong!';
+        this.successMsg = 'Đặt tour thành công!';
         this.createdBookingId = res.bookingId;
       },
       error: err => {
         this.loading = false;
-        this.errorMsg = err.error?.message || 'Dat tour that bai. Vui long thu lai.';
+        this.errorMsg = err.error?.message || 'Đặt tour thất bại. Vui lòng thử lại.';
       }
     });
   }

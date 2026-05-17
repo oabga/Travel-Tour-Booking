@@ -8,6 +8,7 @@ import { TourList, CategoryResponse, DestinationResponse, PaginationMeta } from 
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-tour-manage',
@@ -85,7 +86,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 <label class="form-label">Ảnh Tour</label>
                 <input type="file" class="form-control" (change)="onFileChange($event)" accept="image/*" />
                 @if (imagePreview) {
-                  <img [src]="imagePreview.startsWith('data:') ? imagePreview : 'https://localhost:7008' + imagePreview" 
+                  <img [src]="imagePreview.startsWith('data:') ? imagePreview : imgBase + imagePreview" 
                        class="img-thumbnail mt-2" style="max-height:80px;" />
                 }
               </div>
@@ -123,7 +124,7 @@ import { AuthService } from '../../../core/services/auth.service';
               <tr>
                 <td>{{ t.tourId }}</td>
                 <td>
-                  <img [src]="t.imageUrl ? 'https://localhost:7008' + t.imageUrl : 'assets/images/no-image.png'" 
+                  <img [src]="t.imageUrl ? imgBase + t.imageUrl : '/assets/images/default-tour.jpg'" 
                        style="width: 45px; height: 45px; object-fit: cover;" class="rounded border">
                 </td>
                 <td>{{ t.tourName }}</td>
@@ -162,6 +163,7 @@ export class TourManageComponent implements OnInit {
   msg = '';
   msgOk = false;
   isAdmin = false;
+  readonly imgBase = environment.imageBaseUrl;
 
   selectedFile: File | null = null;
   imagePreview: string | null = null;
@@ -295,14 +297,14 @@ export class TourManageComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('file', file);
-    this.http.post('https://localhost:7008/api/tours/import/xml', formData).subscribe({
+    this.http.post(environment.apiUrl + '/tours/import/xml', formData).subscribe({
       next: (res: any) => { alert(res.message); this.loadTours(); },
       error: () => alert("Import thất bại!")
     });
   }
 
   onExportXml(): void {
-    this.http.get('https://localhost:7008/api/tours/export/xml', { responseType: 'blob' }).subscribe({
+    this.http.get(environment.apiUrl + '/tours/export/xml', { responseType: 'blob' }).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');

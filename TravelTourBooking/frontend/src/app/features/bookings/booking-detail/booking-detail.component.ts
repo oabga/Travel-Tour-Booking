@@ -22,7 +22,7 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
           <ol class="breadcrumb">
             <li class="breadcrumb-item">
               <a [routerLink]="auth.userRole() === 'Customer' ? '/bookings' : '/admin/bookings'">
-                {{ auth.userRole() === 'Customer' ? 'Lich su' : 'Danh sách Booking' }}
+                {{ auth.userRole() === 'Customer' ? 'Lịch sử' : 'Danh sách Booking' }}
               </a>
             </li>
             <li class="breadcrumb-item active">Booking #{{ booking.bookingId }}</li>
@@ -38,7 +38,7 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
             <!-- Booking Info -->
             <div class="card border-0 shadow-sm mb-4">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Chi tiet booking #{{ booking.bookingId }}</h5>
+                <h5 class="mb-0">Chi tiết booking #{{ booking.bookingId }}</h5>
                 <span class="badge badge-status fs-6" [ngClass]="booking.bookingStatus || ''">
                   {{ booking.bookingStatus }}
                 </span>
@@ -49,34 +49,34 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
                   <div class="col-sm-8 fw-semibold">{{ booking.tourName }}</div>
                 </div>
                 <div class="row mb-2">
-                  <div class="col-sm-4 text-muted">Diem den:</div>
+                  <div class="col-sm-4 text-muted">Điểm đến:</div>
                   <div class="col-sm-8">{{ booking.desName }}</div>
                 </div>
                 <div class="row mb-2">
-                  <div class="col-sm-4 text-muted">Ngay di:</div>
+                  <div class="col-sm-4 text-muted">Ngày đi:</div>
                   <div class="col-sm-8">{{ booking.departureDate | date:'dd/MM/yyyy' }}</div>
                 </div>
                 <div class="row mb-2">
-                  <div class="col-sm-4 text-muted">Ngay ve:</div>
+                  <div class="col-sm-4 text-muted">Ngày về:</div>
                   <div class="col-sm-8">{{ booking.returnDate | date:'dd/MM/yyyy' }}</div>
                 </div>
                 <div class="row mb-2">
-                  <div class="col-sm-4 text-muted">So nguoi:</div>
+                  <div class="col-sm-4 text-muted">Số người:</div>
                   <div class="col-sm-8">{{ booking.numberOfPeople }}</div>
                 </div>
                 <div class="row mb-2">
-                  <div class="col-sm-4 text-muted">Giam gia:</div>
+                  <div class="col-sm-4 text-muted">Giảm giá:</div>
                   <div class="col-sm-8">{{ booking.discountPercent }}%</div>
                 </div>
                 <div class="row mb-2">
-                  <div class="col-sm-4 text-muted">Tong tien:</div>
+                  <div class="col-sm-4 text-muted">Tổng tiền:</div>
                   <div class="col-sm-8 fw-bold text-primary fs-5">
                     {{ booking.totalAmount | number:'1.0-0' }} VND
                   </div>
                 </div>
                 @if (booking.notes) {
                   <div class="row mb-2">
-                    <div class="col-sm-4 text-muted">Ghi chu:</div>
+                    <div class="col-sm-4 text-muted">Ghi chú:</div>
                     <div class="col-sm-8">{{ booking.notes }}</div>
                   </div>
                 }
@@ -85,17 +85,17 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
 
             <!-- Passengers -->
             <div class="card border-0 shadow-sm mb-4">
-              <div class="card-header"><h5 class="mb-0">Hanh khach</h5></div>
+              <div class="card-header"><h5 class="mb-0">Hành khách</h5></div>
               <div class="table-responsive">
                 <table class="table table-hover mb-0">
                   <thead class="table-light">
                     <tr>
                       <th>#</th>
-                      <th>Ho ten</th>
-                      <th>Loai</th>
+                      <th>Họ tên</th>
+                      <th>Loại</th>
                       <th>CCCD/Passport</th>
                       <th>SDT</th>
-                      <th>Ngay sinh</th>
+                      <th>Ngày sinh</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -104,7 +104,7 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
                         <td>{{ i + 1 }}</td>
                         <td>{{ p.passengerName }}
                           @if (p.isPrimaryContact) {
-                            <span class="badge bg-info ms-1">Chinh</span>
+                            <span class="badge bg-info ms-1">Chính</span>
                           }
                         </td>
                         <td><span class="badge" [class.bg-primary]="p.passengerType==='Adult'"
@@ -134,14 +134,14 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
           <!-- Payments Sidebar -->
           <div class="col-lg-4">
             <div class="card border-0 shadow-sm mb-4">
-              <div class="card-header"><h5 class="mb-0">Thanh toan</h5></div>
+              <div class="card-header"><h5 class="mb-0">Thanh toán</h5></div>
               <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
-                  <span>Da thanh toan:</span>
+                  <span>Đã thanh toán:</span>
                   <strong class="text-success">{{ totalPaid | number:'1.0-0' }} VND</strong>
                 </div>
                 <div class="d-flex justify-content-between mb-3">
-                  <span>Con lai:</span>
+                  <span>Còn lại:</span>
                   <strong class="text-danger">{{ remaining | number:'1.0-0' }} VND</strong>
                 </div>
 
@@ -178,28 +178,28 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
             <!-- Payment Form -->
             @if (booking.bookingStatus !== 'Cancelled' && remaining > 0) {
               <div class="card border-0 shadow-sm">
-                <div class="card-header"><h6 class="mb-0">Thanh toan moi</h6></div>
+                <div class="card-header"><h6 class="mb-0">Thanh toán mới</h6></div>
                 <div class="card-body">
                   <form [formGroup]="payForm" (ngSubmit)="submitPayment()">
                     <div class="mb-2">
-                      <label class="form-label">So tien (VND)</label>
+                      <label class="form-label">Số tiền (VND)</label>
                       <input type="number" class="form-control" formControlName="amount">
                     </div>
                     
                     <div class="mb-2">
-                      <label class="form-label">Phuong thuc</label>
+                      <label class="form-label">Phương thức</label>
                       <select class="form-select" formControlName="paymentMethod">
                         @if (auth.userRole()  === 'Customer') {
-                        <option value="BankTransfer">Chuyen khoan</option>
+                        <option value="BankTransfer">Chuyển khoản</option>
                         <option value="VNPay">VNPay</option>
                         <option value="MoMo">MoMo</option>}
                         @if (auth.userRole() === 'Staff') {
-                        <option value="Cash">Tien mat</option>}
+                        <option value="Cash">Tiền mặt</option>}
                       </select>
                     </div>
                     @if (auth.userRole()  === 'Customer') {
                     <div class="mb-2">
-                      <label class="form-label">Ma giao dich</label>
+                      <label class="form-label">Mã giao dịch</label>
                       <input type="text" class="form-control" formControlName="transactionCode">
                     </div>}
                     <button type="submit" class="btn btn-success w-100 mt-2"
@@ -207,7 +207,7 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
                       @if (payLoading) {
                         <span class="spinner-border spinner-border-sm me-1"></span>
                       }
-                      Thanh toan
+                      Thanh toán
                     </button>
                   </form>
                 </div>
@@ -296,13 +296,13 @@ export class BookingDetailComponent implements OnInit {
     this.cancelling = true;
     this.bookingSvc.cancel(this.booking.bookingId).subscribe({
       next: () => {
-        this.msg = 'Da huy booking thanh cong.';
+        this.msg = 'Đã hủy booking thành công.';
         this.msgOk = true;
         this.cancelling = false;
         this.loadAll();
       },
       error: err => {
-        this.msg = err.error?.message || 'Huy booking that bai.';
+        this.msg = err.error?.message || 'Hủy booking thất bại.';
         this.msgOk = false;
         this.cancelling = false;
       }
@@ -311,14 +311,14 @@ export class BookingDetailComponent implements OnInit {
 
   private handleSuccess = () => {
   this.payLoading = false;
-  this.msg = 'Thanh toan thanh cong!';
+  this.msg = 'Thanh toán thành công!';
   this.msgOk = true;
   this.loadPayments(this.booking!.bookingId);
   };
 
   private handleError = (err: any) => {
     this.payLoading = false;
-    this.msg = err.error?.message || 'Thanh toan that bai.';
+    this.msg = err.error?.message || 'Thanh toán thất bại.';
     this.msgOk = false;
   };
 
@@ -326,8 +326,6 @@ export class BookingDetailComponent implements OnInit {
     if (!this.booking || this.payForm.invalid) return;
     this.payLoading = true;
     const val = this.payForm.getRawValue();
-    console.log('FORM VALUE:', this.payForm.value);
-    console.log('CONTROL:', this.payForm.get('paymentMethod')?.value);
     if (val.paymentMethod === 'Cash') {
     this.paymentSvc.createCashPayment({
       bookingId: this.booking.bookingId,

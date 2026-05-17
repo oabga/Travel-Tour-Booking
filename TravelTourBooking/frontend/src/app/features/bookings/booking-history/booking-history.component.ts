@@ -11,7 +11,7 @@ import { BookingHistory } from '../../../shared/models';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="container py-4">
-      <h3 class="mb-4"><i class="bi bi-journal-text me-2"></i>Lich su dat tour</h3>
+      <h3 class="mb-4"><i class="bi bi-journal-text me-2"></i>Lịch sử đặt tour</h3>
 
       @if (loading) {
         <div class="spinner-overlay">
@@ -20,9 +20,9 @@ import { BookingHistory } from '../../../shared/models';
       } @else if (bookings.length === 0) {
         <div class="empty-state text-center py-5">
           <i class="bi bi-journal-x" style="font-size: 3rem; color: #ccc;"></i>
-          <p class="mt-3 text-muted">{{ isAdminOrStaff ? 'Chưa có booking nào trong hệ thống.' : 'Ban chua co booking nao.' }}</p>
+          <p class="mt-3 text-muted">{{ isAdminOrStaff ? 'Chưa có booking nào trong hệ thống.' : 'Bạn chưa có booking nào.' }}</p>
           @if (!isAdminOrStaff) {
-            <a routerLink="/tours" class="btn btn-primary mt-2">Tim tour ngay</a>
+            <a routerLink="/tours" class="btn btn-primary mt-2">Tìm tour ngay</a>
           }
         </div>
       } @else {
@@ -32,12 +32,12 @@ import { BookingHistory } from '../../../shared/models';
               <tr>
                 <th>#</th>
                 <th>Tour</th>
-                <th>Diem den</th>
-                <th>Ngay di</th>
-                <th>So nguoi</th>
-                <th>Tong tien</th>
-                <th>Trang thai</th>
-                <th>Ngay dat</th>
+                <th>Điểm đến</th>
+                <th>Ngày đi</th>
+                <th>Số người</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Ngày đặt</th>
                 <th></th>
               </tr>
             </thead>

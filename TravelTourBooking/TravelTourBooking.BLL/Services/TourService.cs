@@ -22,11 +22,11 @@ namespace TravelTourBooking.BLL.Services
         // ── GET paged list (LINQ to Entities inside repo) ─────────────────────
         public async Task<PagedResult<TourListDto>> GetToursAsync(
             int page, int pageSize,
-            int? cateId, int? desId,
+            int? cateId, int? desId, int? durationDays,
             decimal? priceMin, decimal? priceMax)
         {
             var (items, total) = await tourRepo.GetPagedAsync(
-                page, pageSize, cateId, desId, priceMin, priceMax);
+                page, pageSize, cateId, desId, durationDays, priceMin, priceMax);
 
             // LINQ to Objects — map + compute AvgRating
             var dtos = items.Select(t => new TourListDto
@@ -72,6 +72,9 @@ namespace TravelTourBooking.BLL.Services
         // ── Popular tours (vw_PopularTours) ──────
         public Task<IEnumerable<PopularTourResult>> GetPopularToursAsync()
             => tourRepo.GetPopularAsync();
+
+        public Task<IReadOnlyList<int>> GetDurationOptionsAsync()
+            => tourRepo.GetDistinctDurationDaysAsync();
 
         // ── CREATE ───────────
         public async Task<TourDetailDto> CreateTourAsync(TourRequestDto dto)

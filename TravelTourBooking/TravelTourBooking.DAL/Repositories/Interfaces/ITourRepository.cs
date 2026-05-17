@@ -11,7 +11,7 @@ namespace TravelTourBooking.DAL.Repositories.Interfaces
     {
         Task<(IEnumerable<Tour> Items, int TotalCount)> GetPagedAsync(
             int page, int pageSize,
-            int? cateId, int? desId,
+            int? cateId, int? desId, int? durationDays,
             decimal? priceMin, decimal? priceMax);
 
         Task<Tour?> GetDetailAsync(int tourId);
@@ -20,5 +20,7 @@ namespace TravelTourBooking.DAL.Repositories.Interfaces
             string? destination, decimal? priceMin, decimal? priceMax, DateOnly? date);
 
         Task<IEnumerable<PopularTourResult>> GetPopularAsync();
+
+        Task<IReadOnlyList<int>> GetDistinctDurationDaysAsync();
     }
 }

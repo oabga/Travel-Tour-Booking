@@ -48,7 +48,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 </form>
               } @else {
                 <h3 class="text-center mb-4">
-                  <i class="bi bi-box-arrow-in-right me-2"></i>Dang nhap
+                  <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
                 </h3>
 
                 @if (errorMsg) {
@@ -61,16 +61,16 @@ import { AuthService } from '../../../core/services/auth.service';
                            formControlName="email" placeholder="Email">
                     <label for="email">Email</label>
                     @if (form.get('email')?.touched && form.get('email')?.errors?.['required']) {
-                      <small class="text-danger">Email la bat buoc.</small>
+                      <small class="text-danger">Email là bắt buộc.</small>
                     }
                   </div>
 
                   <div class="form-floating mb-3">
                     <input type="password" class="form-control" id="password"
-                           formControlName="password" placeholder="Mat khau">
-                    <label for="password">Mat khau</label>
+                           formControlName="password" placeholder="Mật khẩu">
+                    <label for="password">Mật khẩu</label>
                     @if (form.get('password')?.touched && form.get('password')?.errors?.['required']) {
-                      <small class="text-danger">Mat khau la bat buoc.</small>
+                      <small class="text-danger">Mật khẩu là bắt buộc.</small>
                     }
                   </div>
 
@@ -79,13 +79,13 @@ import { AuthService } from '../../../core/services/auth.service';
                     @if (loading) {
                       <span class="spinner-border spinner-border-sm me-2"></span>
                     }
-                    Dang nhap
+                    Đăng nhập
                   </button>
                 </form>
 
                 <p class="text-center mt-3 mb-0">
-                  Chua co tai khoan?
-                  <a routerLink="/register" class="text-decoration-none">Dang ky ngay</a>
+                  Chưa có tài khoản?
+                  <a routerLink="/register" class="text-decoration-none">Đăng ký ngay</a>
                 </p>
               }
             </div>
@@ -137,7 +137,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMsg = err.error?.message || 'Dang nhap that bai. Vui long thu lai.';
+        this.errorMsg = err.error?.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
       }
     });
   }
@@ -164,6 +164,8 @@ export class LoginComponent {
     const role = this.auth.userRole();
     if (role === 'Admin') {
       this.router.navigate(['/admin/dashboard']);
+    } else if (role === 'Staff') {
+      this.router.navigate(['/admin/bookings']);
     } else {
       this.router.navigate(['/tours']);
     }

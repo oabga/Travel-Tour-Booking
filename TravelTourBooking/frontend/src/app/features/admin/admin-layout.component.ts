@@ -70,12 +70,12 @@ import { AuthService } from '../../core/services/auth.service';
               <a class="nav-link" routerLink="reports" routerLinkActive="active"><i class="bi bi-file-earmark-bar-graph me-2"></i>Báo cáo</a>
             </li>
           }
-        </ul>
-         <li class="nav-item">
+          <li class="nav-item mt-auto">
             <a class="nav-link" routerLink="change-password" routerLinkActive="active">
               <i class="bi bi-shield-lock me-2"></i>Đổi mật khẩu
             </a>
           </li>
+        </ul>
       </nav>
       <div class="flex-grow-1 p-4 bg-light" style="min-height:calc(100vh - 56px)">
         <router-outlet />

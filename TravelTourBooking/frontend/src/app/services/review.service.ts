@@ -13,4 +13,8 @@ export class ReviewService {
   create(dto: ReviewDto): Observable<string> {
     return this.http.post(this.url, dto, { responseType: 'text' });
   }
+
+  getByTour(tourId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/tour/${tourId}`);
+  }
 }

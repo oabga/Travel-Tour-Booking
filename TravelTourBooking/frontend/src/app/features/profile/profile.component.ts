@@ -13,7 +13,7 @@ import { CustomerProfile } from '../../shared/models';
     <div class="container py-4">
       <div class="row justify-content-center">
         <div class="col-md-8">
-          <h3 class="mb-4"><i class="bi bi-person-circle me-2"></i>Ho so ca nhan</h3>
+          <h3 class="mb-4"><i class="bi bi-person-circle me-2"></i>Hồ sơ cá nhân</h3>
 
           @if (loading) {
             <div class="spinner-overlay"><div class="spinner-border text-primary"></div></div>
@@ -38,26 +38,26 @@ import { CustomerProfile } from '../../shared/models';
                 @if (bookingCount !== null) {
                   <div class="alert alert-info">
                     <i class="bi bi-journal-check me-2"></i>
-                    So booking trong nam {{ currentYear }}: <strong>{{ bookingCount }}</strong>
+                    Số booking trong năm {{ currentYear }}: <strong>{{ bookingCount }}</strong>
                   </div>
                 }
 
                 <form [formGroup]="form" (ngSubmit)="onSubmit()">
                   <div class="row g-3">
                     <div class="col-md-6">
-                      <label class="form-label">Ho va ten *</label>
+                      <label class="form-label">Họ và tên *</label>
                       <input type="text" class="form-control" formControlName="fullName">
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">So dien thoai</label>
+                      <label class="form-label">Số điện thoại</label>
                       <input type="tel" class="form-control" formControlName="phone">
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Ngay sinh</label>
+                      <label class="form-label">Ngày sinh</label>
                       <input type="date" class="form-control" formControlName="dateOfBirth">
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Dia chi</label>
+                      <label class="form-label">Địa chỉ</label>
                       <input type="text" class="form-control" formControlName="address">
                     </div>
                   </div>
@@ -65,7 +65,7 @@ import { CustomerProfile } from '../../shared/models';
                     @if (saving) {
                       <span class="spinner-border spinner-border-sm me-1"></span>
                     }
-                    <i class="bi bi-check-circle me-1"></i>Cap nhat
+                    <i class="bi bi-check-circle me-1"></i>Cập nhật
                   </button>
                 </form>
               </div>
@@ -134,12 +134,12 @@ export class ProfileComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.saving = false;
-        this.msg = 'Cap nhat thanh cong!';
+        this.msg = 'Cập nhật thành công!';
         this.msgOk = true;
       },
       error: err => {
         this.saving = false;
-        this.msg = err.error?.message || 'Cap nhat that bai.';
+        this.msg = err.error?.message || 'Cập nhật thất bại.';
         this.msgOk = false;
       }
     });

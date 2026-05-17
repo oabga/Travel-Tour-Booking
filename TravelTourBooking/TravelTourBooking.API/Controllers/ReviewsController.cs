@@ -33,4 +33,12 @@ public class ReviewsController : ControllerBase
 
         return Ok("Review submitted");
     }
+
+    [AllowAnonymous]
+    [HttpGet("tour/{tourId}")]
+    public async Task<IActionResult> GetByTour(int tourId)
+    {
+        var reviews = await _service.GetReviewsByTourAsync(tourId);
+        return Ok(reviews);
+    }
 }

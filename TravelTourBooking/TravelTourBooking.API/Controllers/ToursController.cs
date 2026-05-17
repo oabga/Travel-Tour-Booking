@@ -29,13 +29,14 @@ namespace TravelTourBooking.API.Controllers
             [FromQuery] int pageSize = 10,
             [FromQuery] int? cateId = null,
             [FromQuery] int? desId = null,
+            [FromQuery] int? durationDays = null,
             [FromQuery] decimal? priceMin = null,
             [FromQuery] decimal? priceMax = null)
         {
             if (page < 1 || pageSize < 1 || pageSize > 100)
                 return BadRequest(ApiResponse<string>.Fail("page/pageSize không hợp lệ."));
 
-            var result = await svc.GetToursAsync(page, pageSize, cateId, desId, priceMin, priceMax);
+            var result = await svc.GetToursAsync(page, pageSize, cateId, desId, durationDays, priceMin, priceMax);
             return Ok(ApiResponse<PagedResult<TourListDto>>.Ok(result));
         }
 
@@ -63,6 +64,15 @@ namespace TravelTourBooking.API.Controllers
         {
             var results = await svc.GetPopularToursAsync();
             return Ok(ApiResponse<IEnumerable<object>>.Ok(results.Cast<object>()));
+        }
+
+        [HttpGet("duration-options")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<int>>), 200)]
+        public async Task<IActionResult> GetDurationOptions()
+        {
+            var options = await svc.GetDurationOptionsAsync();
+            return Ok(ApiResponse<IReadOnlyList<int>>.Ok(options));
         }
 
         // ── GET /api/tours/{id}

@@ -38,7 +38,11 @@ namespace TravelTourBooking.DAL.EFCore
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
 
             modelBuilder.Entity<TourRevenueView>().HasNoKey().ToView("vw_TourRevenue");
-            modelBuilder.Entity<PopularToursView>().HasNoKey().ToView("vw_PopularTours");
+            modelBuilder.Entity<PopularToursView>(entity => {
+                entity.HasNoKey();
+                entity.ToView("vw_PopularTours");
+                entity.Property(e => e.AvgRating).HasColumnType("decimal(3,1)");
+            });
             modelBuilder.Entity<TourSchedule>().ToTable("TourSchedules");
 
             modelBuilder.Entity<TourRevenueView>(entity => {

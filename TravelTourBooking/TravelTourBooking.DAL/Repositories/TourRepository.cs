@@ -26,7 +26,7 @@ namespace TravelTourBooking.DAL.Repositories
         // ── Paged list with filters ──────────
         public async Task<(IEnumerable<Tour> Items, int TotalCount)> GetPagedAsync(
             int page, int pageSize,
-            int? cateId, int? desId,
+            int? cateId, int? desId, int? durationDays,
             decimal? priceMin, decimal? priceMax)
         {
             // Build query — LINQ to Entities
@@ -38,6 +38,7 @@ namespace TravelTourBooking.DAL.Repositories
 
             if (cateId.HasValue) query = query.Where(t => t.CateId == cateId.Value);
             if (desId.HasValue) query = query.Where(t => t.DesId == desId.Value);
+            if (durationDays.HasValue) query = query.Where(t => t.DurationDays == durationDays.Value);
             if (priceMin.HasValue) query = query.Where(t => t.Price >= priceMin.Value);
             if (priceMax.HasValue) query = query.Where(t => t.Price <= priceMax.Value);
 
@@ -115,5 +116,13 @@ namespace TravelTourBooking.DAL.Repositories
                 .ToListAsync();
             return rows;
         }
+
+        public async Task<IReadOnlyList<int>> GetDistinctDurationDaysAsync() =>
+            await _db.Tours
+                .Where(t => t.IsActive)
+                .Select(t => t.DurationDays)
+                .Distinct()
+                .OrderBy(d => d)
+                .ToListAsync();
     }
 }

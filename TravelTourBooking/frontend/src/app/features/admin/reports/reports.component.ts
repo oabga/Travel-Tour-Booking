@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { BaseChartDirective } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables, ChartConfiguration } from 'chart.js';
 import { ReportService } from '../../../services/report.service';
 import { TourRevenueDto, MonthlyRevenueDto, PopularTourDto, OccupancyRateDto } from '../../../shared/models';
@@ -11,9 +11,9 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, BaseChartDirective],
+  imports: [CommonModule, ReactiveFormsModule, NgChartsModule],
   template: `
-    <h3 class="mb-4"><i class="bi bi-file-earmark-bar-graph me-2"></i>Bao cao</h3>
+    <h3 class="mb-4"><i class="bi bi-file-earmark-bar-graph me-2"></i>Báo cáo</h3>
 
     <!-- Revenue by Tour -->
     <div class="card border-0 shadow-sm mb-4">
@@ -21,7 +21,7 @@ Chart.register(...registerables);
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead class="table-light">
-            <tr><th>Tour</th><th>Diem den</th><th>So booking</th><th>Doanh thu</th></tr>
+            <tr><th>Tour</th><th>Điểm đến</th><th>Số booking</th><th>Doanh thu</th></tr>
           </thead>
           <tbody>
             @for (r of tourRevenues; track r.tourId) {
@@ -40,29 +40,29 @@ Chart.register(...registerables);
     <!-- Revenue by Month with Filter -->
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Doanh thu theo thang</h5>
+        <h5 class="mb-0">Doanh thu theo tháng</h5>
         <form [formGroup]="dateForm" (ngSubmit)="loadMonthly()" class="d-flex gap-2">
           <input type="date" class="form-control form-control-sm" formControlName="fromDate">
           <input type="date" class="form-control form-control-sm" formControlName="toDate">
-          <button type="submit" class="btn btn-sm btn-primary">Loc</button>
+          <button type="submit" class="btn btn-sm btn-primary">Lọc</button>
         </form>
       </div>
       <div class="card-body">
         @if (monthlyChart.datasets[0].data.length > 0) {
           <canvas baseChart [data]="monthlyChart" [options]="chartOpts" type="bar"></canvas>
         } @else {
-          <p class="text-muted text-center">Chua co du lieu.</p>
+          <p class="text-muted text-center">Chưa có dữ liệu.</p>
         }
       </div>
     </div>
 
     <!-- Popular Tours -->
     <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header"><h5 class="mb-0">Tour pho bien</h5></div>
+      <div class="card-header"><h5 class="mb-0">Tour phổ biến</h5></div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead class="table-light">
-            <tr><th>#</th><th>Tour</th><th>Diem den</th><th>Rating TB</th><th>Luot dat</th></tr>
+            <tr><th>#</th><th>Tour</th><th>Điểm đến</th><th>Rating TB</th><th>Lượt đặt</th></tr>
           </thead>
           <tbody>
             @for (p of popularTours; track p.tourId; let i = $index) {
@@ -89,11 +89,11 @@ Chart.register(...registerables);
 
     <!-- Occupancy -->
     <div class="card border-0 shadow-sm">
-      <div class="card-header"><h5 class="mb-0">Ty le lap day</h5></div>
+      <div class="card-header"><h5 class="mb-0">Tỷ lệ lấp đầy</h5></div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead class="table-light">
-            <tr><th>Tour</th><th>Ngay di</th><th>Tong</th><th>Da dat</th><th>Trong</th><th>Ty le</th></tr>
+            <tr><th>Tour</th><th>Ngày đi</th><th>Tổng</th><th>Đã đặt</th><th>Trống</th><th>Tỷ lệ</th></tr>
           </thead>
           <tbody>
             @for (o of occupancy; track o.scheduleId) {

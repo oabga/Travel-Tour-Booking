@@ -12,9 +12,9 @@ import { EmployeeDto } from '../../../shared/models';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="mb-0"><i class="bi bi-person-badge me-2"></i>Quan ly nhan vien / HDV</h3>
+      <h3 class="mb-0"><i class="bi bi-person-badge me-2"></i>Quản lý nhân viên / HDV</h3>
       <button class="btn btn-primary" (click)="openForm()">
-        <i class="bi bi-plus-circle me-1"></i>Them
+        <i class="bi bi-plus-circle me-1"></i>Thêm
       </button>
     </div>
 
@@ -68,7 +68,7 @@ import { EmployeeDto } from '../../../shared/models';
     <div class="table-responsive">
       <table class="table table-hover align-middle shadow-sm bg-white rounded">
         <thead class="table-light">
-          <tr><th>ID</th><th>Ho ten</th><th>Vai tro</th><th>SDT</th><th>Email</th><th></th></tr>
+          <tr><th>ID</th><th>Họ tên</th><th>Vai trò</th><th>SĐT</th><th>Email</th><th></th></tr>
         </thead>
         <tbody>
           @for (e of items; track e.employeeId) {
@@ -159,10 +159,10 @@ export class EmployeeManageComponent implements OnInit {
 
 
   onDelete(id: number): void {
-    if (!confirm('Xac nhan xoa?')) return;
+    if (!confirm('Xác nhận xóa?')) return;
     this.svc.delete(id).subscribe({
-      next: () => { this.msg = 'Da xoa.'; this.msgOk = true; this.load(); },
-      error: err => { this.msg = err.error?.message || 'Xoa that bai.'; this.msgOk = false; }
+      next: () => { this.msg = 'Đã xóa.'; this.msgOk = true; this.load(); },
+      error: err => { this.msg = err.error?.message || 'Xóa thất bại.'; this.msgOk = false; }
     });
   }
 }

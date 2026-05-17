@@ -12,7 +12,7 @@ namespace TravelTourBooking.BLL.Interfaces
         // ── Public endpoints ────────
         Task<PagedResult<TourListDto>> GetToursAsync(
             int page, int pageSize,
-            int? cateId, int? desId,
+            int? cateId, int? desId, int? durationDays,
             decimal? priceMin, decimal? priceMax);
 
         Task<TourDetailDto?> GetTourDetailAsync(int tourId);
@@ -21,6 +21,8 @@ namespace TravelTourBooking.BLL.Interfaces
             string? destination, decimal? priceMin, decimal? priceMax, DateOnly? date);
 
         Task<IEnumerable<PopularTourResult>> GetPopularToursAsync();
+
+        Task<IReadOnlyList<int>> GetDurationOptionsAsync();
 
         // ── Admin endpoints ─────────
         Task<TourDetailDto> CreateTourAsync(TourRequestDto dto);

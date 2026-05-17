@@ -24,12 +24,13 @@ export class TourService {
     }
 
     getAll(page = 1, pageSize = 10, cateId?: number, desId?: number,
-        priceMin?: number, priceMax?: number): Observable<PagedResult<TourList>> {
+        durationDays?: number, priceMin?: number, priceMax?: number): Observable<PagedResult<TourList>> {
         let params = new HttpParams()
             .set('page', page)
             .set('pageSize', pageSize);
         if (cateId) params = params.set('cateId', cateId);
         if (desId) params = params.set('desId', desId);
+        if (durationDays != null) params = params.set('durationDays', durationDays);
         if (priceMin != null) params = params.set('priceMin', priceMin);
         if (priceMax != null) params = params.set('priceMax', priceMax);
 
@@ -56,6 +57,11 @@ export class TourService {
 
     getPopular(): Observable<PopularTourResult[]> {
         return this.http.get<ApiResponse<PopularTourResult[]>>(`${this.url}/popular`)
+            .pipe(map(r => r.data));
+    }
+
+    getDurationOptions(): Observable<number[]> {
+        return this.http.get<ApiResponse<number[]>>(`${this.url}/duration-options`)
             .pipe(map(r => r.data));
     }
 

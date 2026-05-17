@@ -5,4 +5,5 @@ public interface IReviewService
     Task CreateReviewAsync(
         int accountId,
         ReviewDto dto);
+    Task<List<ReviewResponseDto>> GetReviewsByTourAsync(int tourId);
 }
