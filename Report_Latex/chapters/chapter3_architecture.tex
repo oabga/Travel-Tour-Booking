@@ -164,7 +164,7 @@ public class ToursController : ControllerBase
                 "Tao tour thanh cong."));
     }
 
-    // DELETE api/tours/{id} -- chi Admin, soft-delete
+    // DELETE api/tours/{id} -- chi Admin, xoa an toan / xoa cung
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
@@ -195,7 +195,7 @@ endpoints của hệ thống.
       & Admin \\
   PUT & \texttt{/api/tours/\{id\}} & Cập nhật tour
       & Admin \\
-  DELETE & \texttt{/api/tours/\{id\}} & Xóa tour (soft-delete)
+  DELETE & \texttt{/api/tours/\{id\}} & Xóa tour (Ngăn xóa nếu đã đặt, xóa cứng nếu chưa)
       & Admin \\
   \hline
   POST & \texttt{/api/bookings} & Đặt tour
@@ -459,7 +459,7 @@ public interface ITourService
     Task<TourDetailDto> CreateTourAsync(TourRequestDto dto);
     Task<TourDetailDto> UpdateTourAsync(
         int tourId, TourRequestDto dto);
-    Task DeleteTourAsync(int tourId);  // Soft-delete
+    Task DeleteTourAsync(int tourId);  // Ngan xoa neu da co dat tour, xoa cung neu chua co
 }
 \end{lstlisting}
 
@@ -484,16 +484,13 @@ chính trong hệ thống.
         & TourService \\
       2 & \texttt{DesId} phải tồn tại khi tạo/sửa tour
         & TourService \\
-      3 & Xóa tour dùng soft-delete (\texttt{IsActive=false}),
-          không xóa vật lý & TourService \\
-      4 & Số lượng \texttt{Passengers} phải bằng
-          \texttt{NumberOfPeople} & BookingService \\
-      5 & Ít nhất một hành khách phải là
-          \texttt{IsPrimaryContact} & BookingService \\
-      6 & Hành khách \texttt{Adult} bắt buộc có
-          \texttt{PassengerIdNumber} & BookingService \\
-      7 & \texttt{PassengerType} chỉ nhận giá trị
-          \texttt{Adult} hoặc \texttt{Child} & BookingService \\
+      3 & Ngăn xóa tour nếu đã có khách đặt, thực hiện xóa cứng nếu chưa có booking & TourService \\
+      4 & Số lượng \texttt{Passengers} phải bằng \texttt{NumberOfPeople} & BookingService \\
+      5 & Chỉ được chọn duy nhất 1 hành khách làm liên hệ chính (\texttt{IsPrimaryContact}) & BookingService \\
+      6 & Hành khách \texttt{Adult} bắt buộc phải có CCCD/Hộ chiếu (\texttt{PassengerIdNumber}) & BookingService \\
+      7 & Người liên hệ chính phải nhập Số điện thoại và phải là Người lớn (\texttt{Adult}) & BookingService \\
+      8 & Đoàn đi tour bắt buộc phải có ít nhất một Người lớn đi kèm (tránh trẻ em đi một mình) & BookingService \\
+      9 & Hành khách bắt buộc phải nhập Ngày sinh, khớp với phân loại Trẻ em ($<12$ tuổi) hoặc Người lớn ($\ge12$ tuổi) & BookingService \\
       \hline
     \end{tabular}
   \end{center}
@@ -502,11 +499,10 @@ chính trong hệ thống.
 \end{table}
 
 Đoạn~\ref{lst:bizrule} minh họa các business rules trong
-\texttt{TourService.CreateTourAsync}: kiểm tra tồn tại của
-\texttt{CateId} và \texttt{DesId} trước khi lưu vào database.
+\texttt{TourService.CreateTourAsync} và phương thức xóa tour an toàn.
 
 \begin{lstlisting}[style=csharp,
-  caption={Business Rules trong TourService.CreateTourAsync},
+  caption={Business Rules trong TourService --- Create và Delete},
   label={lst:bizrule}]
 public async Task<TourDetailDto> CreateTourAsync(TourRequestDto dto)
 {
@@ -534,10 +530,13 @@ public async Task DeleteTourAsync(int tourId)
         ?? throw new KeyNotFoundException(
             $"Tour ID {tourId} khong ton tai.");
 
-    // Business Rule 3: Soft-delete thay vi xoa vat ly
-    // Du lieu lịch su booking van duoc bao toan
-    tour.IsActive = false;
-    await _tourRepo.UpdateAsync(tour);
+    // Business Rule 3: Ngan xoa neu da co dat tour
+    if (await _tourRepo.HasBookingsAsync(tourId))
+        throw new InvalidOperationException(
+            "Khong the xoa tour nay vi da co khach hang dat.");
+
+    // Xoa cung khoi database neu chua co dat cho
+    await _tourRepo.DeleteAsync(tourId);
 }
 \end{lstlisting}
 
