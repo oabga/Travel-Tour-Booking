@@ -179,7 +179,7 @@ public class ToursController(ITourService svc) : ControllerBase
     }
 
     // ── DELETE /api/tours/{id}
-    //Xoa tour (soft-delete: IsActive = false) — chi Admin
+    // Xóa tour (Chặn xóa nếu đã có khách đặt, xóa cứng nếu chưa có booking) — chi Admin
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ApiResponse<string>), 200)]
