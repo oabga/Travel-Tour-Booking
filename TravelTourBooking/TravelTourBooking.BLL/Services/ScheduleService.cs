@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,12 +33,24 @@ namespace TravelTourBooking.BLL.Services
 
         public async Task<ScheduleResponseDto> CreateAsync(ScheduleRequestDto dto)
         {
-            if (!await tourRepo.ExistsAsync(dto.TourId))
-                throw new KeyNotFoundException($"Tour ID {dto.TourId} không tồn tại.");
+            var tour = await tourRepo.GetByIdAsync(dto.TourId)
+                ?? throw new KeyNotFoundException($"Tour ID {dto.TourId} không tồn tại.");
+
+            var expectedReturnDate = dto.DepartureDate.AddDays(tour.DurationDays - 1);
+            if (dto.ReturnDate != expectedReturnDate)
+            {
+                throw new ArgumentException($"Ngày về không khớp với số ngày của tour ({tour.DurationDays} ngày). " +
+                    $"Với ngày đi là {dto.DepartureDate:dd/MM/yyyy}, ngày về phải là {expectedReturnDate:dd/MM/yyyy}.");
+            }
+
+            if (dto.AvailableSlots > tour.MaxCapacity)
+            {
+                throw new ArgumentException($"Số chỗ của lịch khởi hành ({dto.AvailableSlots}) không được lớn hơn sức chứa tối đa của tour ({tour.MaxCapacity}).");
+            }
 
             var entity = mapper.Map<TourSchedule>(dto);
             entity.Status = "Open";
-            // AvailableSlots set from dto.AvailableSlots (initial capacity)
+            entity.AvailableSlots = dto.AvailableSlots;
 
             var created = await repo.AddAsync(entity);
             var full = await repo.GetByIdAsync(created.ScheduleId);
@@ -49,6 +61,31 @@ namespace TravelTourBooking.BLL.Services
         {
             var existing = await repo.GetByIdAsync(scheduleId)
                 ?? throw new KeyNotFoundException($"Lịch ID {scheduleId} không tồn tại.");
+
+            var tour = await tourRepo.GetByIdAsync(dto.TourId)
+                ?? throw new KeyNotFoundException($"Tour ID {dto.TourId} không tồn tại.");
+
+            var expectedReturnDate = dto.DepartureDate.AddDays(tour.DurationDays - 1);
+            if (dto.ReturnDate != expectedReturnDate)
+            {
+                throw new ArgumentException($"Ngày về không khớp với số ngày của tour ({tour.DurationDays} ngày). " +
+                    $"Với ngày đi là {dto.DepartureDate:dd/MM/yyyy}, ngày về phải là {expectedReturnDate:dd/MM/yyyy}.");
+            }
+
+            if (dto.AvailableSlots > tour.MaxCapacity)
+            {
+                throw new ArgumentException($"Số chỗ của lịch khởi hành ({dto.AvailableSlots}) không được lớn hơn sức chứa tối đa của tour ({tour.MaxCapacity}).");
+            }
+
+            if (await repo.HasBookingsAsync(scheduleId))
+            {
+                if (existing.DepartureDate != dto.DepartureDate || 
+                    existing.ReturnDate != dto.ReturnDate || 
+                    existing.AvailableSlots != dto.AvailableSlots)
+                {
+                    throw new InvalidOperationException("Không thể cập nhật ngày đi, ngày về hoặc số chỗ của lịch trình này vì đã có khách hàng đặt chỗ. Bạn chỉ được phép thay đổi Hướng dẫn viên.");
+                }
+            }
 
             existing.DepartureDate = dto.DepartureDate;
             existing.ReturnDate = dto.ReturnDate;
@@ -64,6 +101,10 @@ namespace TravelTourBooking.BLL.Services
         {
             if (!await repo.ExistsAsync(scheduleId))
                 throw new KeyNotFoundException($"Lịch ID {scheduleId} không tồn tại.");
+
+            if (await repo.HasBookingsAsync(scheduleId))
+                throw new InvalidOperationException("Không thể xóa lịch trình này vì đã có khách hàng đặt chỗ (booking).");
+
             await repo.DeleteAsync(scheduleId);
         }
     }

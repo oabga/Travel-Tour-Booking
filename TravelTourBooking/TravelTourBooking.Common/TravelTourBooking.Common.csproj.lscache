@@ -57,6 +57,8 @@ DTOs/
  ApiResponse.cs
  Auth/
   AuthResponseDto.cs
+  ChangePasswordDto.cs
+  CreateStaffDto.cs
   LoginDto.cs
   RegisterDto.cs
  AuthDto.cs
@@ -75,6 +77,7 @@ DTOs/
  SearchTourResult.cs
  TourDto.cs
  UpdateProfileDto.cs
+ VoucherDto.cs
 Enums/
  BookingStatus.cs
  PaymentMethod.cs

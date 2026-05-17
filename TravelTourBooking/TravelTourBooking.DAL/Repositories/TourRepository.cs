@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -124,5 +124,8 @@ namespace TravelTourBooking.DAL.Repositories
                 .Distinct()
                 .OrderBy(d => d)
                 .ToListAsync();
+
+        public async Task<bool> HasBookingsAsync(int tourId) =>
+            await _db.Bookings.AnyAsync(b => b.Schedule != null && b.Schedule.TourId == tourId);
     }
 }

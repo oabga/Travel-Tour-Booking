@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +10,6 @@ namespace TravelTourBooking.DAL.Repositories.Interfaces
     public interface IScheduleRepository : IRepository<TourSchedule>
     {
         Task<IEnumerable<TourSchedule>> GetByTourAsync(int tourId);
+        Task<bool> HasBookingsAsync(int scheduleId);
     }
 }

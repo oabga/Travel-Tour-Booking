@@ -65,7 +65,7 @@ CONSTRAINT CK_ScheduleStatus
 CHECK (Status IN (N'Open', N'Full', N'Cancelled')),
 
 FOREIGN KEY (TourId)     REFERENCES Tours(TourId),
-FOREIGN KEY (EmployeeId) REFERENCES Employees(EmployeeId),
+FOREIGN KEY (EmployeeId) REFERENCES Employees(EmployeeId) ON DELETE SET NULL,
 CONSTRAINT CK_Date CHECK (ReturnDate > DepartureDate)
 
 );

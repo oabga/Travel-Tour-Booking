@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,5 +22,7 @@ namespace TravelTourBooking.DAL.Repositories.Interfaces
         Task<IEnumerable<PopularTourResult>> GetPopularAsync();
 
         Task<IReadOnlyList<int>> GetDistinctDurationDaysAsync();
+
+        Task<bool> HasBookingsAsync(int tourId);
     }
 }

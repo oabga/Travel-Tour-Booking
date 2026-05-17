@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { NgChartsModule } from 'ng2-charts';
+import { BaseChartDirective } from 'ng2-charts';
 import { Chart, registerables, ChartConfiguration } from 'chart.js';
 import { ReportService } from '../../../services/report.service';
 import { TourRevenueDto, MonthlyRevenueDto, PopularTourDto, OccupancyRateDto } from '../../../shared/models';
@@ -11,7 +11,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgChartsModule],
+  imports: [CommonModule, ReactiveFormsModule, BaseChartDirective],
   template: `
     <h3 class="mb-4"><i class="bi bi-file-earmark-bar-graph me-2"></i>Báo cáo</h3>
 
@@ -137,7 +137,7 @@ export class ReportsComponent implements OnInit {
     responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } }
   };
 
-  constructor(private fb: FormBuilder, private svc: ReportService) {}
+  constructor(private fb: FormBuilder, private svc: ReportService) { }
 
   ngOnInit(): void {
     this.svc.getTourRevenue().subscribe(d => this.tourRevenues = d);

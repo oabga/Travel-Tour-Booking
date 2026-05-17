@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,5 +23,8 @@ namespace TravelTourBooking.DAL.Repositories
 
             return await query.AnyAsync();
         }
+
+        public async Task<bool> HasToursAsync(int destinationId) =>
+            await _db.Tours.AnyAsync(t => t.DesId == destinationId);
     }
 }
