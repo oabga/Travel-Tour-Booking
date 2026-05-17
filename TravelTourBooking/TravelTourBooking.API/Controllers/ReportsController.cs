@@ -7,7 +7,7 @@ namespace TravelTourBooking.API.Controllers;
 
 /// <summary>Báo cáo doanh thu và thống kê hệ thống — chỉ Admin</summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/reports")]
 [Authorize(Roles = "Admin")]
 public class ReportsController : ControllerBase
 {

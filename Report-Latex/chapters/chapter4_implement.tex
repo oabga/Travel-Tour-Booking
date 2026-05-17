@@ -344,58 +344,52 @@ app.UseMiddleware<ExceptionMiddleware>();
 // XmlService.cs
 public async Task<string> ExportToursToXmlAsync()
 {
-    var tours = await _tourRepository.GetAllWithDetailsAsync();
-
-    var xDoc = new XDocument(
-        new XDeclaration("1.0", "utf-8", "yes"),
-        new XElement("Tours",
-            tours.Select(t => new XElement("Tour",
-                new XElement("TourId",       t.TourId),
-                new XElement("Name",         t.Name),
-                new XElement("Category",     t.Category.CategoryName),
-                new XElement("Destination",  t.Destination.DestinationName),
-                new XElement("PricePerPerson",
-                    t.PricePerPerson.ToString("F2")),
-                new XElement("DurationDays", t.DurationDays),
-                new XElement("Description",
-                    t.Description ?? string.Empty),
-                new XElement("CreatedAt",
-                    t.CreatedAt.ToString("yyyy-MM-dd"))
-            ))
-        )
-    );
-
-    return xDoc.ToString();
+  var tours = (await tourRepo.GetAllAsync())
+      .Select(t => new TourXmlDto
+      {
+          TourName = t.TourName ?? string.Empty,
+          CateId = t.CateId ?? 0,
+          DesId = t.DesId ?? 0,
+          DurationDays = t.DurationDays,
+          Price = t.Price,
+          MaxCapacity = t.MaxCapacity,
+          Description = t.Description,
+          ImageUrl = t.ImageUrl
+      }).ToList();
+  var serializer = new XmlSerializer(typeof(List<TourXmlDto>));
+  using var writer = new StringWriter();
+  serializer.Serialize(writer, tours);
+  return writer.ToString();
 }
 \end{lstlisting}
 
 % [TV4] Chèn code Import XML
-\begin{lstlisting}[style=csharp, caption={Import dữ liệu từ XML dùng LINQ to XML}]
+\begin{lstlisting}[style=csharp, caption={Import dữ liệu từ XML}]
 // XmlService.cs
-public async Task<int> ImportToursFromXmlAsync(string xmlContent)
+public async Task<int> ImportToursFromXmlAsync(Stream xmlStream)
 {
-    var xDoc     = XDocument.Parse(xmlContent);
-    var elements = xDoc.Root!.Elements("Tour");
-
-    var dtoList = elements.Select(e => new CreateTourDto
-    {
-        Name            = (string)e.Element("Name")!,
-        CategoryName    = (string)e.Element("Category")!,
-        DestinationName = (string)e.Element("Destination")!,
-        PricePerPerson  = decimal.Parse(
-                              (string)e.Element("PricePerPerson")!),
-        DurationDays    = int.Parse(
-                              (string)e.Element("DurationDays")!),
-        Description     = (string?)e.Element("Description")
-    }).ToList();
+    var serializer = new XmlSerializer(typeof(List<TourXmlDto>));
+    var tours = (List<TourXmlDto>)serializer.Deserialize(xmlStream)!;
 
     int count = 0;
-    foreach (var dto in dtoList)
+    foreach (var dto in tours)
     {
-        await _tourService.CreateAsync(dto);
+        var tour = new Tour
+        {
+            TourName = dto.TourName,
+            CateId = dto.CateId,
+            DesId = dto.DesId,
+            DurationDays = dto.DurationDays,
+            Price = dto.Price,
+            MaxCapacity = dto.MaxCapacity,
+            Description = dto.Description,
+            ImageUrl = dto.ImageUrl,
+            IsActive = true
+        };
+        await tourRepo.AddAsync(tour);
         count++;
     }
-    return count;   // Trả về số tour đã nhập thành công
+    return count;
 }
 \end{lstlisting}
 
