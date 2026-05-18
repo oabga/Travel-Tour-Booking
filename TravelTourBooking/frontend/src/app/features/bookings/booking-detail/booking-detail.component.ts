@@ -284,12 +284,18 @@ export class BookingDetailComponent implements OnInit {
   }
 
   confirmPayment(id: number) {
-  this.paymentSvc.confirm(id).subscribe({
-    next: () => {
-      this.loadPayments(this.booking!.bookingId);
-    }
-  });
-}
+    this.paymentSvc.confirm(id).subscribe({
+      next: res => {
+        this.msg = res.message;
+        this.msgOk = res.success;
+        this.loadAll();
+      },
+      error: err => {
+        this.msg = err.error?.message ?? 'Xác nhận thất bại.';
+        this.msgOk = false;
+      }
+    });
+  }
 
   cancelBooking(): void {
     if (!this.booking) return;
@@ -333,11 +339,28 @@ export class BookingDetailComponent implements OnInit {
     }).subscribe(this.handleSuccess, this.handleError);
     return;
     }
+    if (this.auth.userRole() === 'Customer') {
+      this.paymentSvc.submit({
+        bookingId: this.booking.bookingId,
+        amount: val.amount,
+        paymentMethod: val.paymentMethod,
+        transactionCode: val.transactionCode
+      }).subscribe({
+        next: res => {
+          this.payLoading = false;
+          this.msg = res.message;
+          this.msgOk = true;
+          this.loadAll();
+        },
+        error: this.handleError
+      });
+      return;
+    }
     this.paymentSvc.createBankTransfer({
-    bookingId: this.booking.bookingId,
-    amount: val.amount,
-    paymentMethod: val.paymentMethod,
-    transactionCode: val.transactionCode
-  }).subscribe(this.handleSuccess, this.handleError);   
+      bookingId: this.booking.bookingId,
+      amount: val.amount,
+      paymentMethod: val.paymentMethod,
+      transactionCode: val.transactionCode
+    }).subscribe(this.handleSuccess, this.handleError);
   }
 }

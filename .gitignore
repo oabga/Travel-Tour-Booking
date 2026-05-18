@@ -20,4 +20,11 @@ Thumbs.db
 node_modules/
 .angular/
 .tsbuildinfo
+TravelTourBooking/frontend/dist/
+
+## Cấu hình local / bí mật (SMTP, connection string máy dev)
+**/appsettings.Development.json
+**/appsettings.*.local.json
+**/secrets.json
+TravelTourBooking/TravelTourBooking.API/wwwroot/images/payment/momo-qr.jpg
 

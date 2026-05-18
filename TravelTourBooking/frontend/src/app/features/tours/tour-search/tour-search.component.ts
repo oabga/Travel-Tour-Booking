@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TourService } from '../../../services/tour.service';
 import { SearchTourResult } from '../../../shared/models';
-import { environment } from '../../../../environments/environment';
+import { getTourDisplayImageUrl } from '../../../shared/utils/tour-image.util';
 
 @Component({
   selector: 'app-tour-search',
@@ -64,7 +64,7 @@ import { environment } from '../../../../environments/environment';
             <div class="col-md-4">
               <div class="card card-tour h-100">
                 <div class="card-img-wrapper">
-                  <img [src]="getImageUrl(tour.imageUrl)" class="card-img-top"
+                  <img [src]="getImageUrl(tour.imageUrl, tour.desName)" class="card-img-top"
                        [alt]="tour.tourName" (error)="handleImageError($event)">
                   <span class="tour-duration-badge">
                     <i class="bi bi-clock me-1"></i>{{ tour.durationDays }} ngày
@@ -118,8 +118,8 @@ export class TourSearchComponent {
 
   constructor(private fb: FormBuilder, private tourSvc: TourService) {}
 
-  getImageUrl(imageUrl: string | null): string {
-    return imageUrl ? environment.imageBaseUrl + imageUrl : '/assets/images/default-tour.jpg';
+  getImageUrl(imageUrl: string | null, desName?: string | null): string {
+    return getTourDisplayImageUrl(imageUrl, desName);
   }
 
   handleImageError(event: any): void {

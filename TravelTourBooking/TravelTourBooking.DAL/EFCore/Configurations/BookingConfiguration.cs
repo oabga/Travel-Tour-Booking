@@ -8,8 +8,6 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
 {
     public void Configure(EntityTypeBuilder<Booking> builder)
     {
-        builder.ToTable("Bookings");
-
         builder.HasKey(b => b.BookingId);
 
         builder.Property(b => b.TotalAmount)
@@ -26,8 +24,11 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
                .HasMaxLength(50)
                .HasDefaultValue("Pending");
 
+        // Bảng có trigger → EF Core phải khai báo để không dùng OUTPUT clause (SQL Server)
         builder.ToTable("Bookings", t =>
         {
+            t.HasTrigger("trg_AfterBookingInsert");
+            t.HasTrigger("trg_AfterBookingCancel");
             t.HasCheckConstraint("CK_BookingStatus",
                 "[Status] IN (N'Pending', N'Confirmed', N'Completed', N'Cancelled')");
             t.HasCheckConstraint("CK_NumberOfPeople", "[NumberOfPeople] > 0");

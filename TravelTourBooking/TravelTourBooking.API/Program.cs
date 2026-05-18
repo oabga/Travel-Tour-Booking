@@ -9,6 +9,7 @@ using TravelTourBooking.API.Middleware;
 using TravelTourBooking.BLL.Helpers;
 using TravelTourBooking.BLL.Interfaces;
 using TravelTourBooking.BLL.Services;
+using TravelTourBooking.Common.Options;
 using TravelTourBooking.BLL.Validators;
 using TravelTourBooking.DAL.EFCore;
 using TravelTourBooking.DAL.EFCore.Entities;
@@ -16,6 +17,8 @@ using TravelTourBooking.DAL.Repositories;
 using TravelTourBooking.DAL.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+if (builder.Environment.IsDevelopment())
+    builder.Configuration.AddUserSecrets<Program>(optional: true);
 var cfg = builder.Configuration;
 
 // ── Database ──────────────────────────────────────────────────────────────
@@ -45,6 +48,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped< IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IReviewService,ReviewService>();
+builder.Services.Configure<SmtpSettings>(cfg.GetSection("Smtp"));
+builder.Services.Configure<PaymentSettings>(cfg.GetSection("Payment"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
@@ -124,6 +130,20 @@ builder.Services.AddSwaggerGen(s =>
 
 // ─────────────────────────────────────────────────────────────────────────
 var app = builder.Build();
+
+var smtpCfg = app.Configuration.GetSection("Smtp").Get<SmtpSettings>();
+var smtpPw = smtpCfg?.Password?.Replace(" ", "") ?? "";
+var smtpPwEnv = Environment.GetEnvironmentVariable("SMTP_PASSWORD");
+var hasSmtpPw = !string.IsNullOrWhiteSpace(smtpPw) || !string.IsNullOrWhiteSpace(smtpPwEnv);
+app.Logger.LogInformation(
+    "Môi trường: {Env} | SMTP Enabled={Enabled} User={User} HasPassword={HasPw}",
+    app.Environment.EnvironmentName,
+    smtpCfg?.Enabled,
+    smtpCfg?.User,
+    hasSmtpPw);
+if (smtpCfg?.Enabled == true && !hasSmtpPw)
+    app.Logger.LogWarning(
+        "SMTP bật nhưng chưa có mật khẩu. Đặt Smtp:Password trong appsettings.Development.json hoặc: dotnet user-secrets set \"Smtp:Password\" \"APP_PASSWORD_16_KY_TU\" --project TravelTourBooking.API");
 
 // ── Middleware pipeline ───────────────────────────────────────────────────
 app.UseMiddleware<ExceptionMiddleware>();   // Global error handler

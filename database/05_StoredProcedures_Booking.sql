@@ -64,7 +64,7 @@ BEGIN
         DECLARE @NewBookingId INT;
 
         INSERT INTO Bookings (AccountId, ScheduleId, NumberOfPeople, TotalAmount, DiscountPercent, Status)
-        VALUES (@AccountId, @ScheduleId, @NumberOfPeople, @Total, @DiscountPercent, N'Confirmed');
+        VALUES (@AccountId, @ScheduleId, @NumberOfPeople, @Total, @DiscountPercent, N'Pending');
 
         SET @NewBookingId = SCOPE_IDENTITY();
 

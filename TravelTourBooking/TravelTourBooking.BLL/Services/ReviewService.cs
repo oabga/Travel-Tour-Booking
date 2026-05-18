@@ -51,10 +51,35 @@ public class ReviewService : IReviewService
                 Rating = r.Rating,
                 Comment = r.Comment,
                 ReviewDate = r.ReviewDate,
+                TourId = r.TourId ?? 0,
                 UserName = _context.CustomerProfiles
                     .Where(cp => cp.AccountId == r.AccountId)
                     .Select(cp => cp.FullName)
                     .FirstOrDefault() ?? "Ẩn danh"
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<ReviewResponseDto>> GetRecentReviewsAsync(int limit = 6)
+    {
+        return await _context.Reviews
+            .Where(r => r.TourId != null
+                && r.Comment != null
+                && r.Comment != "")
+            .OrderByDescending(r => r.ReviewDate)
+            .Take(limit)
+            .Select(r => new ReviewResponseDto
+            {
+                ReviewId = r.ReviewId,
+                Rating = r.Rating,
+                Comment = r.Comment,
+                ReviewDate = r.ReviewDate,
+                TourId = r.TourId!.Value,
+                TourName = r.Tour != null ? r.Tour.TourName : null,
+                UserName = _context.CustomerProfiles
+                    .Where(cp => cp.AccountId == r.AccountId)
+                    .Select(cp => cp.FullName)
+                    .FirstOrDefault() ?? "Khách hàng"
             })
             .ToListAsync();
     }

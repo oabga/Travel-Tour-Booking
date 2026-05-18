@@ -80,6 +80,12 @@ export const routes: Routes = [
       .then(m => m.BookingFormComponent)
   },
   {
+    path: 'bookings/:id/payment',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/bookings/booking-payment/booking-payment.component')
+      .then(m => m.BookingPaymentComponent)
+  },
+  {
     path: 'bookings/:id',
     canActivate: [authGuard],
     loadComponent: () => import('./features/bookings/booking-detail/booking-detail.component')
@@ -147,6 +153,11 @@ export const routes: Routes = [
         path: 'bookings',
         loadComponent: () => import('./features/bookings/booking-history/booking-history.component')
             .then(m => m.BookingHistoryComponent)
+      },
+      {
+        path: 'bookings/:id/payment',
+        loadComponent: () => import('./features/bookings/booking-payment/booking-payment.component')
+            .then(m => m.BookingPaymentComponent)
       },
       {
         path: 'bookings/:id',

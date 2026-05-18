@@ -186,8 +186,8 @@ body {
 
 .hero-section-travel {
   background:
-    linear-gradient(135deg, rgba(14, 116, 144, .82) 0%, rgba(12, 74, 110, .78) 100%),
-    url('/assets/images/hero-travel.svg') center/cover no-repeat;
+    linear-gradient(135deg, rgba(14, 116, 144, .55) 0%, rgba(12, 74, 110, .45) 100%),
+    url('/assets/images/hero-travel.jpg') center/cover no-repeat;
   min-height: 420px;
   display: flex;
   align-items: center;
@@ -195,8 +195,284 @@ body {
 
 .page-banner-travel {
   background:
-    linear-gradient(135deg, rgba(14, 116, 144, .9) 0%, rgba(12, 74, 110, .85) 100%),
-    url('/assets/images/hero-travel.svg') center/cover no-repeat;
+    linear-gradient(135deg, rgba(14, 116, 144, .65) 0%, rgba(12, 74, 110, .55) 100%),
+    url('/assets/images/hero-travel.jpg') center/cover no-repeat;
+}
+
+.browse-banner {
+  text-align: left;
+  padding: 2.5rem 0;
+}
+
+.browse-breadcrumb a:hover {
+  color: #fff !important;
+}
+
+.browse-stat-chip {
+  background: rgba(255, 255, 255, .15);
+  border: 1px solid rgba(255, 255, 255, .25);
+  padding: .35rem .85rem;
+  border-radius: 50rem;
+  font-size: .85rem;
+}
+
+.category-explore-section {
+  background: var(--bg-light);
+}
+
+.category-explore-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  min-height: 140px;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: transform .25s ease, box-shadow .25s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    color: #fff;
+  }
+}
+
+.category-explore-icon {
+  font-size: 1.75rem;
+  opacity: .9;
+  margin-bottom: .5rem;
+}
+
+.category-explore-name {
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.category-explore-desc {
+  opacity: .85;
+  font-size: .75rem;
+  margin-top: .25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tour-results-section {
+  background: #fff;
+}
+
+.card-tour-rich .card-img-top {
+  height: 220px;
+}
+
+.tour-cate-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--primary);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 50rem;
+  font-size: .7rem;
+  font-weight: 600;
+  z-index: 2;
+  max-width: calc(100% - 24px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cta-strip {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+}
+
+/* ── Hero split + carousel ─────────────────────────────── */
+.hero-split {
+  text-align: left;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+}
+
+.hero-split.hero-section-travel {
+  background:
+    linear-gradient(
+      105deg,
+      rgba(12, 74, 110, .88) 0%,
+      rgba(14, 116, 144, .55) 42%,
+      rgba(14, 116, 144, .2) 70%,
+      transparent 100%
+    ),
+    url('/assets/images/hero-travel.jpg') center/cover no-repeat;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, .15);
+  padding: .35rem .75rem;
+  border-radius: 50rem;
+  margin-bottom: 1rem;
+}
+
+.hero-carousel-img {
+  height: 360px;
+  object-fit: cover;
+}
+
+.hero-carousel-caption {
+  background: linear-gradient(to top, rgba(0, 0, 0, .75), transparent);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.5rem;
+}
+
+.promo-gallery-section {
+  margin-top: -1px;
+}
+
+.promo-gallery-tile {
+  min-height: 200px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 1.25rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, .55), transparent);
+  }
+}
+
+.promo-gallery-label {
+  position: relative;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.category-explore-card {
+  min-height: 160px;
+  border: none;
+}
+
+.testimonials-section {
+  background: linear-gradient(180deg, #fff 0%, var(--bg-light) 100%);
+}
+
+.testimonial-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(14, 116, 144, .08);
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial-text {
+  font-style: italic;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.tour-gallery-main {
+  height: 380px;
+  object-fit: cover;
+}
+
+.tour-gallery-thumb {
+  height: 90px;
+  object-fit: cover;
+  cursor: pointer;
+  opacity: .75;
+  border: 2px solid transparent;
+  transition: opacity .2s, border-color .2s;
+
+  &.active,
+  &:hover {
+    opacity: 1;
+    border-color: var(--accent);
+  }
+}
+
+.map-embed iframe {
+  border: 0;
+}
+
+/* ── Payment QR MoMo ─────────────────────────────────── */
+.payment-qr-img {
+  max-width: 280px;
+  width: 100%;
+  border-radius: 12px;
+  border: 3px solid #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+}
+
+.payment-qr-box code {
+  font-size: 1rem;
+  padding: .2rem .5rem;
+  background: #fff;
+  border-radius: 4px;
+}
+
+/* ── Booking flow steps ────────────────────────────────── */
+.booking-steps {
+  .booking-step {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1rem;
+    border-radius: 50rem;
+    background: var(--bg-light);
+    color: var(--text-muted);
+    font-size: .9rem;
+    font-weight: 500;
+
+    span {
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #dee2e6;
+      font-size: .8rem;
+      font-weight: 700;
+    }
+
+    &.active {
+      background: rgba(14, 116, 144, .12);
+      color: var(--primary);
+
+      span {
+        background: var(--primary);
+        color: #fff;
+      }
+    }
+
+    &.done {
+      color: var(--success, #198754);
+
+      span {
+        background: #198754;
+        color: #fff;
+      }
+    }
+  }
 }
 
 .card-tour .btn-primary,

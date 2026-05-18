@@ -6,4 +6,6 @@ public class ReviewResponseDto
     public string? Comment { get; set; }
     public DateTime ReviewDate { get; set; }
     public string UserName { get; set; } = string.Empty;
+    public int TourId { get; set; }
+    public string? TourName { get; set; }
 }

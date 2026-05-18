@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormArray, Validators } from '@angular/forms';
 import { BookingService } from '../../../services/booking.service';
 import { ScheduleService } from '../../../services/schedule.service';
@@ -12,7 +12,7 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
 @Component({
   selector: 'app-booking-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="container py-4">
       <h3 class="mb-4"><i class="bi bi-cart-plus me-2"></i>Đặt tour</h3>
@@ -31,15 +31,6 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
       @if (errorMsg) {
         <div class="alert alert-danger shadow-sm border-0">{{ errorMsg }}</div>
       }
-      @if (successMsg) {
-        <div class="alert alert-success shadow-sm border-0">
-          {{ successMsg }}
-          <a [routerLink]="['/bookings', createdBookingId]" class="alert-link ms-2">
-            Xem chi tiết booking
-          </a>
-        </div>
-      }
-
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body">
@@ -383,8 +374,7 @@ export class BookingFormComponent implements OnInit {
     }).subscribe({
       next: res => {
         this.loading = false;
-        this.successMsg = 'Đặt tour thành công!';
-        this.createdBookingId = res.bookingId;
+        this.router.navigate(['/bookings', res.bookingId, 'payment']);
       },
       error: err => {
         this.loading = false;

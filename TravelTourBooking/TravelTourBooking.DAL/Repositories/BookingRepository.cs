@@ -181,4 +181,20 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
             BookingDate = b.BookingDate
         }).ToList();
     }
+
+    public async Task<string?> GetCustomerEmailByBookingIdAsync(int bookingId)
+    {
+        await using var conn = new SqlConnection(_connectionString);
+        await using var cmd = new SqlCommand(
+            """
+            SELECT A.Email
+            FROM Bookings B
+            INNER JOIN Accounts A ON B.AccountId = A.AccountId
+            WHERE B.BookingId = @BookingId
+            """, conn);
+        cmd.Parameters.AddWithValue("@BookingId", bookingId);
+        await conn.OpenAsync();
+        var result = await cmd.ExecuteScalarAsync();
+        return result is null or DBNull ? null : result.ToString();
+    }
 }

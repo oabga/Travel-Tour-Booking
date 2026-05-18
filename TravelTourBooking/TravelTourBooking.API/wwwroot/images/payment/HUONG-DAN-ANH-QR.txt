@@ -1,0 +1,8 @@
+Đặt ảnh QR MoMo của bạn tại đây với tên chính xác:
+
+  momo-qr.jpg
+
+(hoặc đổi đường dẫn trong appsettings.json → Payment:MoMoQrPath)
+
+Sau khi copy ảnh, chạy lại API. Trên web sẽ hiển thị:
+  https://localhost:7008/images/payment/momo-qr.jpg

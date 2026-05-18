@@ -41,4 +41,14 @@ public class ReviewsController : ControllerBase
         var reviews = await _service.GetReviewsByTourAsync(tourId);
         return Ok(reviews);
     }
+
+    [AllowAnonymous]
+    [HttpGet("recent")]
+    public async Task<IActionResult> GetRecent([FromQuery] int limit = 6)
+    {
+        if (limit < 1 || limit > 20)
+            return BadRequest("limit phải từ 1 đến 20.");
+        var reviews = await _service.GetRecentReviewsAsync(limit);
+        return Ok(reviews);
+    }
 }

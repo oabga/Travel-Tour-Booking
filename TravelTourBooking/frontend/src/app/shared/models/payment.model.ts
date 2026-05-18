@@ -20,3 +20,37 @@ export interface CreateCashPaymentDto {
   bookingId: number;
   amount: number;
 }
+
+export interface CheckoutPaymentResult {
+  paymentId: number;
+  bookingConfirmed: boolean;
+  emailSent: boolean;
+  remainingAmount: number;
+  message: string;
+}
+
+export interface PaymentConfig {
+  moMoQrUrl: string;
+  moMoAccountName: string;
+  moMoPhone: string;
+  bankName: string;
+  bankAccountNumber: string;
+  bankAccountName: string;
+  transferNotePrefix: string;
+}
+
+export interface SubmitPaymentResult {
+  paymentId: number;
+  status: string;
+  emailSent: boolean;
+  emailError?: string | null;
+  message: string;
+}
+
+export interface ConfirmPaymentResult {
+  success: boolean;
+  bookingConfirmed: boolean;
+  emailSent: boolean;
+  remainingAmount: number;
+  message: string;
+}

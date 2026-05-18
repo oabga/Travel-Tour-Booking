@@ -4,23 +4,52 @@ import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TourService } from '../../../services/tour.service';
 import { CategoryService } from '../../../services/category.service';
-import { DestinationService } from '../../../services/destination.service';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
-import { TourList, PaginationMeta, CategoryResponse, DestinationResponse, PopularTourResult } from '../../../shared/models';
+import { TourList, PaginationMeta, CategoryResponse, PopularTourResult } from '../../../shared/models';
 import { environment } from '../../../../environments/environment';
-import { formatDurationLabel } from '../../../shared/utils/tour-duration.util';
+import { formatDurationMenuLabel } from '../../../shared/utils/tour-duration.util';
+import { buildImageLayer, getCategoryStockImage, getDestinationStockImage } from '../../../shared/utils/category-image.util';
+import { DEFAULT_TOUR_IMAGE, getTourDisplayImageUrl, resolveTourImageUrl } from '../../../shared/utils/tour-image.util';
+import { TestimonialsSectionComponent } from '../../../shared/components/testimonials-section/testimonials-section.component';
+
+interface CategoryTheme {
+  gradient: string;
+  icon: string;
+}
 
 @Component({
     selector: 'app-tour-list',
     standalone: true,
-    imports: [CommonModule, RouterLink, FormsModule, PaginationComponent],
+    imports: [CommonModule, RouterLink, FormsModule, PaginationComponent, TestimonialsSectionComponent],
     template: `
-    <!-- Hero Banner -->
-    <section class="hero-section hero-section-travel">
-      <div class="container">
-        <h1 class="display-4 fw-bold mb-3">Khám phá Việt Nam & Thế giới</h1>
-        <p class="lead mb-2 opacity-75">Tìm và đặt tour du lịch tuyệt vời nhất cho bạn</p>
-
+    @if (isBrowsePage) {
+      <section class="page-banner page-banner-travel browse-banner"
+               [ngStyle]="browseBannerStyle">
+        <div class="container">
+          <nav class="browse-breadcrumb mb-3">
+            <a routerLink="/" class="text-white-50 text-decoration-none small">Trang chủ</a>
+            <span class="text-white-50 mx-2">/</span>
+            <span class="text-white small">{{ pageTitle }}</span>
+          </nav>
+          <h1 class="mb-2">{{ pageTitle }}</h1>
+          @if (pageSubtitle) {
+            <p class="lead mb-3 opacity-90">{{ pageSubtitle }}</p>
+          }
+          <div class="browse-stats d-flex flex-wrap gap-3">
+            <span class="browse-stat-chip"><i class="bi bi-map me-1"></i>{{ pagination.totalCount }} tour</span>
+            <span class="browse-stat-chip"><i class="bi bi-shield-check me-1"></i>Đặt tour an toàn</span>
+            <span class="browse-stat-chip"><i class="bi bi-headset me-1"></i>Hỗ trợ 24/7</span>
+          </div>
+        </div>
+      </section>
+    } @else {
+    <section class="hero-split hero-section-travel">
+      <div class="container py-4 py-lg-5">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-5 text-white hero-split-copy">
+            <span class="hero-eyebrow">TravelTour — Đặt tour dễ dàng</span>
+            <h1 class="display-5 fw-bold mb-3">Khám phá Việt Nam & Thế giới</h1>
+            <p class="lead mb-4 opacity-90">Hàng trăm tour chất lượng, giá minh bạch, hỗ trợ tận tâm 24/7.</p>
         <div class="hero-search">
           <div class="input-group input-group-lg bg-white rounded shadow">
             <span class="input-group-text bg-white border-0"><i class="bi bi-geo-alt text-primary"></i></span>
@@ -31,19 +60,64 @@ import { formatDurationLabel } from '../../../shared/utils/tour-duration.util';
             </button>
           </div>
         </div>
-
-        <div class="mt-4 d-flex flex-wrap justify-content-center gap-2">
-          @for (c of categories; track c.cateId) {
-            <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill cursor-pointer"
-                  (click)="filterCateId = c.cateId; loadTours()">
-              {{ c.cateName }}
-            </span>
+            <div class="mt-3 d-flex flex-wrap gap-2">
+              @for (c of categories.slice(0, 6); track c.cateId) {
+                <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill cursor-pointer"
+                      (click)="navigateToCategory(c.cateId)">{{ c.cateName }}</span>
+              }
+            </div>
+          </div>
+          @if (heroSlides.length) {
+            <div class="col-lg-7">
+              <div id="heroTourCarousel" class="carousel slide hero-carousel shadow-lg" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                  @for (t of heroSlides; track t.tourId; let i = $index) {
+                    <button type="button" data-bs-target="#heroTourCarousel" [attr.data-bs-slide-to]="i"
+                            [class.active]="i === 0"></button>
+                  }
+                </div>
+                <div class="carousel-inner rounded-4 overflow-hidden">
+                  @for (t of heroSlides; track t.tourId; let i = $index) {
+                    <div class="carousel-item" [class.active]="i === 0">
+                      <a [routerLink]="['/tours', t.tourId]" class="d-block text-decoration-none">
+                        <img [src]="tourImg(t.imageUrl, t.desName)" class="d-block w-100 hero-carousel-img"
+                             [alt]="t.tourName" (error)="handleImageError($event)">
+                        <div class="carousel-caption hero-carousel-caption text-start">
+                          <span class="badge bg-danger mb-2">Hot</span>
+                          <h5 class="fw-bold mb-1">{{ t.tourName }}</h5>
+                          <p class="mb-0 small opacity-90"><i class="bi bi-geo-alt me-1"></i>{{ t.desName }}</p>
+                        </div>
+                      </a>
+                    </div>
+                  }
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroTourCarousel" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroTourCarousel" data-bs-slide="next">
+                  <span class="carousel-control-next-icon"></span>
+                </button>
+              </div>
+            </div>
           }
         </div>
       </div>
     </section>
 
-    <!-- Popular Tours -->
+    <section class="promo-gallery-section">
+      <div class="container-fluid px-0">
+        <div class="row g-0">
+          @for (img of promoGallery; track img.url) {
+            <div class="col-md-4">
+              <div class="promo-gallery-tile" [style.background-image]="'url(' + img.url + ')'">
+                <span class="promo-gallery-label">{{ img.label }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
     @if (popularTours.length) {
       <section class="container py-5">
         <div class="text-center mb-4">
@@ -56,19 +130,13 @@ import { formatDurationLabel } from '../../../shared/utils/tour-duration.util';
               <a [routerLink]="['/tours', t.tourId]" class="text-decoration-none">
                 <div class="card card-tour h-100">
                   <div class="card-img-wrapper">
-                    @if (t.imageUrl) {
-                      <img [src]="environment.imageBaseUrl + t.imageUrl"
-                           class="card-img-top" (error)="handleImageError($event)">
-                    } @else {
-                      <div class="img-placeholder"><i class="bi bi-image"></i></div>
-                    }
+                    <img [src]="tourImg(t.imageUrl, t.desName)"
+                           class="card-img-top" [alt]="t.tourName" (error)="handleImageError($event)">
                     <span class="tour-duration-badge"><i class="bi bi-clock me-1"></i>Hot</span>
                   </div>
                   <div class="card-body">
                     <h6 class="card-title text-dark text-truncate">{{ t.tourName }}</h6>
-                    <p class="text-muted small mb-2">
-                      <i class="bi bi-geo-alt me-1"></i>{{ t.desName }}
-                    </p>
+                    <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-1"></i>{{ t.desName }}</p>
                     <div class="d-flex justify-content-between align-items-center">
                       <span class="text-warning small">
                         @for (s of [1,2,3,4,5]; track s) {
@@ -85,117 +153,114 @@ import { formatDurationLabel } from '../../../shared/utils/tour-duration.util';
         </div>
       </section>
     }
+    }
 
-    <!-- All Tours Section -->
-    <section class="bg-white py-5">
-      <div class="container">
-        <div class="text-center mb-4">
-          <h2 class="section-title">Danh sách Tour</h2>
-          <p class="section-subtitle">Chọn tour phù hợp với bạn</p>
-        </div>
-
-        <div class="row">
-          <div class="col-lg-3 mb-4">
-            <div class="card border-0 shadow-sm">
-              <div class="card-body">
-                <h6 class="fw-bold mb-3"><i class="bi bi-funnel me-2"></i>Bộ lọc</h6>
-                <div class="mb-3">
-                  <label class="form-label fw-semibold small">Danh mục</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="filterCateId" (change)="onFilterChange()">
-                    <option [ngValue]="undefined">Tất cả danh mục</option>
-                    @for (c of categories; track c.cateId) {
-                      <option [ngValue]="c.cateId">{{ c.cateName }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label fw-semibold small">Điểm đến</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="filterDesId" (change)="onFilterChange()">
-                    <option [ngValue]="undefined">Tất cả điểm đến</option>
-                    @for (d of destinations; track d.desId) {
-                      <option [ngValue]="d.desId">{{ d.desName }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label fw-semibold small">Thời lượng</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="filterDurationDays" (change)="onFilterChange()">
-                    <option [ngValue]="undefined">Tất cả</option>
-                    @for (d of durationOptions; track d) {
-                      <option [ngValue]="d">{{ formatDurationLabel(d) }}</option>
-                    }
-                  </select>
-                </div>
-                <button class="btn btn-outline-secondary btn-sm w-100" (click)="resetFilter()">
-                  <i class="bi bi-x-circle me-1"></i>Xóa bộ lọc
-                </button>
-              </div>
-            </div>
+    @if (!isBrowsePage && categories.length) {
+      <section class="category-explore-section py-5">
+        <div class="container">
+          <div class="text-center mb-4">
+            <h2 class="section-title"><i class="bi bi-compass text-primary me-2"></i>Khám phá theo danh mục</h2>
+            <p class="section-subtitle mb-0">Chọn vùng miền hoặc phong cách tour bạn yêu thích</p>
           </div>
-
-          <div class="col-lg-9">
-            @if (loading) {
-              <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
-            } @else if (tours.length === 0) {
-              <div class="empty-state">
-                <i class="bi bi-search"></i>
-                <p>Không tìm thấy tour nào phù hợp.</p>
-              </div>
-            } @else {
-              <div class="row g-4">
-                @for (tour of tours; track tour.tourId) {
-                  <div class="col-md-6 col-lg-4">
-                    <div class="card card-tour h-100">
-                      <div class="card-img-wrapper">
-                        <img [src]="tour.imageUrl ? environment.imageBaseUrl + tour.imageUrl : '/assets/images/default-tour.svg'"
-                             class="card-img-top" (error)="handleImageError($event)" [alt]="tour.tourName">
-                        <span class="tour-duration-badge">
-                          <i class="bi bi-clock me-1"></i>{{ tour.durationDays }} ngày
-                        </span>
-                      </div>
-                      <div class="card-body d-flex flex-column">
-                        <h6 class="card-title text-truncate">{{ tour.tourName }}</h6>
-                        <p class="text-muted small mb-2">
-                          <i class="bi bi-geo-alt me-1"></i>{{ tour.desName }}
-                          @if (tour.cateName) {
-                            <span class="mx-1">|</span>
-                            <i class="bi bi-tag me-1"></i>{{ tour.cateName }}
-                          }
-                        </p>
-                        @if (tour.avgRating) {
-                          <div class="mb-2">
-                            <span class="text-warning small">
-                              @for (s of [1,2,3,4,5]; track s) {
-                                <i class="bi" [class.bi-star-fill]="s <= tour.avgRating!" [class.bi-star]="s > tour.avgRating!"></i>
-                              }
-                            </span>
-                            <small class="text-muted ms-1">{{ tour.avgRating | number:'1.1-1' }}</small>
-                          </div>
-                        }
-                        <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top">
-                          <div>
-                            <span class="tour-price">{{ tour.price | number:'1.0-0' }}đ</span>
-                            <small class="text-muted d-block">/ người</small>
-                          </div>
-                          <a [routerLink]="['/tours', tour.tourId]" class="btn btn-sm btn-primary rounded-pill px-3">
-                            <i class="bi bi-arrow-right me-1"></i>Đặt ngay
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-              <div class="mt-4">
-                <app-pagination [meta]="pagination" (pageChange)="onPageChange($event)" />
+          <div class="row g-3">
+            @for (c of categories; track c.cateId; let i = $index) {
+              <div class="col-6 col-md-4 col-lg-3">
+                <a class="category-explore-card text-decoration-none" role="button"
+                   (click)="navigateToCategory(c.cateId)"
+                   [ngStyle]="getCategoryCardStyle(c)">
+                  <i class="bi category-explore-icon" [ngClass]="getCategoryTheme(i).icon"></i>
+                  <span class="category-explore-name">{{ c.cateName }}</span>
+                  @if (c.description) {
+                    <small class="category-explore-desc">{{ c.description }}</small>
+                  }
+                </a>
               </div>
             }
           </div>
         </div>
+      </section>
+    }
+
+    <section id="tour-results" class="tour-results-section py-5">
+      <div class="container">
+        @if (!isBrowsePage) {
+          <div class="text-center mb-4">
+            <h2 class="section-title">Danh sách Tour</h2>
+            <p class="section-subtitle">Ưu đãi hấp dẫn — đặt ngay để giữ chỗ tốt nhất</p>
+          </div>
+        }
+
+        @if (loading) {
+          <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+        } @else if (tours.length === 0) {
+          <div class="empty-state">
+            <i class="bi bi-search"></i>
+            <p>Không tìm thấy tour nào phù hợp.</p>
+            <a routerLink="/" class="btn btn-outline-primary btn-sm mt-2">Về trang chủ</a>
+          </div>
+        } @else {
+          <div class="row g-4">
+            @for (tour of tours; track tour.tourId) {
+              <div class="col-md-6 col-lg-4">
+                <a [routerLink]="['/tours', tour.tourId]" class="text-decoration-none">
+                  <div class="card card-tour card-tour-rich h-100">
+                    <div class="card-img-wrapper">
+                      <img [src]="tourImg(tour.imageUrl, tour.desName, tour.cateName)"
+                           class="card-img-top" (error)="handleImageError($event)" [alt]="tour.tourName">
+                      @if (tour.cateName) {
+                        <span class="tour-cate-badge">{{ tour.cateName }}</span>
+                      }
+                      <span class="tour-duration-badge">
+                        <i class="bi bi-clock me-1"></i>{{ tour.durationDays }} ngày
+                      </span>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                      <h6 class="card-title text-dark">{{ tour.tourName }}</h6>
+                      <p class="text-muted small mb-2">
+                        <i class="bi bi-geo-alt me-1 text-primary"></i>{{ tour.desName }}
+                      </p>
+                      @if (tour.avgRating) {
+                        <div class="mb-2">
+                          <span class="text-warning small">
+                            @for (s of [1,2,3,4,5]; track s) {
+                              <i class="bi" [class.bi-star-fill]="s <= tour.avgRating!" [class.bi-star]="s > tour.avgRating!"></i>
+                            }
+                          </span>
+                          <small class="text-muted ms-1">{{ tour.avgRating | number:'1.1-1' }}</small>
+                        </div>
+                      }
+                      <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top">
+                        <div>
+                          <span class="tour-price">{{ tour.price | number:'1.0-0' }}đ</span>
+                          <small class="text-muted d-block">/ người</small>
+                        </div>
+                        <span class="btn btn-sm btn-accent rounded-pill px-3">Xem tour</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            }
+          </div>
+          <div class="mt-4">
+            <app-pagination [meta]="pagination" (pageChange)="onPageChange($event)" />
+          </div>
+        }
       </div>
     </section>
 
-    <!-- Why Choose Us -->
+    @if (isBrowsePage) {
+      <section class="cta-strip py-4">
+        <div class="container text-center text-white">
+          <h5 class="mb-2">Cần tư vấn thêm về tour?</h5>
+          <p class="mb-3 opacity-90 small">Đội ngũ TravelTour sẵn sàng hỗ trợ 24/7</p>
+          <a routerLink="/contact" class="btn btn-light btn-sm rounded-pill px-4">Liên hệ ngay</a>
+        </div>
+      </section>
+    }
+
+    @if (!isBrowsePage) {
+    <app-testimonials-section />
     <section class="container py-5">
       <div class="text-center mb-5">
         <h2 class="section-title">Vì sao chọn TravelTour?</h2>
@@ -240,16 +305,22 @@ import { formatDurationLabel } from '../../../shared/utils/tour-duration.util';
         </div>
       </div>
     </section>
+    }
   `
 })
 export class TourListComponent implements OnInit {
-    readonly formatDurationLabel = formatDurationLabel;
+    private scrollToResults = false;
     tours: TourList[] = [];
     popularTours: PopularTourResult[] = [];
+    heroSlides: PopularTourResult[] = [];
     readonly environment = environment;
     categories: CategoryResponse[] = [];
-    destinations: DestinationResponse[] = [];
-    durationOptions: number[] = [];
+    categoryCoverByCateId: Record<number, string> = {};
+    readonly promoGallery = [
+        { label: 'Biển đảo', url: getDestinationStockImage('Phú Quốc') },
+        { label: 'Núi rừng', url: getDestinationStockImage('Đà Lạt') },
+        { label: 'Di sản', url: getDestinationStockImage('Đà Nẵng') },
+    ];
     pagination: PaginationMeta = { page: 1, pageSize: 9, totalCount: 0, totalPages: 0, hasPrev: false, hasNext: false };
     loading = false;
     searchDestination = '';
@@ -258,42 +329,131 @@ export class TourListComponent implements OnInit {
     filterDesId?: number;
     filterDurationDays?: number;
 
+    private readonly categoryThemes: CategoryTheme[] = [
+        { gradient: 'linear-gradient(135deg, #0e7490, #06b6d4)', icon: 'bi-water' },
+        { gradient: 'linear-gradient(135deg, #ea580c, #f97316)', icon: 'bi-sun' },
+        { gradient: 'linear-gradient(135deg, #7c3aed, #a78bfa)', icon: 'bi-building' },
+        { gradient: 'linear-gradient(135deg, #059669, #34d399)', icon: 'bi-tree' },
+        { gradient: 'linear-gradient(135deg, #dc2626, #f87171)', icon: 'bi-heart' },
+        { gradient: 'linear-gradient(135deg, #2563eb, #60a5fa)', icon: 'bi-airplane' },
+        { gradient: 'linear-gradient(135deg, #ca8a04, #facc15)', icon: 'bi-compass' },
+        { gradient: 'linear-gradient(135deg, #0c4a6e, #38bdf8)', icon: 'bi-geo-alt' },
+    ];
+
+    get isBrowsePage(): boolean {
+        const onToursRoute = this.route.snapshot.routeConfig?.path === 'tours';
+        const hasFilter = this.filterCateId != null
+            || this.filterDurationDays != null
+            || this.filterDesId != null;
+        return onToursRoute || hasFilter;
+    }
+
+    get pageTitle(): string {
+        if (this.filterCateId != null) {
+            const cat = this.categories.find(c => c.cateId === this.filterCateId);
+            return cat ? `Tour: ${cat.cateName}` : 'Danh sách tour';
+        }
+        if (this.filterDurationDays != null) {
+            return `Tour theo thời lượng: ${formatDurationMenuLabel(this.filterDurationDays)}`;
+        }
+        return 'Danh sách tour';
+    }
+
+    get browseBannerStyle(): Record<string, string> | null {
+        if (!this.isBrowsePage) return null;
+        const first = this.tours[0];
+        const url = first
+            ? getTourDisplayImageUrl(first.imageUrl, first.desName, first.cateName)
+            : getCategoryStockImage(this.pageTitle.replace(/^Tour:\s*/, ''));
+        return {
+            backgroundImage: buildImageLayer(
+                url,
+                'linear-gradient(135deg, rgba(14,116,144,.88) 0%, rgba(12,74,110,.78) 100%)'
+            ),
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+        };
+    }
+
+    get pageSubtitle(): string | null {
+        if (this.filterCateId != null) {
+            return this.categories.find(c => c.cateId === this.filterCateId)?.description ?? null;
+        }
+        if (this.filterDurationDays != null) {
+            return `Các tour ${formatDurationMenuLabel(this.filterDurationDays)} — lịch trình tối ưu, giá minh bạch.`;
+        }
+        return null;
+    }
+
     constructor(
         private tourSvc: TourService,
         private cateSvc: CategoryService,
-        private desSvc: DestinationService,
         private router: Router,
         private route: ActivatedRoute
     ) { }
 
     ngOnInit(): void {
-        this.cateSvc.getAll().subscribe(d => this.categories = d);
-        this.desSvc.getAll().subscribe(d => this.destinations = d);
-        this.tourSvc.getDurationOptions().subscribe(d => this.durationOptions = d);
-        this.tourSvc.getPopular().subscribe(d => this.popularTours = d.slice(0, 4));
+        this.cateSvc.getAll().subscribe(d => {
+            this.categories = d;
+            this.loadCategoryCovers();
+        });
+        this.tourSvc.getPopular().subscribe(d => {
+            this.popularTours = d.slice(0, 4);
+            this.heroSlides = d.slice(0, 5);
+        });
 
         this.route.queryParams.subscribe(params => {
             this.filterCateId = params['cateId'] ? +params['cateId'] : undefined;
+            this.filterDesId = params['desId'] ? +params['desId'] : undefined;
             this.filterDurationDays = params['durationDays'] ? +params['durationDays'] : undefined;
             this.pagination.page = 1;
+            this.scrollToResults = this.isBrowsePage;
             this.loadTours();
         });
     }
 
-    onFilterChange(): void {
-        this.pagination.page = 1;
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: {
-                cateId: this.filterCateId ?? null,
-                durationDays: this.filterDurationDays ?? null
-            },
-            queryParamsHandling: 'merge'
+    getCategoryTheme(index: number): CategoryTheme {
+        return this.categoryThemes[index % this.categoryThemes.length];
+    }
+
+    getCategoryCardStyle(c: CategoryResponse): Record<string, string> {
+        const cover = this.categoryCoverByCateId[c.cateId];
+        const url = cover
+            ? (resolveTourImageUrl(cover) ?? getCategoryStockImage(c.cateName))
+            : getCategoryStockImage(c.cateName);
+        return {
+            backgroundImage: buildImageLayer(url),
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+        };
+    }
+
+    loadCategoryCovers(): void {
+        this.tourSvc.getAll(1, 48).subscribe(res => {
+            const map: Record<number, string> = {};
+            for (const t of res.items) {
+                if (!t.imageUrl || !t.cateName) continue;
+                const cat = this.categories.find(c => c.cateName === t.cateName);
+                if (cat && !map[cat.cateId]) map[cat.cateId] = t.imageUrl!;
+            }
+            this.categoryCoverByCateId = map;
         });
     }
 
-    handleImageError(event: any): void {
-        event.target.src = '/assets/images/default-tour.svg';
+    navigateToCategory(cateId: number): void {
+        this.router.navigate(['/tours'], { queryParams: { cateId } });
+    }
+
+    tourImg(
+        imageUrl: string | null | undefined,
+        desName?: string | null,
+        cateName?: string | null
+    ): string {
+        return getTourDisplayImageUrl(imageUrl, desName, cateName);
+    }
+
+    handleImageError(event: Event): void {
+        (event.target as HTMLImageElement).src = DEFAULT_TOUR_IMAGE;
     }
 
     goSearch(): void {
@@ -315,6 +475,10 @@ export class TourListComponent implements OnInit {
                 this.tours = res.items;
                 this.pagination = res.pagination;
                 this.loading = false;
+                if (this.scrollToResults) {
+                    this.scrollToResults = false;
+                    setTimeout(() => document.getElementById('tour-results')?.scrollIntoView({ behavior: 'smooth' }), 50);
+                }
             },
             error: () => this.loading = false
         });
@@ -323,13 +487,5 @@ export class TourListComponent implements OnInit {
     onPageChange(page: number): void {
         this.pagination.page = page;
         this.loadTours();
-    }
-
-    resetFilter(): void {
-        this.filterCateId = undefined;
-        this.filterDesId = undefined;
-        this.filterDurationDays = undefined;
-        this.pagination.page = 1;
-        this.router.navigate([], { relativeTo: this.route, queryParams: {} });
     }
 }

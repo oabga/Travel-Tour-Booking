@@ -37,4 +37,5 @@ public interface IBookingRepository : IRepository<Booking>
 
     Task<IEnumerable<BookingHistoryDto>> GetAllBookingHistoryAsync();
 
+    Task<string?> GetCustomerEmailByBookingIdAsync(int bookingId);
 }

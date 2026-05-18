@@ -5,6 +5,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { CategoryService } from '../../../services/category.service';
 import { TourService } from '../../../services/tour.service';
 import { CategoryResponse } from '../../../shared/models';
+import { formatDurationMenuLabel } from '../../utils/tour-duration.util';
 
 @Component({
   selector: 'app-navbar',
@@ -49,15 +50,11 @@ import { CategoryResponse } from '../../../shared/models';
                       <a class="dropdown-item rounded py-2"
                          routerLink="/tours"
                          [queryParams]="{ durationDays: d }">
-                        {{ d }}
+                        {{ formatDurationMenuLabel(d) }}
                       </a>
                     }
                   </div>
                 </div>
-                <hr class="my-2">
-                <a routerLink="/tours" class="btn btn-sm btn-outline-primary">
-                  <i class="bi bi-grid me-1"></i>Xem tất cả tour
-                </a>
               </div>
             </li>
 
@@ -130,6 +127,7 @@ import { CategoryResponse } from '../../../shared/models';
   `
 })
 export class NavbarComponent implements OnInit {
+  readonly formatDurationMenuLabel = formatDurationMenuLabel;
   categories: CategoryResponse[] = [];
   durationOptions: number[] = [];
 

@@ -6,4 +6,6 @@ public interface IReviewService
         int accountId,
         ReviewDto dto);
     Task<List<ReviewResponseDto>> GetReviewsByTourAsync(int tourId);
+
+    Task<List<ReviewResponseDto>> GetRecentReviewsAsync(int limit = 6);
 }

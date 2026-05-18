@@ -56,7 +56,13 @@ import { BookingHistory } from '../../../shared/models';
                     </span>
                   </td>
                   <td>{{ b.bookingDate | date:'dd/MM/yyyy HH:mm' }}</td>
-                  <td>
+                  <td class="text-nowrap">
+                    @if (!isAdminOrStaff && b.status === 'Pending') {
+                      <a [routerLink]="['/bookings', b.bookingId, 'payment']"
+                         class="btn btn-sm btn-success me-1">
+                        <i class="bi bi-credit-card"></i> Thanh toán
+                      </a>
+                    }
                     <a [routerLink]="isAdminOrStaff ? ['/admin/bookings', b.bookingId] : ['/bookings', b.bookingId]"
                        class="btn btn-sm btn-outline-primary">
                       <i class="bi bi-eye"></i>

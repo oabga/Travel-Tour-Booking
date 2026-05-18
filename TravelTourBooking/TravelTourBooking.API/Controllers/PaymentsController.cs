@@ -11,18 +11,37 @@ public class PaymentsController : ControllerBase
 {
     private readonly IPaymentService _service;
 
-    public PaymentsController(IPaymentService service)
+    public PaymentsController(IPaymentService service) => _service = service;
+
+    /// <summary>Cấu hình hiển thị QR MoMo, STK ngân hàng (public).</summary>
+    [HttpGet("config")]
+    [AllowAnonymous]
+    public IActionResult GetConfig() => Ok(_service.GetPaymentConfig());
+
+    /// <summary>Khách báo đã chuyển MoMo/CK — chờ admin xác nhận.</summary>
+    [HttpPost("submit")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> Submit(CreatePaymentDto dto)
     {
-        _service = service;
+        var result = await _service.SubmitCustomerPaymentAsync(dto);
+        return Ok(result);
     }
 
-    //[HttpPost]
-    //public async Task<IActionResult> Create(CreatePaymentDto dto)
-    //{
-    //    var id = await _service.CreatePaymentAsync(dto);
+    [HttpPost("checkout")]
+    [Authorize(Roles = "Customer")]
+    [Obsolete("Dùng POST /api/payments/submit")]
+    public async Task<IActionResult> Checkout(CreatePaymentDto dto)
+    {
+        var result = await _service.SubmitCustomerPaymentAsync(dto);
+        return Ok(new CheckoutPaymentResultDto
+        {
+            PaymentId = result.PaymentId,
+            EmailSent = result.EmailSent,
+            Message = result.Message,
+            RemainingAmount = await _service.GetRemainingAmountAsync(dto.BookingId)
+        });
+    }
 
-    //    return Ok(id);
-    //}
     [HttpPost("bank-transfer")]
     [Authorize(Roles = "Customer")]
     public async Task<IActionResult> CreateBankTransfer(CreatePaymentDto dto)
@@ -30,7 +49,6 @@ public class PaymentsController : ControllerBase
         var id = await _service.CreateBankTransferAsync(dto);
         return Ok(id);
     }
-
 
     [HttpPost("cash")]
     [Authorize(Roles = "Staff")]
@@ -49,25 +67,17 @@ public class PaymentsController : ControllerBase
     }
 
     [HttpGet("booking/{bookingId}")]
-    public async Task<IActionResult> GetByBooking(int bookingId)
-    {
-        var result =
-            await _service.GetPaymentsByBookingAsync(bookingId);
-
-        return Ok(result);
-    }
+    [Authorize]
+    public async Task<IActionResult> GetByBooking(int bookingId) =>
+        Ok(await _service.GetPaymentsByBookingAsync(bookingId));
 
     [HttpGet("booking/{bookingId}/total-paid")]
-    public async Task<IActionResult> GetTotalPaid(int bookingId)
-    {
-        var result = await _service.GetTotalPaidAsync(bookingId);
-        return Ok(result);
-    }
+    [Authorize]
+    public async Task<IActionResult> GetTotalPaid(int bookingId) =>
+        Ok(await _service.GetTotalPaidAsync(bookingId));
 
     [HttpGet("booking/{bookingId}/remaining")]
-    public async Task<IActionResult> GetRemaining(int bookingId)
-    {
-        var result = await _service.GetRemainingAmountAsync(bookingId);
-        return Ok(result);
-    }
+    [Authorize]
+    public async Task<IActionResult> GetRemaining(int bookingId) =>
+        Ok(await _service.GetRemainingAmountAsync(bookingId));
 }

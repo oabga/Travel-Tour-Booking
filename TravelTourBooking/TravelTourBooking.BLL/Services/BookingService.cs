@@ -98,6 +98,16 @@ public class BookingService(IBookingRepository bookingRepo) : IBookingService
 
         await bookingRepo.AddPassengersAsync(details);
 
+        // Đảm bảo chờ thanh toán (SP mới dùng Pending; SP cũ có thể vẫn ghi Confirmed)
+        var pendingBooking = await bookingRepo.GetByIdAsync(newBookingId);
+        if (pendingBooking is not null
+            && pendingBooking.Status != "Cancelled"
+            && pendingBooking.Status != "Pending")
+        {
+            pendingBooking.Status = "Pending";
+            await bookingRepo.UpdateAsync(pendingBooking);
+        }
+
         // Trả về response
         var created = await bookingRepo.GetWithDetailsAsync(newBookingId);
         if (created is null)
