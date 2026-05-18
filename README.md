@@ -6,8 +6,7 @@
 [![JWT](https://img.shields.io/badge/JWT-Authentication-blue?style=for-the-badge&logo=json-web-tokens)](https://jwt.io/)
 [![Architecture](https://img.shields.io/badge/Architecture-3--Layer-green?style=for-the-badge)](#-kiến-trúc-hệ-thống)
 
-Một hệ thống quản lý đặt tour du lịch toàn diện được xây dựng bằng **ASP.NET Core Web API** theo mô hình **3-Layer Architecture** kết hợp với **Angular v17/v18 (Signals & Standalone Components)** và cơ sở dữ liệu **SQL Server**. Dự án triển khai nhiều kỹ thuật nâng cao vượt ngoài khuôn khổ chương trình học cơ bản như tối ưu hóa tranh chấp đồng thời đặt vé (Concurrency Control), tự động cập nhật ghế trống qua Triggers, và xác thực phân quyền dạng RBAC thông qua JWT.
-
+Một hệ thống quản lý đặt tour du lịch toàn diện được xây dựng bằng **ASP.NET Core Web API** theo mô hình **3-Layer Architecture** kết hợp với **Angular v17/v18 (Signals & Standalone Components)** và cơ sở dữ liệu **SQL Server**. Dự án triển khai nhiều kỹ thuật như EF (Entities Framework), ADO connected, ADO disconnected, ASP .NET CORE WebAPI,...
 ---
 
 ## 🌟 Các Nhóm Tính Năng Nổi Bật
