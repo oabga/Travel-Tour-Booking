@@ -1,6 +1,11 @@
 -- Migration: Danh mục tour mega menu + destinations mở rộng
 -- Chạy trên TravelBookingDB sau khi BACKUP
 -- Dùng khi DB đã có dữ liệu cũ (Adventure, Luxury, ...)
+--
+-- Cảnh báo: Nếu đã chạy seed_reset_catalog_and_tours.sql (chỉ còn 4 danh mục
+-- Adventure / Luxury / Family / Beach) thì không nên chạy script này nguyên bản —
+-- nó thêm danh mục theo địa danh và UPDATE CateId tour, có thể làm lệch dữ liệu.
+-- Chỉ chạy lại sau khi đã chỉnh script cho phù hợp mô hình mới.
 
 USE TravelBookingDB;
 GO

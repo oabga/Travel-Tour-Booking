@@ -151,7 +151,22 @@ public class EmailService : IEmailService
             return new EmailSendResult
             {
                 Success = false,
-                Error = "Thiếu Smtp:User hoặc Smtp:Password (App Password Gmail 16 ký tự)."
+                Error =
+                    "Thiếu Smtp:User hoặc Smtp:Password. " +
+                    "Đặt App Password Gmail bằng lệnh: dotnet user-secrets set \"Smtp:Password\" \"xxxx xxxx xxxx xxxx\" " +
+                    "--project TravelTourBooking.API rồi khởi động lại API."
+            };
+        }
+
+        if (user.Contains("your-email", StringComparison.OrdinalIgnoreCase)
+            || password.Contains("YOUR_GMAIL", StringComparison.OrdinalIgnoreCase))
+        {
+            return new EmailSendResult
+            {
+                Success = false,
+                Error =
+                    "SMTP đang dùng cấu hình mẫu (your-email / YOUR_GMAIL). " +
+                    "Cập nhật Smtp:User trong appsettings.json và App Password qua user-secrets, rồi khởi động lại API."
             };
         }
 

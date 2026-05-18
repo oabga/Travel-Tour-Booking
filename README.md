@@ -141,6 +141,18 @@ Dự án áp dụng hệ thống giải pháp lập trình cơ sở dữ liệu 
 1. Mở **SQL Server Management Studio (SSMS)** trên máy của bạn.
 2. Mở file [database/TravelBookingDB.sql](database/TravelBookingDB.sql) và nhấn **Execute** để tạo cơ sở dữ liệu `TravelBookingDB`, thiết lập các bảng, chỉ mục (Indexes), các hàm (Functions), thủ tục lưu trữ (Stored Procedures), triggers và chèn dữ liệu mẫu hoàn chỉnh.
 
+#### Reset catalog & seed tour có ảnh (4 danh mục: Adventure, Luxury, Family, Beach)
+
+Nếu bạn đã có database và muốn **xóa toàn bộ tour / lịch / booking / review / payment**, **giữ nguyên tài khoản** (`Accounts`, `Roles`, `AccountRoles`, `CustomerProfiles`, `Employees`), rồi nạp lại **48 tour** (12 tour mỗi danh mục) với `ImageUrl` (HTTPS qua [picsum.photos](https://picsum.photos)) và **2 lịch Open** cho mỗi tour:
+
+1. **Sao lưu** database (ví dụ `BACKUP DATABASE TravelBookingDB ...`) — có gợi ý trong đầu file script.
+2. Chạy [database/seed_reset_catalog_and_tours.sql](database/seed_reset_catalog_and_tours.sql) trên `TravelBookingDB` (reset toàn bộ catalog + tour).
+
+   **Hoặc** nếu chỉ muốn sửa ảnh / điểm đến sai (ví dụ Hang Én hiện Hạ Long, ảnh picsum không khớp tour) mà **không xóa booking**: chạy [database/migrate_tour_images.sql](database/migrate_tour_images.sql).
+3. Cuối file có các câu `SELECT` kiểm tra: không tour thiếu ảnh, đủ 12 tour mỗi `CateName`.
+
+**Lưu ý:** Sau khi dùng bộ seed 4 danh mục trên, **không chạy lại** [database/migrate_categories_mega_menu.sql](database/migrate_categories_mega_menu.sql) (script cũ thêm danh mục theo địa danh) trừ khi bạn đã chỉnh script đó cho khớp mô hình dữ liệu mới.
+
 ### 2. Thiết lập và Chạy Backend API
 1. Di chuyển vào thư mục dự án API:
    ```bash
