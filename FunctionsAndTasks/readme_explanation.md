@@ -67,7 +67,7 @@ Travel-Tour-Booking/
 
 ## 2. SƠ ĐỒ KIẾN TRÚC & MÔ HÌNH 3-LAYER ARCHITECTURE
 
-Dự án áp dụng mô hình kiến trúc **3-Layer Architecture** chuẩn công nghiệp kết hợp với mô hình **Repository Pattern**. Đây là phương pháp giúp tách biệt các trách nhiệm phát triển (Separation of Concerns).
+Dự án áp dụng mô hình kiến trúc **3-Layer Architecture** (Kiến trúc 3 tầng) chuẩn công nghiệp kết hợp với mẫu thiết kế **Repository Pattern**. Đây là phương pháp giúp tách biệt các trách nhiệm phát triển (**Separation of Concerns - SoC**), đảm bảo hệ thống có tính lỏng lẻo trong liên kết (**Loose Coupling**) và tính đóng gói cao (**High Cohesion**).
 
 ### Sơ đồ kiến trúc dòng chảy Dữ liệu & Điều khiển (Request flow)
 
@@ -90,18 +90,47 @@ graph TD
     ADO <== Stored Procedures / Triggers ==> DB
 ```
 
-### Vai trò chi tiết của từng lớp (Layer):
-1. **Presentation Layer (TravelTourBooking.API)**:
-    - Là cổng giao tiếp duy nhất giữa hệ thống bên ngoài (Angular Client) với hệ thống xử lý nội bộ.
-    - Tiếp nhận các HTTP Request (GET, POST, PUT, DELETE), giải mã thông tin đăng nhập từ token JWT, thực hiện phân quyền (Authorization) và trả về phản hồi theo một định dạng chuẩn chung (`ApiResponse<T>`).
-2. **Business Logic Layer (TravelTourBooking.BLL)**:
-    - Trái tim của hệ thống. Nơi kiểm soát mọi quy tắc nghiệp vụ (Business Rules). 
-    - Ví dụ: Một khách hàng đặt tour thì số người đăng ký không được vượt quá số ghế còn trống của lịch trình, khách hàng là người lớn bắt buộc phải điền căn cước công dân (CCCD).
-3. **Data Access Layer (TravelTourBooking.DAL)**:
-    - Lớp duy nhất được phép tương tác trực tiếp với cơ sở dữ liệu (Database).
-    - Lớp này sử dụng đa dạng các kỹ thuật từ EF Core cho đến ADO.NET để tối ưu hóa hiệu năng truy vấn cho từng trường hợp cụ thể.
-4. **Shared Layer (TravelTourBooking.Common)**:
-    - Nơi chứa các DTOs (Data Transfer Objects), Enums, và ApiResponse dùng chung để định kiểu dữ liệu khi truyền qua lại giữa các Layer mà không làm lộ cấu trúc bảng vật lý của Database.
+---
+
+### 💡 Ẩn dụ thực tế: Mô hình hoạt động của một "Nhà Hàng Cao Cấp"
+Để dễ dàng trả lời các câu hỏi phản biện, hãy liên tưởng kiến trúc 3 tầng của hệ thống với cách vận hành của một nhà hàng:
+1. **Presentation Layer (Tầng API/UI) ── Người phục vụ bàn:** 
+   - Chỉ làm nhiệm vụ tiếp đón khách hàng (Angular), ghi nhận thực đơn yêu cầu từ khách (HTTP Request) và bưng bê món ăn ra phục vụ khách (HTTP Response JSON). Người phục vụ bàn tuyệt đối không được tự ý đi vào bếp nấu ăn hay vào kho lấy thực phẩm.
+2. **Business Logic Layer (Tầng Nghiệp vụ BLL) ── Bếp trưởng:** 
+   - Trái tim của nhà hàng. Bếp trưởng chịu trách nhiệm kiểm tra tất cả các quy tắc ẩm thực và an toàn thực phẩm (Business Rules). Ví dụ: Khách hàng gọi súp cua thì bếp trưởng phải kiểm tra xem khách hàng có bị dị ứng không (Validate), định lượng gia vị thế nào là vừa phải, có kết hợp sai nguyên liệu kỵ nhau không.
+3. **Data Access Layer (Tầng Dữ liệu DAL) ── Thủ kho:** 
+   - Lớp duy nhất có chìa khóa kho lạnh (Database). Thủ kho chỉ làm một việc duy nhất: vào kho lạnh lấy đúng nguyên liệu thô (SQL Server) đưa cho đầu bếp, hoặc cất nguyên liệu mới vào kho. Thủ kho hoàn toàn không quan tâm đầu bếp sẽ chế biến nguyên liệu đó thành món ăn gì.
+
+---
+
+### Vai trò chi tiết của từng lớp (Layer) và Lý do thiết kế:
+
+#### 1. Presentation Layer (TravelTourBooking.API)
+- **Vai trò:** Là cổng giao tiếp (Gateway) duy nhất giữa thế giới bên ngoài (Angular Client, các hệ thống tích hợp bên thứ ba) với các dịch vụ xử lý nghiệp vụ nội bộ của hệ thống.
+- **Trách nhiệm chính:** 
+  - Tiếp nhận các HTTP Request (GET, POST, PUT, DELETE), giải mã thông tin đăng nhập và trích xuất danh tính từ token JWT.
+  - Áp dụng các chính sách phân quyền truy cập (**Role-Based Access Control - RBAC**).
+  - Đóng gói mọi kết quả (thành công hoặc thất bại) thành một định dạng JSON chuẩn chung (`ApiResponse<T>`) trước khi gửi trả về client.
+- **Lý do thiết kế:** Giúp tách rời hoàn toàn giao diện người dùng (UI) khỏi logic xử lý nghiệp vụ backend. Giao diện Angular có thể được thay thế, nâng cấp hoặc xây dựng thêm app di động (Flutter/React Native) mà không cần phải chỉnh sửa hay biên dịch lại bất kỳ dòng code xử lý lõi nào ở backend.
+
+#### 2. Business Logic Layer (TravelTourBooking.BLL)
+- **Vai trò:** Nơi tập trung toàn bộ các quy tắc nghiệp vụ (**Business Rules**), thuật toán và luồng xử lý chính của doanh nghiệp.
+- **Trách nhiệm chính:**
+  - Kiểm tra tính đúng đắn và toàn vẹn của dữ liệu đầu vào vượt trên mức định dạng dữ liệu (ví dụ: kiểm tra số lượng chỗ đăng ký của khách có vượt quá số chỗ trống thực tế của chuyến đi hay không).
+  - Điều phối các giao dịch nghiệp vụ, gọi các lớp Repository ở tầng DAL để lấy dữ liệu thô, thực hiện tính toán biến đổi, phối hợp nhiều logic nghiệp vụ và trả về kết quả cho tầng Presentation dưới dạng DTO.
+- **Lý do thiết kế:** Bảo vệ tính toàn vẹn của hệ thống. Đảm bảo dữ liệu trước khi đi xuống cơ sở dữ liệu phải thỏa mãn tuyệt đối các quy định vận hành thực tế của doanh nghiệp lữ hành.
+
+#### 3. Data Access Layer (TravelTourBooking.DAL)
+- **Vai trò:** Lớp duy nhất trong toàn hệ thống được phép kết nối và thực thi các câu lệnh truy vấn trực tiếp với Cơ sở dữ liệu vật lý (SQL Server).
+- **Trách nhiệm chính:**
+  - Áp dụng mẫu thiết kế **Repository Pattern** nhằm che giấu chi tiết triển khai công nghệ cơ sở dữ liệu.
+  - Sử dụng linh hoạt và kết hợp hoàn hảo các công nghệ truy cập dữ liệu khác nhau (Entity Framework Core cho các tác vụ CRUD nhanh chóng, an toàn; ADO.NET Connected và Disconnected Models cho các truy vấn báo cáo và tìm kiếm Real-time hiệu năng cao).
+- **Lý do thiết kế:** Tách biệt hoàn toàn công nghệ cơ sở dữ liệu khỏi logic nghiệp vụ. Nếu trong tương lai doanh nghiệp quyết định chuyển đổi hệ quản trị cơ sở dữ liệu từ SQL Server sang Oracle, PostgreSQL hoặc MongoDB, chúng ta chỉ cần viết lại các Repository ở tầng DAL mà hoàn toàn không ảnh hưởng gì tới tầng nghiệp vụ BLL hay tầng API.
+
+#### 4. Shared Layer (TravelTourBooking.Common)
+- **Vai trò:** Là lớp cắt ngang (Cross-cutting layer) chứa các cấu trúc dữ liệu dùng chung cho toàn bộ dự án mà không chứa bất kỳ logic nghiệp vụ nào.
+- **Trách nhiệm chính:** Chứa các DTOs (Data Transfer Objects), các lớp ApiResponse, các Enum định nghĩa trạng thái booking, trạng thái thanh toán và các Helper dùng chung.
+- **Lý do thiết kế:** Giúp tránh hiện tượng phụ thuộc vòng tròn (Circular Dependency) giữa các Layer và định kiểu dữ liệu đồng bộ trên toàn bộ hệ thống.
 
 ---
 
@@ -137,11 +166,15 @@ graph TD
   ```
 
 #### 2. JWT Authentication (JSON Web Token)
-- **Khái niệm**: Là một phương thức xác thực người dùng không lưu trạng thái trên server (stateless). Server sẽ cấp cho client một chuỗi mã hóa ký số dạng token sau khi đăng nhập thành công.
-- **Mục đích**: Nhận diện danh tính người dùng mà không cần lưu trữ Session trên server, tăng khả năng mở rộng hệ thống.
+- **Khái niệm**: Là phương thức xác thực người dùng không lưu trạng thái trên máy chủ (**Stateless Session Management**). Thay vì lưu trạng thái đăng nhập của khách hàng trong bộ nhớ RAM của server (Session), server sẽ cấp cho client một chuỗi mã hóa ký số dạng token sau khi đăng nhập thành công.
+- **💡 Ẩn dụ thực tế ── Thẻ lên máy bay (Boarding Pass) hoặc Vé trọn gói khu vui chơi:**
+  - Khi bạn đăng nhập thành công, máy chủ cấp cho bạn một tấm vé đóng dấu mộc đỏ (chữ ký số ký bằng khóa bí mật `SecretKey` trên Server).
+  - Trên tấm vé này ghi đầy đủ thông tin của bạn (Claims) như: ID tài khoản, Email, và các Quyền hạn của bạn (Roles).
+  - Mỗi lần bạn đi chơi một trò chơi hay vào phòng VIP (gọi API yêu cầu đăng nhập), bạn chỉ việc trình tấm vé này ra. Người soát vé (Server Middleware) chỉ việc dùng chìa khóa để giải mã kiểm tra xem mộc dấu đỏ có phải do trung tâm đóng không. Nếu đúng dấu mộc đỏ, họ lập tức cho bạn vào cổng mà **không cần phải gọi điện thoại hay tra cứu CSDL để kiểm tra xem bạn là ai nữa** (Stateless).
+- **Mục đích**: Nhận diện danh tính người dùng mà không cần tiêu tốn tài nguyên bộ nhớ RAM lưu trữ Session trên server, tăng cực mạnh khả năng mở rộng hệ thống (Scalability).
 - **Cách hoạt động**:
-  1. Người dùng gửi Email + Password lên API `/api/auth/login`.
-  2. Server kiểm tra thông tin, tạo ra chuỗi JWT chứa thông tin tài khoản (Claims: ID, Email, Quyền hạn) ký bằng khóa bí mật (`SecretKey`).
+  1. Client gửi email và mật khẩu lên API `/api/auth/login`.
+  2. Server kiểm tra DB, tạo ra chuỗi JWT gồm 3 phần ngăn cách bởi dấu chấm `Header.Payload.Signature` chứa các thông tin tài khoản (Claims: ID, Email, Quyền hạn) ký bằng khóa bí mật (`SecretKey`) dùng thuật toán mã hóa `HmacSha256`.
   3. Client nhận token và lưu vào `localStorage`. Mỗi request tiếp theo gửi lên, Client đính token này vào HTTP Header: `Authorization: Bearer <Token>`.
   4. Server giải mã token bằng khóa bí mật để xác định người dùng đó là ai.
 - **Vì sao hệ thống dùng**: Hạn chế việc truy vấn liên tục vào DB để kiểm tra session và tăng tính bảo mật do token được ký số không thể giả mạo.
@@ -167,28 +200,26 @@ graph TD
   return new JwtSecurityTokenHandler().WriteToken(token);
   ```
 
-#### 3. RBAC (Role-Based Access Control)
-- **Khái niệm**: Là cơ chế phân quyền truy cập dựa trên chức vụ hay vai trò (Role) của người dùng trong hệ thống.
-- **Mục đích**: Bảo vệ các API nhạy cảm khỏi sự truy cập trái phép. Đảm bảo đúng người đúng việc.
-- **Cách hoạt động**: Thuộc tính `[Authorize(Roles = "Admin,Staff")]` đặt trước các Action hoặc Controller sẽ chặn đứng mọi yêu cầu có Token JWT không chứa role tương ứng.
-- **Vì sao hệ thống dùng**: Hệ thống có 3 nhóm người dùng rõ rệt: **Admin** (toàn quyền), **Staff** (quản lý lịch trình, xem thông tin đặt tour), **Customer** (chỉ đặt tour cá nhân).
-- **File đang áp dụng**: Mọi Controller, ví dụ: [BookingsController.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.API/Controllers/BookingsController.cs), [ToursController.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.API/Controllers/ToursController.cs).
-- **Ví dụ thực tế**:
-  Chức năng lấy lịch sử tất cả các booking chỉ dành cho Admin và Staff:
-  ```csharp
-  [HttpGet("all")]
-  [Authorize(Roles = "Admin,Staff")]
-  public async Task<IActionResult> GetAllBookings() { ... }
-  ```
+#### 3. RBAC (Role-Based Access Control - Phân quyền theo vai trò)
+- **Khái niệm**: Là cơ chế phân quyền truy cập tài nguyên dựa trên chức vụ hay vai trò (Role) được định nghĩa sẵn của người dùng trong hệ thống.
+- **Mục đích**: Bảo vệ các dữ liệu nhạy cảm và các API nghiệp vụ quan trọng khỏi sự truy cập trái phép. Đảm bảo đúng người đúng việc.
+- **Cách hoạt động**: 
+  - Khi đính thuộc tính `[Authorize(Roles = "Admin,Staff")]` trước các Action hoặc Controller, ASP.NET Core Middleware tự động chặn đứng và kiểm tra vai trò người dùng trong `ClaimTypes.Role` của Token. 
+  - Nếu không thỏa mãn, hệ thống trả về HTTP Status Code **403 Forbidden** (Có danh tính nhưng không đủ thẩm quyền) hoặc **401 Unauthorized** (Không có danh tính/chưa đăng nhập).
+- **Vì sao hệ thống dùng**: Hệ thống phân quyền rất rõ rệt cho 3 nhóm người dùng: **Admin** (toàn quyền quản trị), **Staff** (chỉ có quyền xem danh sách, cập nhật lịch trình, quản lý đặt tour), và **Customer** (chỉ có quyền xem thông tin tour, đặt tour cá nhân và thanh toán).
+[HttpGet("all")]
+    [Authorize(Roles = "Admin,Staff")]
+    public async Task<IActionResult> GetAllBookings() { ... }
+    ```
 
-#### 4. Exception Middleware (Global Error Handler)
-- **Khái niệm**: Là một khối mã trung gian (Middleware) nằm trong chu trình xử lý request (pipeline) của ASP.NET Core để bắt tất cả các ngoại lệ (Exception) xảy ra trong toàn hệ thống.
+#### 4. Exception Middleware (Bộ xử lý lỗi tập trung toàn cầu)
+- **Khái niệm**: Là một khối mã trung gian (Middleware) nằm trong chu trình xử lý request (HTTP Pipeline) của ASP.NET Core để bắt tất cả các ngoại lệ (Exception) xảy ra ở bất kỳ tầng nào (DAL, BLL, Controller) trong hệ thống.
 - **Mục đích**: 
-  - Đảm bảo hệ thống không bao giờ bị sập (Crash) hoặc trả về trang lỗi HTML mặc định xấu xí của trình duyệt.
-  - Đồng bộ hóa định dạng lỗi trả về phía Client dưới dạng JSON đồng nhất.
-  - Che giấu chi tiết lỗi hệ thống nhạy cảm (như lỗi kết nối DB, lỗi tên cột, tên bảng) để đảm bảo an ninh mạng.
-- **Cách hoạt động**: Khi bất kỳ dòng code nào ở DAL, BLL hay Controller ném ra lỗi (`throw ex`), Middleware sẽ bắt lấy lỗi đó (`catch`), phân loại loại lỗi (ví dụ: `ArgumentException` -> HTTP 400, `KeyNotFoundException` -> HTTP 404), ghi nhật ký hệ thống (log), và đóng gói lỗi thành đối tượng `ApiResponse.Fail(lỗi)` rồi ghi đè vào luồng HTTP Response.
-- **Vì sao hệ thống dùng**: Giúp các lập trình viên không cần viết các khối lệnh `try - catch` lặp đi lặp lại ở từng Controller, làm code sạch và dễ đọc hơn rất nhiều.
+  - **Đảm bảo tính ổn định cao:** Hệ thống không bao giờ bị sập (Crash) đột ngột hoặc trả về trang lỗi HTML mặc định xấu xí của IIS/Kestrel.
+  - **Đồng bộ hóa định dạng:** Trả về định dạng lỗi JSON thống nhất (`ApiResponse.Fail(...)`), giúp lập trình viên Angular dễ dàng viết code xử lý lỗi tập trung ở client.
+  - **Bảo mật tuyệt đối thông tin hệ thống:** Che giấu chi tiết lỗi gốc nhạy cảm (như lỗi kết nối database, tên cột, tên bảng, lỗi cú pháp SQL) khỏi người dùng đầu cuối để ngăn chặn tin tặc thu thập thông tin tấn công hệ thống.
+- **Cách hoạt động**: Khi bất kỳ dòng code nào ở DAL, BLL hay Controller ném ra lỗi (`throw ex`), Middleware sẽ bắt lấy lỗi đó (`catch`), phân loại loại lỗi (ví dụ: `ArgumentException` -> HTTP 400, `KeyNotFoundException` -> HTTP 404, `InvalidOperationException` -> HTTP 409), ghi nhật ký hệ thống (log) cho dev đọc, và đóng gói lỗi thành đối tượng `ApiResponse.Fail(lỗi)` rồi ghi đè vào luồng HTTP Response.
+- **Vì sao hệ thống dùng**: Áp dụng nguyên tắc DRY (Don't Repeat Yourself), giúp các lập trình viên không cần viết các khối lệnh `try - catch` lặp đi lặp lại ở từng Controller, làm code sạch và dễ đọc hơn rất nhiều.
 - **File đang áp dụng**: [ExceptionMiddleware.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.API/Middleware/ExceptionMiddleware.cs).
 - **Ví dụ thực tế**:
   Trong [ExceptionMiddleware.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.API/Middleware/ExceptionMiddleware.cs#L26-L43):
@@ -214,11 +245,14 @@ graph TD
 
 ### 3.2. Business Logic Layer (BLL)
 
-#### 1. Interface + Service Pattern
+#### 1. Interface + Service Pattern (Mẫu thiết kế Giao diện & Lớp dịch vụ)
 - **Khái niệm**: 
-  - **Interface**: Là bản thiết kế hoặc hợp đồng định nghĩa các tính năng mà không chứa mã thực thi.
-  - **Service**: Là lớp trực tiếp thực thi (implement) các hàm nghiệp vụ được định nghĩa trong Interface.
-- **Mục đích**: Đảm bảo tính lỏng lẻo trong liên kết hệ thống (Loose Coupling), giúp dễ dàng thay đổi mã nguồn triển khai bên trong Service hoặc viết Unit Test độc lập.
+  - **Interface**: Là một bản thiết kế hoặc hợp đồng định nghĩa các chữ ký phương thức (tên hàm, tham số đầu vào, kiểu dữ liệu trả về) mà không hề chứa bất kỳ mã thực thi nào.
+  - **Service**: Là lớp trực tiếp thực thi (implement) hợp đồng được cam kết trong Interface để giải quyết nghiệp vụ chi tiết.
+- **Mục đích**: 
+  - Đảm bảo tính liên kết lỏng lẻo (**Loose Coupling**).
+  - Hiện thực hóa nguyên lý thứ 5 trong SOLID ── **Dependency Inversion Principle (DIP)**: *"Các thành phần hệ thống nên phụ thuộc vào sự trừu tượng (Abstraction/Interface), không nên phụ thuộc vào sự cụ thể (Concrete Class)"*.
+  - Giúp viết Unit Test cực kỳ dễ dàng bằng cách tạo ra các đối tượng giả lập (Mocking Objects) thay vì phải chạy cơ sở dữ liệu thật trong quá trình kiểm thử.
 - **File đang áp dụng**: Thư mục [Interfaces](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.BLL/Interfaces) và [Services](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.BLL/Services).
 - **Ví dụ thực tế**:
   Interface `ITourService` định nghĩa:
@@ -238,79 +272,82 @@ graph TD
   ```
 
 #### 2. Business Rules (Ràng buộc nghiệp vụ)
-- **Khái niệm**: Là các quy định logic ràng buộc các hoạt động nghiệp vụ của thế giới thực vào phần mềm.
-- **Mục đích**: Ngăn ngừa dữ liệu không hợp lý đi vào cơ sở dữ liệu làm hỏng toàn vẹn hệ thống.
-- **File đang áp dụng**: [BookingService.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.BLL/Services/BookingService.cs) dòng 13-28.
+- **Khái niệm**: Là các quy định logic ràng buộc các hoạt động nghiệp vụ của thế giới thực tế kinh doanh vào phần mềm.
+- **Mục đích**: Ngăn ngừa hoàn toàn dữ liệu không hợp lý/mâu thuẫn đi xuống cơ sở dữ liệu làm phá vỡ tính nhất quán và toàn vẹn của hệ thống.
+- **File đang áp dụng**: [BookingService.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.BLL/Services/BookingService.cs).
 - **Ví dụ thực tế**:
   Trong `BookingService`:
   ```csharp
-  // Nghiệp vụ 1: Số khách hàng đăng ký điền thông tin phải bằng với số lượng đăng ký đặt chỗ
+  // Nghiệp vụ 1: Số khách hàng khai báo điền thông tin phải bằng với số lượng đăng ký đặt chỗ
   if (dto.Passengers.Count != dto.NumberOfPeople)
-      throw new ArgumentException("Số hành khách không khớp số lượng đăng ký.");
+      throw new ArgumentException("Số lượng hành khách không khớp với số lượng đăng ký đặt tour.");
 
-  // Nghiệp vụ 2: Khách hàng là người lớn (Adult) bắt buộc phải có thông tin CCCD hoặc Hộ Chiếu
+  // Nghiệp vụ 2: Chỉ được chọn duy nhất 1 hành khách làm liên hệ chính
+  var primaryContacts = dto.Passengers.Where(p => p.IsPrimaryContact).ToList();
+  if (primaryContacts.Count == 0)
+      throw new ArgumentException("Phải chọn ít nhất 1 hành khách làm liên hệ chính.");
+  if (primaryContacts.Count > 1)
+      throw new ArgumentException("Chỉ được phép chọn duy nhất 1 hành khách làm liên hệ chính.");
+
+  // Nghiệp vụ 3: Người liên hệ chính bắt buộc phải là Người lớn (Adult) và phải cung cấp Số điện thoại
+  var primary = primaryContacts[0];
+  if (primary.PassengerType != "Adult")
+      throw new ArgumentException("Người liên hệ chính bắt buộc phải là người lớn (Adult).");
+  if (string.IsNullOrWhiteSpace(primary.PassengerPhone))
+      throw new ArgumentException("Người liên hệ chính bắt buộc phải nhập Số điện thoại liên lạc.");
+
+  // Nghiệp vụ 4: Khách hàng là người lớn (Adult) bắt buộc phải có thông tin CCCD hoặc Hộ Chiếu
   var adultsWithoutId = dto.Passengers
       .Where(p => p.PassengerType == "Adult" && string.IsNullOrWhiteSpace(p.PassengerIdNumber)).ToList();
   if (adultsWithoutId.Any())
-      throw new ArgumentException("Khách hàng người lớn bắt buộc có CCCD/Hộ chiếu.");
+      throw new ArgumentException("Hành khách người lớn bắt buộc phải có Số CCCD/Hộ chiếu.");
 
-  // Nghiệp vụ 3: Đơn đặt chỗ bắt buộc phải có ít nhất một hành khách là người liên hệ chính
-  if (!dto.Passengers.Any(p => p.IsPrimaryContact))
-      throw new ArgumentException("Phải có ít nhất 1 hành khách làm liên hệ chính.");
+  // Nghiệp vụ 5: Đoàn đi tour bắt buộc phải có ít nhất một người lớn đi kèm (Chặn trẻ em đi tour một mình)
+  var hasAdult = dto.Passengers.Any(p => p.PassengerType == "Adult");
+  if (!hasAdult)
+      throw new ArgumentException("Đoàn hành khách đặt tour bắt buộc phải có ít nhất một người lớn (Adult) đi kèm.");
+
+  // Nghiệp vụ 6: Bắt buộc nhập Ngày sinh và kiểm tra khớp độ tuổi (mốc 12 tuổi) du lịch
+  var today = DateOnly.FromDateTime(DateTime.Today);
+  foreach (var p in dto.Passengers)
+  {
+      if (p.PassengerDOB == null)
+          throw new ArgumentException($"Hành khách '{p.PassengerName}' bắt buộc phải nhập Ngày sinh.");
+
+      var dob = p.PassengerDOB.Value;
+      if (dob > today)
+          throw new ArgumentException($"Ngày sinh của hành khách '{p.PassengerName}' không được nằm ở tương lai.");
+
+      int age = today.Year - dob.Year;
+      if (dob > today.AddYears(-age)) age--;
+
+      if (p.PassengerType == "Child" && age >= 12)
+          throw new ArgumentException($"Hành khách '{p.PassengerName}' được chọn là Trẻ em nhưng đã {age} tuổi (phải dưới 12).");
+      if (p.PassengerType == "Adult" && age < 12)
+          throw new ArgumentException($"Hành khách '{p.PassengerName}' được chọn là Người lớn nhưng mới {age} tuổi (phải từ 12).");
+  }
   ```
 
 #### 3. LINQ to Objects
 - **Khái niệm**: Là ngôn ngữ truy vấn tích hợp trong C# dùng để thực hiện các thao tác tìm kiếm, sắp xếp, biến đổi cấu trúc dữ liệu trên các mảng, danh sách (`IEnumerable`, `List`) đang nằm trong bộ nhớ RAM.
 - **Mục đích**: Xử lý, tính toán hoặc định dạng dữ liệu linh hoạt sau khi dữ liệu đã được tải từ Database lên.
-- **File đang áp dụng**: Các file trong thư mục BLL Services, ví dụ [BookingService.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.BLL/Services/BookingService.cs#L86-L111).
-- **Ví dụ thực tế**:
-  Chuyển đổi (Projection) từ đối tượng thực thể `Booking` sang DTO `BookingResponseDto` ngay trong bộ nhớ RAM bằng cú pháp LINQ:
-  ```csharp
-  private static BookingResponseDto MapToResponse(Booking booking) {
-      return new BookingResponseDto {
-          BookingId = booking.BookingId,
-          TotalAmount = booking.TotalAmount,
-          Passengers = booking.BookingDetails.Select(d => new PassengerResponseDto {
-              PassengerName = d.PassengerName,
-              PassengerType = d.PassengerType
-          }).ToList() // LINQ to Objects biến đổi danh sách trong RAM
-      };
-  }
-  ```
 
 #### 4. FluentValidation
 - **Khái niệm**: Là thư viện bên thứ ba mạnh mẽ giúp viết các quy tắc kiểm tra tính hợp lệ của dữ liệu đầu vào (Input Validation) bằng cách sử dụng cú pháp dạng Lambda (Fluent Interface).
 - **Mục đích**: Tách biệt logic kiểm tra tính đúng đắn của dữ liệu ra khỏi tầng nghiệp vụ và Controller, giúp mã nguồn sạch hơn so với cách dùng các thuộc tính DataAnnotations như `[Required]`, `[StringLength]` lỗi thời.
 - **Cách hoạt động**: Khi một DTO được gửi tới API Controller, thư viện tự động chặn và chạy qua Validator tương ứng. Nếu vi phạm bất cứ ràng buộc nào, API lập tức dừng lại và trả về lỗi HTTP 400 kèm thông báo tương ứng.
 - **File đang áp dụng**: Thư mục [Validators](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.BLL/Validators).
-- **Ví dụ thực tế**:
-  Trong [TourValidator.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.BLL/Validators/TourValidator.cs):
-  ```csharp
-  public class TourValidator : AbstractValidator<TourRequestDto>
-  {
-      public TourValidator()
-      {
-          RuleFor(x => x.TourName)
-              .NotEmpty().WithMessage("Tên tour không được để trống.")
-              .MaximumLength(150).WithMessage("Tên tour tối đa 150 ký tự.");
-
-          RuleFor(x => x.DurationDays)
-              .InclusiveBetween(1, 30).WithMessage("Số ngày phải từ 1 đến 30.");
-
-          RuleFor(x => x.Price)
-              .GreaterThan(0).WithMessage("Giá tour phải lớn hơn 0.");
-      }
-  }
-  ```
 
 ---
 
 ### 3.3. Data Access Layer (DAL)
 
-#### 1. Entity Framework Core DbContext
-- **Khái niệm**: Là một thư viện ORM (Object-Relational Mapper) hiện đại của Microsoft, ánh xạ các bảng vật lý trong SQL Server thành các đối tượng class C# tương ứng để thực hiện các thao tác CRUD dữ liệu thông qua ngôn ngữ hướng đối tượng mà không cần viết lệnh SQL.
-- **Mục đích**: Đóng vai trò là cầu nối phiên dịch giữa thế giới Lập trình hướng đối tượng (C#) và thế giới Cơ sở dữ liệu quan hệ (SQL Server).
-- **Cách hoạt động**: Lớp `DbContext` đại diện cho một phiên làm việc với database. Các thuộc tính `DbSet<T>` đóng vai trò là đại diện cho các bảng vật lý.
+#### 1. Entity Framework Core DbContext (Trình ánh xạ đối tượng ORM)
+- **Khái niệm**: Là một thư viện ORM (Object-Relational Mapper) hiện đại của Microsoft, ánh xạ các bảng vật lý trong cơ sở dữ liệu quan hệ (SQL Server) thành các đối tượng class C# tương ứng để thực hiện các thao tác CRUD dữ liệu thông qua ngôn ngữ hướng đối tượng mà không cần viết lệnh SQL thủ công.
+- **Vai trò lý thuyết cốt lõi**: Đóng vai trò là cầu nối phiên dịch ngữ nghĩa giữa thế giới Lập trình hướng đối tượng (C# - các Class, Object) và thế giới Cơ sở dữ liệu quan hệ (SQL Server - các Table, Column).
+- **Cơ chế hoạt động chính**: 
+  - Lớp `DbContext` đại diện cho một phiên làm việc với database. Các thuộc tính `DbSet<T>` đóng vai trò là các bảng vật lý.
+  - **Change Tracking (Bộ theo dõi thay đổi):** Khi EF Core tải dữ liệu lên RAM, nó tạo một bản sao ẩn của thực thể đó. Khi ta sửa đổi thuộc tính của thực thể trong RAM và gọi `SaveChanges()`, EF Core tự động so sánh đối tượng hiện tại với bản sao ẩn để sinh ra đúng câu lệnh `UPDATE` cho những cột bị thay đổi giá trị, tối ưu hóa tối đa hiệu năng.
 - **File đang áp dụng**: [AppDbContext.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/EFCore/AppDbContext.cs).
 - **Ví dụ thực tế**:
   Đăng ký các bảng và liên kết khung nhìn (View) trong `AppDbContext`:
@@ -329,11 +366,14 @@ graph TD
   }
   ```
 
-#### 2. LINQ to Entities
-- **Khái niệm**: Là các truy vấn LINQ viết bằng mã C# tác động lên thuộc tính `IQueryable` của EF Core. 
-- **Mục đích**: Thực hiện lọc, gộp dữ liệu từ phía C#.
-- **Cách hoạt động**: EF Core sẽ phân tích cú pháp C# Lambda này và tự động dịch nó thành một câu lệnh SQL (`SELECT ... WHERE ... JOIN ...`) rồi gửi lệnh đó xuống SQL Server thực thi, thu kết quả trả về và gán lại cho các đối tượng C#.
-- **Vì sao hệ thống dùng**: Tránh viết SQL chay lồng trong C# dễ gây lỗi chính tả và bảo vệ hệ thống tuyệt đối khỏi lỗi tấn công chèn mã độc (SQL Injection).
+#### 2. LINQ to Entities (Ngôn ngữ truy vấn tích hợp trên Cơ sở dữ liệu)
+- **Khái niệm**: Là các truy vấn LINQ viết bằng mã C# tác động lên các thuộc tính có kiểu dữ liệu là `IQueryable<T>` của EF Core.
+- **Đặc trưng lý thuyết cốt lõi ── Trì hoãn thực thi (Deferred Execution):**
+  - Khi ta viết câu truy vấn LINQ to Entities, câu lệnh **chưa hề chạy** dưới Database. Nó được lưu trữ dưới dạng một **Cây biểu thức (Expression Tree)**.
+  - Chỉ đến khi ta gọi các hàm truy xuất như `.ToListAsync()`, `.FirstOrDefaultAsync()`, `.CountAsync()`, EF Core mới chính thức bắt đầu biên dịch cây biểu thức đó thành một câu lệnh SQL hoàn chỉnh (`SELECT ... WHERE...`), gửi xuống SQL Server thực thi, nhận dữ liệu đổ về RAM và gán tự động vào các đối tượng C#.
+- **Vì sao hệ thống dùng**: 
+  - Giúp tránh viết các câu lệnh SQL thô lồng trong code C# dễ dẫn đến sai cú pháp và khó bảo trì.
+  - **Bảo mật tuyệt đối:** EF Core tự động tham số hóa (parameterize) tất cả các biến đầu vào, ngăn chặn triệt để các lỗ hổng tấn công chèn mã độc phá hoại cơ sở dữ liệu (**SQL Injection**).
 - **File đang áp dụng**: [TourRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/TourRepository.cs), [BookingRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/BookingRepository.cs).
 - **Ví dụ thực tế**:
   Phân trang nâng cao kết hợp lọc điều kiện tại database:
@@ -349,11 +389,14 @@ graph TD
       .ToListAsync();              // Lúc này EF mới dịch sang SQL và chạy trên Database
   ```
 
-#### 3. Generic Repository + Specific Repository Pattern
+#### 3. Generic Repository & Specific Repository Pattern (Mẫu thiết kế kho lưu trữ)
 - **Khái niệm**:
-  - **Generic Repository**: Lớp thiết kế tổng quát chứa các phương thức CRUD cơ bản áp dụng chung cho mọi bảng (`GetAll`, `GetById`, `Add`, `Update`, `Delete`).
-  - **Specific Repository**: Lớp kế thừa từ Generic Repository và mở rộng thêm các hàm truy vấn đặc thù chỉ bảng đó mới có.
-- **Mục đích**: Tránh lặp lại mã nguồn viết các câu lệnh thêm, sửa, xóa cơ bản cho từng thực thể.
+  - **Generic Repository (Kho lưu trữ tổng quát)**: Lớp thiết kế tổng quát định nghĩa và cài đặt sẵn các phương thức CRUD cơ bản nhất áp dụng chung cho tất cả các bảng dữ liệu trong hệ thống (`GetAll`, `GetById`, `Add`, `Update`, `Delete`).
+  - **Specific Repository (Kho lưu trữ đặc thù)**: Lớp kế thừa lại toàn bộ các phương thức của Generic Repository và mở rộng thêm các hàm truy vấn nâng cao, các phép kết bảng (JOIN) đặc thù mà chỉ thực thể đó mới có nhu cầu sử dụng.
+- **Mục đích & Lợi ích thiết kế:**
+  - **Nguyên lý DRY (Don't Repeat Yourself):** Tránh lặp đi lặp lại hàng trăm dòng code CRUD cơ bản giống hệt nhau cho từng thực thể khác nhau trong dự án.
+  - **Dễ bảo trì:** Nếu logic thêm/sửa/xóa cơ bản thay đổi, ta chỉ cần sửa đúng 1 file duy nhất là `GenericRepository.cs` thay vì sửa hàng chục file repository khác nhau.
+  - **Tách biệt dữ liệu:** Đảm bảo tầng dịch vụ nghiệp vụ (BLL) không cần biết EF Core đang lấy dữ liệu thế nào, làm mã nguồn vô cùng sạch sẽ và chuyên nghiệp.
 - **File đang áp dụng**: 
   - Tổng quát: [IRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/Interfaces/IRepository.cs), [GenericRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/GenericRepository.cs).
   - Đặc thù: [ITourRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/Interfaces/ITourRepository.cs), [TourRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/TourRepository.cs).
@@ -387,15 +430,14 @@ graph TD
   }
   ```
 
-#### 5. ADO.NET Connected Model (SqlDataReader)
-- **Khái niệm**: Là mô hình lập trình cơ sở dữ liệu truyền thống, yêu cầu duy trì kết nối liên tục, ổn định từ ứng dụng tới Database trong suốt quá trình đọc dữ liệu.
-- **Cách hoạt động**:
-  - Tạo `SqlConnection`, mở kết nối bằng `Open()`.
-  - Tạo `SqlCommand` truyền vào câu lệnh SQL hoặc tên Stored Procedure.
-  - Sử dụng `SqlDataReader` thông qua hàm `ExecuteReaderAsync()`. 
-  - Sử dụng vòng lặp `while(reader.Read())` để duyệt qua từng dòng dữ liệu từ luồng (stream) truyền trực tiếp từ Server DB về RAM, sau đó chủ động đóng kết nối ngay lập tức để giải phóng tài nguyên.
-- **Mục đích**: Giúp tối ưu tốc độ đọc dữ liệu cực nhanh cho các tính năng tìm kiếm Real-time hoặc báo cáo dung lượng lớn vì dữ liệu được xử lý dạng luồng tuần tự mà không phải nạp toàn bộ danh sách đồ sộ vào bộ nhớ RAM cùng lúc như EF Core.
-- **File đang áp dụng**: [AdoTourRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/AdoTourRepository.cs) hàm `SearchToursDataTableAsync` và [ReportRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/ReportRepository.cs#L55-L88).
+#### 5. ADO.NET Connected Model (Mô hình kết nối liên tục - SqlDataReader)
+- **Khái niệm**: Là mô hình lập trình cơ sở dữ liệu truyền thống, yêu cầu duy trì kết nối vật lý liên tục và ổn định từ ứng dụng tới cơ sở dữ liệu SQL Server trong suốt quá trình đọc dữ liệu.
+- **💡 Ẩn dụ thực tế ── Vòi nước đang mở chảy liên tục:**
+  - Bạn cắm trực tiếp đường ống vào nguồn nước (Open Connection).
+  - Dữ liệu chảy trực tiếp từ database về RAM của server theo từng dòng tuần tự (stream) thông qua hàm `SqlDataReader`.
+  - Bạn phải liên tục giữ đường ống mở. Đọc đến đâu xử lý đến đó, sau khi xong bắt buộc phải khóa vòi nước ngay lập tức (`Close Connection` / Dispose) để giải phóng tài nguyên.
+- **Mục đích**: Giúp tối ưu tốc độ đọc dữ liệu cực nhanh cho các tính năng tìm kiếm Real-time hoặc báo cáo doanh thu động đồ sộ vì dữ liệu được xử lý dạng luồng tuần tự mà không phải nạp toàn bộ danh sách khổng lồ vào RAM cùng lúc như EF Core.
+- **File đang áp dụng**: [AdoTourRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/AdoTourRepository.cs) và [ReportRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/ReportRepository.cs#L55-L88).
 - **Ví dụ thực tế**:
   ```csharp
   public async Task<IEnumerable<MonthlyRevenueDto>> GetMonthlyRevenueAsync(DateOnly? fromDate, DateOnly? toDate)
@@ -417,13 +459,15 @@ graph TD
   }
   ```
 
-#### 6. ADO.NET Disconnected Model (SqlDataAdapter & DataSet)
-- **Khái niệm**: Là mô hình kết nối không liên tục. Ứng dụng kết nối tới DB, tải toàn bộ dữ liệu cần thiết về lưu trữ tạm thời trong RAM của máy chủ ở các cấu trúc dữ liệu ngoại tuyến (`DataSet` / `DataTable`), sau đó ngắt kết nối với DB ngay lập tức. Mọi thao tác tìm kiếm, lọc, sửa đổi dữ liệu sau đó sẽ được thực hiện ngoại tuyến trên RAM.
-- **Cách hoạt động**:
-  - Dùng `SqlDataAdapter` đóng vai trò là "chiếc phà" trung chuyển.
-  - Sử dụng hàm `adapter.Fill(dataSet)` để tự động mở kết nối, truy vấn dữ liệu từ DB, đổ đầy vào cấu trúc dữ liệu offline `DataSet` và tự ngắt kết nối ngay lập tức.
-  - Thực hiện liên kết quan hệ trong bộ nhớ RAM ngoại tuyến (`dataSet.Relations.Add`).
-- **Mục đích**: Giảm thiểu tải trọng kết nối đồng thời lên máy chủ SQL Server. Thích hợp cho các màn hình cấu hình thông tin tĩnh ít biến động như danh mục tour du lịch kết hợp danh sách lịch trình liên quan.
+#### 6. ADO.NET Disconnected Model (Mô hình ngắt kết nối - SqlDataAdapter & DataSet)
+- **Khái niệm**: Là mô hình kết nối không liên tục. Ứng dụng kết nối tới DB, tải toàn bộ dữ liệu cần thiết về lưu trữ tạm thời trong RAM của máy chủ ở các cấu trúc dữ liệu ngoại tuyến (`DataSet` / `DataTable`), sau đó ngắt kết nối với DB ngay lập tức. Mọi thao tác tìm kiếm, lọc, sửa đổi dữ liệu sau đó sẽ được thực hiện ngoại tuyến trên RAM máy chủ.
+- **💡 Ẩn dụ thực tế ── Múc một xô nước:**
+  - Bạn mang xô ra giếng múc đầy nước (`SqlDataAdapter.Fill` đổ dữ liệu vào `DataSet`).
+  - Bạn xách xô nước đi về nhà, đóng cửa giếng ngay lập tức (Ngắt kết nối vật lý với Database).
+  - Bạn thực hiện giặt giũ, nấu ăn, liên kết các ca nước ngoại tuyến hoàn toàn trên chiếc xô nước ở nhà của bạn (RAM máy chủ) mà không làm tốn tài nguyên hay cản trở bất kỳ ai dùng giếng nữa.
+- **Mục đích & Lợi ích lý thuyết:**
+  - **Giảm tải hệ thống:** Giảm thiểu tối đa tải trọng kết nối đồng thời (Concurrent Connections) lên máy chủ SQL Server, giúp database chịu tải được nhiều người dùng hơn.
+  - **Thiết lập quan hệ ảo:** Có thể tự thiết lập các mối quan hệ logic giữa các bảng ngoại tuyến (`dataSet.Relations.Add`) ngay trong bộ nhớ RAM cực kỳ linh hoạt và nhanh chóng.
 - **File đang áp dụng**: [AdoTourRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/AdoTourRepository.cs) dòng 42-78 và [BookingRepository.cs](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.DAL/Repositories/BookingRepository.cs#L63-L122).
 - **Ví dụ thực tế**:
   Trong `AdoTourRepository`:
@@ -564,52 +608,55 @@ graph TD
 
 ## 5. PHÂN TÍCH TOÀN BỘ ĐỐI TƯỢNG CƠ SỞ DỮ LIỆU (DATABASE PROGRAMMING)
 
-Đây là điểm nhấn học thuật đắt giá nhất của dự án. Giáo viên chấm cơ sở dữ liệu sẽ vô cùng hài lòng khi bạn nắm chắc các đối tượng nâng cao này.
-
-### 5.1. Các thủ tục lưu trữ (Stored Procedures)
-Thay vì viết logic tính toán lằng nhằng ở ứng dụng và gửi nhiều lệnh đơn lẻ xuống DB, hệ thống đóng gói toàn bộ quy trình xử lý phức tạp thành các Stored Procedures trực tiếp trên SQL Server.
+### 5.1. Các thủ tục lưu trữ (Stored Procedures - Cơ chế lập trình nội hàm hiệu năng cao)
+Thay vì viết logic tính toán rườm rà ở ứng dụng BLL và gửi hàng loạt câu lệnh đơn lẻ qua môi trường mạng (gây suy giảm hiệu năng do độ trễ truyền dẫn mạng - Network Latency), hệ thống đã đóng gói toàn bộ các luồng nghiệp vụ phức tạp thành các **Stored Procedures** được biên dịch sẵn (Pre-compiled) trực tiếp dưới SQL Server. Việc này giúp máy chủ cơ sở dữ liệu tối ưu hóa kế hoạch thực thi (Execution Plan Cache) và chạy mã với tốc độ nhanh nhất.
 
 1. **`sp_CreateBooking`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L253-L308)):
-   - **Mục đích**: Xử lý logic đặt tour phức tạp đảm bảo an toàn giao dịch.
-   - **Điểm đặc biệt**: Sử dụng cơ chế Transaction (`BEGIN TRAN`, `COMMIT`, `ROLLBACK`) kết hợp khóa dòng nâng cao (`UPDLOCK`, `ROWLOCK`) để ngăn chặn tuyệt đối tình trạng đặt trùng chỗ (Overbooking) khi có hàng ngàn người cùng đặt một tour tại cùng một giây.
+   - **Mục đích & Vai trò cốt lõi**: Đảm bảo an toàn dữ liệu tuyệt đối cho quy trình đặt vé và thanh toán tour du lịch.
+   - **Kỹ thuật Concurrency Control (Kiểm soát truy cập đồng thời) nâng cao**:
+     - **Transaction (Giao dịch ACID)**: Sử dụng khối lệnh `BEGIN TRANSACTION` và `COMMIT/ROLLBACK TRANSACTION` để thực hiện toàn bộ các bước kiểm tra chỗ trống, tính toán tổng tiền, và ghi nhận hóa đơn thành một đơn vị công việc nguyên tử (**Atomicity**). Nếu một bước nhỏ bị lỗi hoặc không đủ chỗ trống, toàn bộ quá trình sẽ bị hủy bỏ và đưa cơ sở dữ liệu về trạng thái ban đầu, tránh việc dữ liệu bị sai lệch cục bộ.
+     - **Độc quyền khóa dòng (`UPDLOCK`, `ROWLOCK`)**: Khi truy vấn số ghế trống của một lịch khởi hành thông qua từ khóa `WITH (UPDLOCK, ROWLOCK)`, SQL Server sẽ lập tức cấp phát khóa cập nhật (Update Lock) cấp độ dòng dữ liệu (Row-level) lên bản ghi lịch trình du lịch đó. Cơ chế này ép buộc các luồng giao dịch đồng thời khác muốn đọc hoặc cập nhật dòng này phải xếp hàng chờ đợi, loại bỏ hoàn toàn hiện tượng tranh chấp tài nguyên mạng (**Race Conditions**) dẫn tới việc bán quá số chỗ thực tế cho phép (**Overbooking**).
 2. **`sp_CancelBooking`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L311-L344)):
-   - **Mục đích**: Xử lý hủy đặt tour du lịch một cách an toàn.
-   - **Logic ràng buộc**: Kiểm tra nếu trạng thái đơn đặt tour đang là "Completed" (đã đi tour về) hoặc "Cancelled" (đã hủy rồi) thì lập tức báo lỗi cấm hủy, ngược lại cập nhật trạng thái đơn hàng về "Cancelled".
+   - **Mục đích**: Thực hiện quy trình hủy đặt tour an toàn, cập nhật lại trạng thái hóa đơn và giải phóng ghế ngồi du lịch một cách nhất quán.
+   - **Ràng buộc logic nghiêm ngặt**: SP chủ động kiểm tra trạng thái hiện tại của đơn hàng. Nếu đơn hàng đã ở trạng thái kết thúc hoàn tất (`Completed`) hoặc đã hủy từ trước (`Cancelled`), hệ thống sẽ ném lỗi thông báo ngoại lệ nhằm bảo vệ tính nhất quán tài chính doanh nghiệp.
 3. **`sp_SearchTours`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L346-L374)):
-   - **Mục đích**: Tìm kiếm tour linh hoạt đa tiêu chí (Điểm đến, Khoảng giá, Ngày khởi hành).
-   - **Kỹ thuật tối ưu**: Tìm kiếm gần đúng (`LIKE N'%' + @Destination + N'%'`) kết hợp bắt điều kiện NULL (`@Destination IS NULL OR ...`) giúp client tìm kiếm tùy ý điền hoặc trống tham số.
+   - **Mục đích**: Cung cấp công cụ tìm kiếm và lọc danh sách tour linh hoạt với hiệu năng cao.
+   - **Kỹ thuật tối ưu hóa truy vấn**: Áp dụng cú pháp tìm kiếm gần đúng (`LIKE N'%' + @Destination + N'%'`) kết hợp linh hoạt mệnh đề logic kiểm tra giá trị trống (`@Destination IS NULL OR DestinationName LIKE ...`). Kỹ thuật này giúp SQL Server tái sử dụng hiệu quả kế hoạch thực thi chung, đồng thời tối ưu hóa chỉ mục tìm kiếm (Index Scan/Seek) trên bảng Destinations và Tours.
 4. **`sp_RevenueReport`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L376-L396)):
-   - **Mục đích**: Báo cáo doanh thu tài chính theo năm tháng. Gom nhóm dữ liệu (`GROUP BY YEAR, MONTH`) các hóa đơn có trạng thái Confirmed hoặc Completed để tính tổng tiền và giá trị trung bình trên mỗi đơn.
+   - **Mục đích**: Phân tích dữ liệu doanh thu tài chính tích lũy hỗ trợ Admin ra quyết định kinh doanh.
+   - **Kỹ thuật xử lý**: Gom nhóm dữ liệu (`GROUP BY YEAR, MONTH`) các hóa đơn đã được xác nhận thanh toán hoặc hoàn thành, áp dụng các hàm gộp hiệu năng cao (`SUM`, `AVG`, `COUNT`) để tính toán tổng doanh số và mức chi tiêu trung bình nhanh chóng trực tiếp tại database.
 
-### 5.2. Khung nhìn (Views)
-Khung nhìn là các truy vấn SELECT được biên dịch và lưu trữ sẵn trên CSDL giúp đơn giản hóa cấu trúc dữ liệu cho mã nguồn ứng dụng C#.
+### 5.2. Khung nhìn ảo (Views - Cơ chế ảo hóa và bảo mật dữ liệu)
+Khung nhìn (Views) đóng vai trò là các truy vấn `SELECT` được đặt tên, biên dịch và lưu trữ sẵn trên CSDL, hoạt động như một bảng ảo để đơn giản hóa cấu trúc quan hệ phức tạp và tăng cường tính bảo mật dữ liệu.
 
 1. **`vw_BookingDetails`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/03_Views_Booking.sql#L18-L39)):
-   - **Mục đích**: Tổng hợp thông tin hóa đơn đặt tour chi tiết.
-   - **Liên kết**: Thực hiện phép `JOIN` 6 bảng liên quan: `Bookings`, `Accounts`, `CustomerProfiles`, `TourSchedules`, `Tours`, và `Destinations`.
+   - **Mục đích**: Chuẩn hóa thông tin hóa đơn đặt tour chi tiết cho các tầng phía trên truy xuất.
+   - **Giải pháp liên kết**: Thực hiện phép `JOIN` 6 bảng quan hệ vật lý: `Bookings`, `Accounts`, `CustomerProfiles`, `TourSchedules`, `Tours`, và `Destinations`. Nhờ View, ứng dụng C# chỉ cần thực hiện câu truy vấn `SELECT` đơn giản từ 1 đối tượng ảo duy nhất thay vì viết các phép nối bảng rườm rà gây tốn băng thông bộ nhớ.
 2. **`vw_TourRevenue`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L403-L416)):
-   - **Mục đích**: Thống kê doanh thu chi tiết tích lũy theo từng Tour du lịch phục vụ vẽ biểu đồ của Admin.
+   - **Mục đích**: Thống kê doanh thu tài chính lũy kế theo từng tour du lịch cụ thể phục vụ biểu đồ trực quan của trang Admin Dashboard.
 3. **`vw_PopularTours`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L442-L461)):
-   - **Mục đích**: Thống kê mức độ yêu thích của Tour. Tính điểm đánh giá trung bình (`AVG(Rating)`) và đếm số lượng người đã đặt để xếp hạng các tour nổi bật (Popular Tours).
+   - **Mục đích**: Tính toán chỉ số yêu thích của Tour thông qua điểm số đánh giá trung bình từ khách hàng (`AVG(Rating)`) và số lượng vé đặt thành công để tự động đề xuất danh sách Tour nổi bật nhất lên màn hình Home của ứng dụng.
 
-### 5.3. Trình kích hoạt tự động (Triggers)
-Trình kích hoạt là các khối mã SQL tự động chạy khi phát sinh thao tác ghi dữ liệu (INSERT, UPDATE, DELETE) giúp đảm bảo sự nhất quán dữ liệu mà không cần sự can thiệp của lập trình viên.
+### 5.3. Trình kích hoạt tự động (Triggers - Đảm bảo toàn vẹn dữ liệu tầng thấp nhất)
+Trình kích hoạt là các khối mã tự động thực thi (Event-driven) chạy ngầm trực tiếp dưới Database Server khi có các sự kiện thay đổi dữ liệu (`INSERT`, `UPDATE`, `DELETE`) trên các bảng chỉ định. Đây là lớp phòng ngự cuối cùng và tuyệt đối nhất để bảo toàn tính nhất quán dữ liệu của toàn hệ thống.
 
 1. **`trg_AfterBookingInsert`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L467-L489)):
-   - **Sự kiện kích hoạt**: Chạy NGAY SAU khi có bản ghi mới được thêm thành công vào bảng `Bookings`.
-   - **Hành động**: Đọc thông tin từ bảng ảo đầu vào `inserted`, cập nhật số ghế trống còn lại của lịch trình du lịch (`AvailableSlots = AvailableSlots - NumberOfPeople`). Nếu số chỗ còn lại chạm mức 0, tự động cập nhật trạng thái lịch thành "Full".
+   - **Sự kiện & Cơ chế hoạt động**: Tự động kích hoạt ngay sau khi một bản ghi mới được thêm thành công vào bảng `Bookings`.
+   - **Nhiệm vụ**: Đọc dữ liệu từ bảng ảo đầu vào `inserted` (chứa dòng dữ liệu vừa thêm), thực hiện phép trừ số ghế ngồi tương ứng trực tiếp vào bảng lịch trình du lịch (`AvailableSlots = AvailableSlots - NumberOfPeople`). Đồng thời, nếu số chỗ ngồi trống chạm mốc 0, Trigger tự động chuyển đổi trạng thái của Lịch trình đó sang `"Full"` để ngăn chặn khách hàng sau tiếp tục chọn lịch trình này.
 2. **`trg_AfterBookingCancel`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L491-L518)):
-   - **Sự kiện kích hoạt**: Chạy NGAY SAU khi cập nhật trạng thái đơn hàng trong bảng `Bookings`.
-   - **Hành động**: Kiểm tra xem trường trạng thái có đổi sang "Cancelled" từ trạng thái khác không. Nếu đúng, tự động cộng hoàn lại số ghế ngồi cho lịch trình du lịch đó và chuyển trạng thái lịch trình sang "Open" nếu trước đó lịch đang bị khóa ở trạng thái "Full".
+   - **Sự kiện & Cơ chế hoạt động**: Tự động kích hoạt khi có thao tác cập nhật trạng thái đơn đặt tour sang `"Cancelled"`.
+   - **Nhiệm vụ**: Tự động tính toán hoàn lại số lượng ghế ngồi du lịch đã đặt trước đó về cho lịch khởi hành (`AvailableSlots = AvailableSlots + NumberOfPeople`). Đồng thời, nếu lịch khởi hành đó đang ở trạng thái bị khóa `"Full"`, Trigger sẽ tự động khôi phục trạng thái về `"Open"` để tiếp nhận các lượt đặt chỗ mới từ các khách hàng khác.
 
-### 5.4. Các hàm người dùng tự định nghĩa (User-Defined Functions)
+### 5.4. Các hàm người dùng tự định nghĩa (User-Defined Functions - UDFs)
+UDFs giúp đóng gói các công thức tính toán nghiệp vụ chuyên sâu thành các hàm có khả năng tái sử dụng cao trong các câu lệnh truy vấn SQL khác nhau.
+
 1. **`fn_CalcBookingTotal`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L193-L217)):
-   - **Loại**: Scalar Function (Hàm vô hướng trả về một giá trị duy nhất).
-   - **Mục đích**: Tự động tính toán tổng số tiền của đơn hàng: `Giá Tour * Số Người * (1 - Chiết khấu/100)`.
+   - **Loại**: Scalar Function (Hàm vô hướng trả về giá trị số thực đơn lẻ).
+   - **Mục đích**: Đảm bảo công thức tính toán tài chính luôn nhất quán: `Thành tiền = (Đơn giá Tour * Số lượng hành khách) * (1 - Tỉ lệ chiết khấu / 100)`. Hàm này được triệu gọi tự động bên trong `sp_CreateBooking` để tự động hóa khâu điền dữ liệu cột `TotalAmount`.
 2. **`fn_UserBookingCount`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L219-L237)):
-   - **Mục đích**: Đếm số lần đặt tour thành công của một tài khoản trong năm chỉ định để phục vụ phân tích hành vi khách hàng VIP.
+   - **Mục đích**: Thống kê tổng số lượng đơn đặt tour thành công của một khách hàng cụ thể trong năm để hỗ trợ việc phân loại cấp bậc thành viên VIP và áp dụng các chính sách ưu đãi tri ân khách hàng.
 3. **`fn_GenerateInvoiceCode`** ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/database/TravelBookingDB.sql#L239-L247)):
-   - **Mục đích**: Tự động sinh mã hóa đơn theo quy chuẩn dạng chuỗi: `INV-{NĂM_HIỆN_TẠI}-{MÃ_ĐƠN_HÀNG}` (Ví dụ: `INV-2026-0001`).
+   - **Mục đích**: Sinh mã hóa đơn chuyên nghiệp tự động theo cấu trúc định dạng chuẩn: `INV-{NĂM_HIỆN_TẠI}-{MÃ_ĐƠN_HÀNG_AUTO_INCREMENT}`.
 
 ---
 
@@ -642,13 +689,19 @@ Sự phối hợp mượt mà giữa ứng dụng Angular Client và ASP.NET Cor
           |<───────────────────────────────────────────────────────────────┤
 ```
 
-### Cách thức hoạt động chi tiết:
-- **Phía Backend**:
-  - Khi đăng ký/đăng nhập, mật khẩu của người dùng được mã hóa bằng thuật toán băm một chiều an toàn cao cấp **BCrypt** ([Đăng nhập](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.BLL/Services/AuthService.cs#L95-L101)).
-  - Trong `Program.cs`, chúng ta đăng ký gói dịch vụ xác thực JwtBearer. Khi yêu cầu HTTP truyền tới API, dịch vụ sẽ tự động giải nén chuỗi token để nạp thông tin quyền hạn vào thuộc tính danh tính người dùng trong phiên làm việc hiện tại (`HttpContext.User`).
-- **Phía Frontend**:
-  - Angular sử dụng `jwtInterceptor` tự động bắt mọi yêu cầu HTTP hướng ra ngoài và chèn mã Authorization Token vào.
-  - Sử dụng **Route Guards** (`authGuard`, `roleGuard`) để ngăn chặn việc người dùng gõ URL thủ công trên thanh địa chỉ trình duyệt nhằm cố ý truy cập trái phép vào các khu vực cấm (như màn hình Admin).
+### Chi tiết các công nghệ bảo mật cốt lõi:
+1. **Mã hóa và Băm mật khẩu bằng BCrypt (CPU-bound Hashing):**
+   - Mật khẩu của người dùng **tuyệt đối không bao giờ** được lưu dưới dạng văn bản thuần túy (Plaintext). Hệ thống sử dụng thuật toán **BCrypt** ([Cài đặt thực tế](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.BLL/Services/AuthService.cs#L95-L101)) để băm mật mã kèm theo cơ chế tự sinh muối ngẫu nhiên (Salt) và lặp chu kỳ băm nhiều lần (Work Factor/Key Stretching).
+   - Cơ chế này chống lại hiệu quả các cuộc tấn công dò mật khẩu quy mô lớn bằng bảng băm tính sẵn (Rainbow Tables) và hạn chế tối đa nguy cơ bị lộ mật mã ngay cả khi cơ sở dữ liệu vật lý bị hacker đánh cắp.
+2. **Cơ chế xác thực phi trạng thái bằng JWT (Stateless Token Authentication):**
+   - **Không duy trì Session trên Server**: Sau khi người dùng đăng nhập thành công, máy chủ API không lưu trữ bất kỳ trạng thái nào trên RAM hay File System của máy chủ. Toàn bộ thông tin danh tính, vai trò hành động của người dùng được mã hóa đóng gói vào chuỗi ký tự JWT mã hóa dạng Base64 và chuyển giao hoàn toàn cho Client lưu trữ (`localStorage`). Điều này giúp hệ thống có khả năng mở rộng quy mô tải (Scalability) vô hạn vì máy chủ không bị hao tổn tài nguyên RAM để quản lý phiên làm việc.
+   - **Tính toàn vẹn nhờ chữ ký số (Digital Signature)**: Token JWT được bảo đảm an toàn bằng chữ ký mã hóa sử dụng thuật toán băm đối xứng nâng cao **HmacSha256** kết hợp khóa bí mật siêu cấp (`SecretKey`) cấu hình ở Server. Bất kỳ sự can thiệp, sửa đổi thông tin quyền hạn nào từ phía Client lên chuỗi Token sẽ lập tức làm sai lệch chữ ký số và bị Middleware xác thực chặn đứng ngay lập tức, trả về mã lỗi bảo mật HTTP 401 Unauthorized.
+3. **Cơ chế phân quyền dựa trên vai trò (Role-Based Access Control - RBAC):**
+   - Các quyền hạn truy cập của người dùng được định nghĩa thông qua các vai trò phân cấp rõ ràng (`Admin`, `Staff`, `Customer`).
+   - Phía API, các Endpoint được bảo vệ nghiêm ngặt bằng thuộc tính khai báo `[Authorize(Roles = "Admin,Staff")]`. Khi request đi qua, hệ thống sẽ tự động đối sánh thuộc tính `ClaimTypes.Role` được giải mã từ JWT Token với yêu cầu của endpoint để cho phép thực thi hoặc từ chối hành động bằng mã lỗi HTTP 403 Forbidden.
+4. **Bảo vệ hệ thống phía Client (Angular Security Flow):**
+   - **HttpInterceptor (Bộ chặn HTTP tự động)**: Angular sử dụng bộ interceptor thông minh chạy ngầm. Bất cứ khi nào Client gửi yêu cầu HTTP Ajax lên máy chủ API, Interceptor sẽ tự động truy xuất chuỗi JWT Token từ bộ nhớ trong `localStorage` và đính kèm vào phần tiêu đề `Authorization: Bearer <Token>`, giúp đồng bộ hóa bảo mật cho tất cả các giao dịch mà không yêu cầu lập trình viên viết mã đính kèm thủ công ở từng API.
+   - **Route Guards (Lớp bảo vệ thanh địa chỉ)**: Sử dụng các cơ chế bảo vệ Route Guard (`authGuard`, `roleGuard`) kết hợp cùng hệ thống trạng thái Reactive Signals để quản lý hiển thị. Nếu một người dùng chưa đăng nhập hoặc không đủ quyền quản trị cố tình nhập thủ công địa chỉ url cấm (Ví dụ: `https://localhost:4200/admin/dashboard`) lên thanh địa chỉ của trình duyệt, Route Guard sẽ lập tức phát hiện, chặn đứng quá trình chuyển trang và chuyển hướng người dùng về trang đăng nhập an toàn.
 
 ---
 
@@ -657,38 +710,44 @@ Sự phối hợp mượt mà giữa ứng dụng Angular Client và ASP.NET Cor
 Dưới đây là tập hợp những câu hỏi hóc búa nhất mà các giảng viên phản biện thường dùng để thử thách sinh viên, kèm theo các câu trả lời ngắn gọn, chuẩn chỉnh mang tính học thuật cao nhất.
 
 ### Q1: Vì sao em lại sử dụng kiến trúc 3 lớp (3-Layer Architecture) mà không viết toàn bộ mã nguồn vào một dự án duy nhất cho tiện?
-> **Trả lời:** Em sử dụng kiến trúc 3 lớp nhằm đạt được nguyên lý **Tách biệt trách nhiệm (Separation of Concerns)**. 
-> - Thứ nhất, giúp mã nguồn có tính tổ chức cao, dễ bảo trì, dễ mở rộng độc lập. Ví dụ, nếu chúng ta thay đổi cấu trúc bảng trong cơ sở dữ liệu (DAL), chúng ta chỉ cần cập nhật tầng DAL mà hoàn toàn không cần phải sửa một dòng mã nào ở tầng trình diễn (Presentation Layer).
-> - Thứ hai, giúp tăng tính tái sử dụng mã nguồn và khả năng kiểm thử độc lập (Unit Test) cho từng dịch vụ nghiệp vụ của hệ thống một cách dễ dàng.
+> **Trả lời xuất sắc:** Em thiết kế hệ thống theo mô hình **3-Layer Architecture** nhằm áp dụng triệt để nguyên lý **Tách biệt trách nhiệm (Separation of Concerns - SoC)** và nguyên lý **Đơn nhiệm (Single Responsibility Principle - SRP)** trong thiết kế phần mềm. 
+> - **Tính lỏng lẻo trong liên kết (Loose Coupling):** Bằng việc phân chia rõ ràng thành Presentation Layer (Web API), Business Logic Layer (BLL) và Data Access Layer (DAL), mỗi lớp chỉ đảm nhận một nhiệm vụ duy nhất và giao tiếp với nhau qua các giao diện định sẵn (Interfaces). Điều này giúp hệ thống cực kỳ dễ bảo trì và mở rộng. Nếu trong tương lai có sự thay đổi cấu trúc bảng hoặc chuyển đổi cơ sở dữ liệu (từ SQL Server sang PostgreSQL), em chỉ cần chỉnh sửa mã nguồn ở lớp DAL mà hoàn toàn không ảnh hưởng gì tới logic nghiệp vụ ở BLL hay giao diện API của Web API.
+> - **Khả năng kiểm thử độc lập (Testability):** Thiết kế này cho phép chúng em viết các bài kiểm thử đơn vị (**Unit Tests**) độc lập cho tầng xử lý nghiệp vụ BLL bằng cách giả lập (mocking) dữ liệu đầu ra của DAL mà không cần phải kết nối vật lý thực tế tới cơ sở dữ liệu SQL Server đang chạy.
 
 ### Q2: Tại sao em vừa sử dụng Entity Framework Core (DbContext) lại vừa sử dụng cả ADO.NET truyền thống? Chúng hỗ trợ nhau như thế nào?
-> **Trả lời:** Đây là dụng ý thiết kế phối hợp để tối ưu hóa hiệu năng và tốc độ phát triển ứng dụng:
-> - **EF Core** (DbContext): Em dùng để xử lý các nghiệp vụ cơ bản CRUD (Thêm, sửa, xóa các bảng như Danh mục Category, Điểm đến Destination) giúp rút ngắn 80% thời gian code nhờ cơ chế ORM tự động phát sinh câu lệnh SQL an toàn.
-> - **ADO.NET Connected Mode** (SqlDataReader): Em sử dụng cho các nghiệp vụ tìm kiếm nâng cao đa tiêu chí (`sp_SearchTours`) và báo cáo doanh thu động (`sp_RevenueReport`). Kỹ thuật này giúp đọc luồng dữ liệu cực nhanh với lượng bản ghi khổng lồ trực tiếp từ Database lên máy khách mà không bị nghẽn bộ nhớ RAM như cơ chế tracking của EF Core.
-> - **ADO.NET Disconnected Mode** (SqlDataAdapter & DataSet): Em sử dụng cho các chức năng cần xử lý dữ liệu liên kết quan hệ phức tạp ngoại tuyến nằm hoàn toàn trên RAM máy chủ nhằm ngắt kết nối vật lý ngay lập tức để tiết kiệm tài nguyên kết nối đồng thời của SQL Server.
+> **Trả lời xuất sắc:** Đây là một dụng ý thiết kế phối hợp theo mô hình **Hybrid Data Access Pattern** nhằm mục đích cân bằng hoàn hảo giữa **Năng suất phát triển ứng dụng (Developer Productivity)** và **Hiệu năng thực thi tối đa (Runtime Performance)**:
+> - **Entity Framework Core (ORM)**: Đóng vai trò chủ đạo cho các tác vụ nghiệp vụ CRUD cơ bản (Thêm, sửa, xóa danh mục Category, Điểm đến Destination, Lịch trình Tour). EF Core giúp tự động hóa quá trình ánh xạ đối tượng, giảm thiểu 80% thời gian viết mã SQL thủ công và loại bỏ triệt để nguy cơ lỗi cú pháp nhờ cú pháp LINQ mạnh mẽ.
+> - **ADO.NET Connected Model (SqlDataReader)**: Được em lựa chọn cho các tính năng tìm kiếm Tour đa tiêu chí và báo cáo tài chính lớn đòi hỏi hiệu năng cao. Cơ chế đọc luồng dữ liệu (Stream-based data access) của `SqlDataReader` cho phép dữ liệu đổ trực tiếp từ database về RAM máy chủ theo từng dòng tuần tự và giải phóng bộ nhớ ngay lập tức. Điều này vượt trội hoàn toàn so với EF Core vốn phải nạp toàn bộ danh sách bản ghi khổng lồ vào bộ nhớ RAM và chạy cơ chế Change Tracking cực kỳ tốn hiệu năng RAM.
+> - **ADO.NET Disconnected Model (SqlDataAdapter & DataSet)**: Áp dụng cho các tính năng cần liên kết dữ liệu quan hệ phức tạp ngoại tuyến ngay trên bộ nhớ RAM của máy chủ API. Bằng cách sử dụng phà dữ liệu `SqlDataAdapter` nạp dữ liệu về cấu trúc `DataSet` ngoại tuyến và ngắt kết nối vật lý ngay lập tức, hệ thống giúp tiết kiệm tối đa tài nguyên cổng kết nối đồng thời (Concurrent Connections) của SQL Server, tăng khả năng chịu tải cho máy chủ cơ sở dữ liệu.
 
-### Q3: Trong Stored Procedure `sp_CreateBooking` em có sử dụng Transaction và Lock để làm gì?
-> **Trả lời:** Em sử dụng giao dịch **Transaction** kết hợp khóa dòng nâng cao (`UPDLOCK`, `ROWLOCK`) để xử lý bài toán **Xung đột truy cập đồng thời (Concurrency Control)**. 
-> Khi có nhiều khách hàng cùng thực hiện đặt chỗ cho một Lịch trình du lịch chỉ còn duy nhất 1 chỗ trống tại cùng một thời điểm:
-> - Lock (`UPDLOCK`, `ROWLOCK`) sẽ khóa tạm thời bản ghi của lịch trình đó từ lúc khách hàng đầu tiên bắt đầu giao dịch. Các khách hàng sau sẽ phải xếp hàng chờ đợi.
-> - Transaction đảm bảo tính toàn vẹn **ACID**. Nếu việc đặt chỗ của khách hàng đầu tiên thành công và số ghế trống bị trừ đi, giao dịch được COMMIT. Lúc này, khách hàng thứ hai được mở khóa dòng dữ liệu, SP sẽ chạy tiếp, phát hiện số chỗ trống còn lại là 0 và lập tức trả lỗi "Không đủ chỗ trống" thông qua cơ chế ROLLBACK, ngăn chặn hoàn toàn lỗi bán vượt quá số ghế thực tế (Overbooking).
+### Q3: Trong Stored Procedure `sp_CreateBooking` em có sử dụng Transaction và Lock để làm gì? Xử lý bài toán gì?
+> **Trả lời xuất sắc:** Em sử dụng giao dịch **Database Transaction** kết hợp với cơ chế khóa dòng nâng cao (`UPDLOCK`, `ROWLOCK`) để giải quyết triệt để bài toán **Kiểm soát truy cập đồng thời (Concurrency Control)** và ngăn chặn hiện tượng tranh chấp tài nguyên mạng (**Race Conditions/Overbooking**).
+> - **Bản chất vấn đề:** Khi hai hoặc nhiều khách hàng cùng lúc bấm nút đặt 1 chỗ ngồi cuối cùng duy nhất của một lịch trình tour tại cùng một tích tắc thời gian, nếu không có cơ chế khóa dòng, cả hai luồng xử lý đều đọc được thông tin chỗ trống là `1` và đều cho phép đặt tour, dẫn đến việc database ghi nhận đặt vượt mức cho phép.
+> - **Giải pháp của em:** 
+>   1. Em áp dụng giao dịch để đảm bảo tính toàn vẹn **ACID (nhất là tính Atomicity và Isolation)**.
+>   2. Em sử dụng khóa dòng cập nhật (`WITH (UPDLOCK, ROWLOCK)`). Khi luồng giao dịch của khách hàng thứ nhất bắt đầu đọc số chỗ trống, SQL Server sẽ lập tức thiết lập khóa độc quyền lên dòng dữ liệu lịch trình đó. Khách hàng thứ hai truy cập vào sau bắt buộc phải rơi vào trạng thái chờ (Wait).
+>   3. Sau khi luồng một kiểm tra đủ chỗ, ghi nhận hóa đơn thành công và tự động kích hoạt Trigger trừ số chỗ trống về `0` thì giao dịch thực hiện `COMMIT`, khóa dòng được giải phóng.
+>   4. Lúc này luồng của khách hàng thứ hai mới được nhảy vào đọc dữ liệu, nhưng giá trị chỗ trống lúc này đã là `0`. SP lập tức phát hiện không đủ chỗ ngồi, kích hoạt lệnh `ROLLBACK` hủy giao dịch và trả về thông báo lỗi thân thiện cho khách hàng. Hệ thống được bảo vệ an toàn tuyệt đối.
 
 ### Q4: Sự khác nhau bản chất giữa "LINQ to Entities" và "LINQ to Objects" trong dự án của em là gì?
-> **Trả lời:** Sự khác nhau bản chất nằm ở thời điểm biên dịch, thực thi câu lệnh và vùng bộ nhớ:
-> - **LINQ to Entities** (tác động lên đối tượng `IQueryable` ở DAL): Cú pháp C# Lambda sẽ **chưa chạy ngay** trên RAM mà được bộ biên dịch của EF Core dịch toàn bộ thành câu lệnh SQL thuần (`SELECT ... WHERE...`) rồi gửi xuống SQL Server chạy. Dữ liệu chỉ được lọc và tải lên RAM máy chủ sau khi ta gọi hàm truy xuất dạng `ToListAsync()`.
-> - **LINQ to Objects** (tác động lên danh sách `IEnumerable` ở BLL): Dữ liệu **đã nằm sẵn** trên RAM máy chủ sau khi tải từ DB lên. Chúng ta sử dụng LINQ để lọc, sắp xếp, chuyển đổi cấu trúc dữ liệu thô sang cấu trúc DTO phục vụ cho mục đích hiển thị giao diện.
+> **Trả lời xuất sắc:** Sự khác biệt cốt lõi nằm ở **Kiểu dữ liệu tác động**, **Cơ chế biên dịch/thực thi** và **Vùng nhớ xử lý dữ liệu**:
+> - **LINQ to Entities** (tác động lên đối tượng kiểu `IQueryable<T>` tại tầng DAL): Cú pháp LINQ Lambda C# được EF Core phân tích dưới dạng một **Cây biểu thức (Expression Tree)**. Lúc này, câu lệnh hoàn toàn chưa chạy ngầm dưới Database. Chỉ khi chúng ta gọi các phương thức chuyển đổi dữ liệu thực tế như `.ToListAsync()` hoặc `.FirstOrDefaultAsync()`, EF Core mới chính thức biên dịch cây biểu thức đó thành câu lệnh SQL quan hệ (`SELECT ... WHERE...`), gửi xuống SQL Server thực thi và chỉ tải về RAM những bản ghi đã thỏa mãn điều kiện lọc. Kỹ thuật này giúp giảm thiểu tối đa băng thông truyền tải dữ liệu và tiết kiệm bộ nhớ RAM cho server.
+> - **LINQ to Objects** (tác động lên danh sách kiểu `IEnumerable<T>` hoặc `List<T>` tại tầng BLL): Toàn bộ dữ liệu thô **đã được nạp và nằm sẵn trên bộ nhớ RAM** của máy chủ ứng dụng API. Em sử dụng LINQ to Objects để thực hiện các thao tác định dạng, sắp xếp thứ tự hoặc chuyển đổi kiểu dữ liệu thô từ database thành cấu trúc DTO thân thiện trước khi trả dữ liệu về giao diện người dùng.
 
-### Q5: Em xử lý lỗi và ngoại lệ trong hệ thống như thế nào để đảm bảo tính an toàn bảo mật thông tin?
-> **Trả lời:** Em xây dựng một cơ chế xử lý lỗi tập trung thông qua **Exception Middleware** đặt ở tầng API:
-> - Mọi lỗi phát sinh ở bất kỳ tầng nào (DAL, BLL) đều được ném lên và chặn bắt tại đây.
-> - Về mặt bảo mật: Chúng em ghi chi tiết lỗi gốc vào nhật ký hệ thống (log) của Server để lập trình viên theo dõi, nhưng đối với người dùng cuối, Middleware chỉ đóng gói thông báo lỗi thân thiện thông qua định dạng chuẩn `ApiResponse.Fail(message)` và che giấu toàn bộ cấu trúc DB bên dưới để ngăn chặn hacker khai thác thông tin nhạy cảm của hệ thống qua thông điệp báo lỗi.
+### Q5: Em xử lý lỗi và ngoại lệ trong hệ thống như thế nào để đảm bảo an toàn bảo mật thông tin tối đa?
+> **Trả lời xuất sắc:** Em thiết kế một cơ chế xử lý lỗi tập trung phi trạng thái bằng cách viết một **Global Exception Handling Middleware** đặt ở tầng API ([Chi tiết code](file:///c:/Workplace/LTCSDL/BTL/Project_Code/Travel-Tour-Booking/TravelTourBooking/TravelTourBooking.API/Middleware/ExceptionMiddleware.cs)).
+> - **Cơ chế hoạt động:** Bất kỳ lỗi ngoại lệ nào xảy ra ở bất kỳ phân lớp nào (như lỗi kết nối Database ở DAL, lỗi vi phạm ràng buộc nghiệp vụ ở BLL) nếu không được bắt cục bộ sẽ tự động được ném lên và chặn bắt tập trung tại Middleware này.
+> - **Giá trị bảo mật tối cao:** Trong môi trường thử nghiệm Development, Middleware sẽ hiển thị chi tiết vết lỗi (Stack Trace) phục vụ lập trình viên sửa lỗi nhanh. Tuy nhiên, khi hệ thống chạy ở môi trường thực tế Production, Middleware sẽ tự động ghi vết lỗi chi tiết vào file nhật ký Server (Security Logs), đồng thời đóng gói một thông điệp lỗi vô cùng thân thiện chuẩn hóa qua đối tượng `ApiResponse.Fail(message)` để trả về cho người dùng cuối. Việc này giúp **che giấu hoàn toàn cấu trúc vật lý của cơ sở dữ liệu** và mã nguồn bên dưới, ngăn chặn tuyệt đối hacker khai thác thông tin nhạy cảm của hệ thống qua các thông điệp báo lỗi.
 
 ### Q6: Cơ chế kích hoạt tự động (Triggers) trong Database đóng vai trò gì? Vì sao không xử lý logic đó hoàn toàn ở code C#?
-> **Trả lời:** Trình kích hoạt `trg_AfterBookingInsert` và `trg_AfterBookingCancel` được thiết kế chạy trực tiếp dưới Database để đảm bảo **tính toàn vẹn dữ liệu ở tầng thấp nhất**. 
-> Nếu chúng ta chỉ viết logic cập nhật ghế trống trên code C# BLL, trong tương lai nếu có một hệ thống khác (Ví dụ: Một đối tác bán vé liên kết) kết nối thẳng vào database của chúng ta để ghi dữ liệu, họ có thể quên chạy logic trừ ghế du lịch dẫn tới sai lệch dữ liệu nghiêm trọng. Việc đặt Trigger dưới DB đảm bảo bất cứ ai thực hiện ghi đè dữ liệu lên bảng đặt vé đều bắt buộc phải chạy qua logic cập nhật ghế trống tự động này, giữ cho dữ liệu hệ thống luôn chính xác tuyệt đối.
+> **Trả lời xuất sắc:** Việc cài đặt các Triggers (`trg_AfterBookingInsert`, `trg_AfterBookingCancel`) trực tiếp dưới cơ sở dữ liệu đóng vai trò thiết lập **lớp phòng ngự toàn vẹn dữ liệu ở mức độ thấp nhất và kiên cố nhất**:
+> - **Lý do học thuật:** Nếu chúng ta chỉ xử lý logic cập nhật ghế trống trên lớp C# nghiệp vụ (BLL), hệ thống vẫn hoạt động tốt trong điều kiện lý tưởng. Tuy nhiên, nếu trong tương lai doanh nghiệp mở rộng quy mô hợp tác, có thêm một ứng dụng bên thứ ba (Ví dụ: Ứng dụng của đối tác đại lý du lịch liên kết) kết nối thẳng vào database của chúng ta để ghi dữ liệu, họ có thể quên chạy logic trừ ghế du lịch dẫn tới sai lệch dữ liệu nghiêm trọng. 
+> - **Fail-safe Mechanism (Cơ chế chống lỗi vật lý):** Việc đặt Trigger dưới DB đảm bảo bất cứ ai, bất cứ ứng dụng nào thực hiện thay đổi dữ liệu lên bảng đặt vé đều bắt buộc phải chạy qua logic cập nhật ghế trống tự động này trực tiếp dưới hệ quản trị CSDL SQL Server, giữ cho dữ liệu hệ thống luôn chính xác tuyệt đối và loại bỏ hoàn toàn các lỗi sai sót từ yếu tố con người hoặc ứng dụng bên ngoài.
 
-### Q7: Tại sao em lại sử dụng AutoMapper mà không gán dữ liệu thủ công?
-> **Trả lời:** Việc gán dữ liệu thủ công (`dto.Property = entity.Property`) rất tốn thời gian, dễ gây sai sót và làm phình to kích thước mã nguồn một cách không cần thiết. **AutoMapper** tự động quét các cấu trúc thuộc tính có tên giống nhau giữa Entity và DTO để ánh xạ dữ liệu nhanh chóng. Điều này giúp mã nguồn dịch vụ ở BLL cực kỳ gọn gàng, tăng tốc độ phát triển dự án và giúp lập trình viên tập trung 100% vào việc giải quyết các bài toán logic nghiệp vụ cốt lõi.
+### Q7: Tại sao em lại sử dụng thư viện AutoMapper mà không thực hiện gán dữ liệu thuộc tính thủ công?
+> **Trả lời xuất sắc:** Việc gán dữ liệu thuộc tính thủ công (`dto.Property = entity.Property`) là một phản mẫu thiết kế (Anti-pattern) gây tốn thời gian phát triển dự án, làm phình to kích thước dòng mã nguồn vô ích và rất dễ gây sai sót bỏ quên thuộc tính khi số lượng trường thông tin tăng lên.
+> - **Mẫu thiết kế O/M Mapping**: **AutoMapper** tự động quét các cấu trúc thuộc tính có tên giống nhau giữa Entity và DTO để ánh xạ dữ liệu tự động theo cấu hình tập trung tại lớp `MappingProfile.cs`. 
+> - **Lợi ích thực tế:** Cách làm này giúp mã nguồn dịch vụ nghiệp vụ ở BLL vô cùng gọn gàng, tăng tốc độ phát triển dự án lên gấp nhiều lần, giúp mã nguồn đạt tính thẩm mỹ cao và giúp đội ngũ lập trình viên tập trung 100% thời gian vào việc giải quyết các bài toán logic nghiệp vụ phức tạp của dự án.
 
 ---
-*Chúc bạn tự tin bảo vệ đồ án và đạt kết quả xuất sắc cao nhất!*
+*Chúc bạn tự tin bảo vệ đồ án trước hội đồng phản biện và đạt kết quả xuất sắc cao nhất!*
