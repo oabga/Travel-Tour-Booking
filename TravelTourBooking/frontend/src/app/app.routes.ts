@@ -145,6 +145,12 @@ export const routes: Routes = [
           .then(m => m.ReportsComponent)
       },
       {
+        path: 'vouchers',
+        canActivate: [roleGuard(['Admin'])],
+        loadComponent: () => import('./features/admin/voucher-manage/voucher-manage.component')
+          .then(m => m.VoucherManageComponent)
+      },
+      {
         path: 'change-password',
         loadComponent: () => import('./shared/components/change-password/change-password.component')
             .then(m => m.ChangePasswordComponent)

@@ -2,10 +2,12 @@ using TravelTourBooking.BLL.Interfaces;
 using TravelTourBooking.Common.DTOs;
 using TravelTourBooking.DAL.EFCore.Entities;
 using TravelTourBooking.DAL.Repositories.Interfaces;
+using TravelTourBooking.DAL.EFCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace TravelTourBooking.BLL.Services;
 
-public class BookingService(IBookingRepository bookingRepo) : IBookingService
+public class BookingService(IBookingRepository bookingRepo, AppDbContext dbContext) : IBookingService
 {
     // ── Đặt Tour ───────────────────────────────────────────────────────────
     public async Task<BookingResponseDto> CreateBookingAsync(CreateBookingRequestDto dto)
@@ -69,9 +71,39 @@ public class BookingService(IBookingRepository bookingRepo) : IBookingService
             }
         }
 
+        // Kiểm thử Voucher nếu có gửi kèm mã giảm giá
+        Voucher? voucher = null;
+        if (!string.IsNullOrWhiteSpace(dto.VoucherCode))
+        {
+            var codeUpper = dto.VoucherCode.Trim().ToUpper();
+            voucher = await dbContext.Vouchers
+                .FirstOrDefaultAsync(v => v.Code == codeUpper);
+
+            if (voucher == null)
+                throw new ArgumentException("Mã giảm giá không tồn tại trong hệ thống.");
+
+            var now = DateTime.Now;
+            if (now < voucher.StartDate || now > voucher.EndDate)
+                throw new ArgumentException("Mã giảm giá đã hết hạn hoặc chưa đến ngày có hiệu lực.");
+
+            if (voucher.UsedCount >= voucher.MaxUsage)
+                throw new ArgumentException("Mã giảm giá đã đạt số lượt sử dụng tối đa.");
+
+            // Ghi đè discountPercent bằng giá trị thực tế trong DB của Voucher để tránh gian lận
+            dto.DiscountPercent = voucher.DiscountPercent;
+        }
+
         // Gọi SP để tạo booking
         int newBookingId = await bookingRepo.CreateBookingSpAsync(
             dto.AccountId, dto.ScheduleId, dto.NumberOfPeople, dto.DiscountPercent);
+
+        // Tăng UsedCount của Voucher
+        if (voucher != null)
+        {
+            voucher.UsedCount++;
+            dbContext.Vouchers.Update(voucher);
+            await dbContext.SaveChangesAsync();
+        }
 
         // Cập nhật Notes
         if (!string.IsNullOrWhiteSpace(dto.Notes))
