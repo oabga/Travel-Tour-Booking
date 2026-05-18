@@ -5,6 +5,7 @@
 *.user
 *.suo
 *.userosscache
+*.lscache
 
 ## Thư mục Build của .NET (Rất quan trọng)
 [Bb]in/
@@ -27,4 +28,9 @@ TravelTourBooking/frontend/dist/
 **/appsettings.*.local.json
 **/secrets.json
 TravelTourBooking/TravelTourBooking.API/wwwroot/images/payment/momo-qr.jpg
+
+## Không đưa lên main (giữ trên nhánh dev)
+Report_Latex/
+FunctionsAndTasks/
+/package-lock.json
 
