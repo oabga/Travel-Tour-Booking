@@ -221,41 +221,99 @@ body {
 }
 
 .category-explore-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
-  min-height: 140px;
-  padding: 1.25rem;
+  position: relative;
+  display: block;
+  min-height: 180px;
   border-radius: var(--radius);
-  color: #fff;
+  overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: transform .25s ease, box-shadow .25s ease;
   cursor: pointer;
+  background: linear-gradient(135deg, var(--cat-from, #0e7490), var(--cat-to, #06b6d4));
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--cat-img);
+    background-size: cover;
+    background-position: center;
+    transition: transform .35s ease;
+  }
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-lg);
-    color: #fff;
+
+    &::before {
+      transform: scale(1.06);
+    }
+  }
+
+  &[data-category='Adventure'] {
+    --cat-from: #0c4a6e;
+    --cat-to: #0891b2;
+  }
+
+  &[data-category='Luxury'] {
+    --cat-from: #78350f;
+    --cat-to: #d97706;
+  }
+
+  &[data-category='Family'] {
+    --cat-from: #5b21b6;
+    --cat-to: #8b5cf6;
+  }
+
+  &[data-category='Beach'] {
+    --cat-from: #065f46;
+    --cat-to: #14b8a6;
   }
 }
 
+.category-explore-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, .88) 0%,
+    rgba(0, 0, 0, .5) 45%,
+    rgba(0, 0, 0, .2) 100%
+  );
+}
+
+.category-explore-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 180px;
+  padding: 1.25rem;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .45);
+}
+
 .category-explore-icon {
-  font-size: 1.75rem;
-  opacity: .9;
+  font-size: 1.85rem;
   margin-bottom: .5rem;
+  opacity: .95;
+  line-height: 1;
 }
 
 .category-explore-name {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.3;
+  letter-spacing: .01em;
 }
 
 .category-explore-desc {
-  opacity: .85;
-  font-size: .75rem;
-  margin-top: .25rem;
+  opacity: .92;
+  font-size: .78rem;
+  margin-top: .35rem;
+  line-height: 1.45;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -362,11 +420,6 @@ body {
   color: #fff;
   font-weight: 700;
   font-size: 1.1rem;
-}
-
-.category-explore-card {
-  min-height: 160px;
-  border: none;
 }
 
 .testimonials-section {

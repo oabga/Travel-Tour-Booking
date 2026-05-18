@@ -9,7 +9,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { TourDetail, TourList, ReviewResponse } from '../../../shared/models';
 import { environment } from '../../../../environments/environment';
 import { getCategoryStockImage, getDestinationStockImage } from '../../../shared/utils/category-image.util';
-import { getTourDisplayImageUrl } from '../../../shared/utils/tour-image.util';
+import { getTourDisplayImageUrl, handleTourImageError } from '../../../shared/utils/tour-image.util';
 
 @Component({
     selector: 'app-tour-detail',
@@ -209,8 +209,9 @@ import { getTourDisplayImageUrl } from '../../../shared/utils/tour-image.util';
                   <a [routerLink]="['/tours', rt.tourId]" class="text-decoration-none">
                     <div class="card card-tour card-tour-rich h-100">
                       <div class="card-img-wrapper">
-                        <img [src]="tourImg(rt.imageUrl, rt.desName, rt.cateName)"
-                             class="card-img-top" (error)="handleImageError($event)" [alt]="rt.tourName">
+                        <img [src]="tourImg(rt.imageUrl, rt.desName, rt.cateName, rt.tourName)"
+                             class="card-img-top" referrerpolicy="no-referrer"
+                             (error)="handleRelatedImageError($event, rt.desName, rt.cateName, rt.tourName)" [alt]="rt.tourName">
                       </div>
                       <div class="card-body">
                         <h6 class="card-title text-dark text-truncate">{{ rt.tourName }}</h6>
@@ -276,7 +277,7 @@ export class TourDetailComponent implements OnInit {
     }
 
     buildGalleryUrls(tour: TourDetail): string[] {
-        const main = getTourDisplayImageUrl(tour.imageUrl, tour.desName, tour.cateName);
+        const main = getTourDisplayImageUrl(tour.imageUrl, tour.desName, tour.cateName, tour.tourName);
         const extras = [
             getDestinationStockImage(tour.desName),
             getDestinationStockImage(tour.city),
@@ -303,8 +304,12 @@ export class TourDetailComponent implements OnInit {
         });
     }
 
-    handleImageError(event: any): void {
-        event.target.src = '/assets/images/default-tour.jpg';
+    handleRelatedImageError(event: Event, desName?: string | null, cateName?: string | null, tourName?: string | null): void {
+        handleTourImageError(event, desName, cateName, tourName);
+    }
+
+    handleImageError(event: Event): void {
+        handleTourImageError(event, this.tour?.desName, this.tour?.cateName, this.tour?.tourName);
     }
 
     setRating(val: number): void {

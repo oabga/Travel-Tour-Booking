@@ -1,28 +1,32 @@
-/** Ảnh minh họa theo tên danh mục (Unsplash — cần mạng khi tải lần đầu). */
+import { CATEGORY_IMAGE, DESTINATION_IMAGE, TOUR_STOCK } from './tour-stock-images';
+
+/** Ảnh minh họa theo danh mục / điểm đến (Unsplash — URL đã kiểm tra). */
 const CATEGORY_STOCK: Record<string, string> = {
-  'Tour Miền Tây': 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80',
-  'Tour Phan Thiết': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
-  'Đà Nẵng': 'https://images.unsplash.com/photo-1555881400-632adc7acd64?w=800&q=80',
-  'Phú Quốc': 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
-  'Miền Bắc': 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800&q=80',
-  'Đà Lạt': 'https://images.unsplash.com/photo-1569163139394-de4798aa62b6?w=800&q=80',
-  'Hồ Chí Minh': 'https://images.unsplash.com/photo-1583417319070-097bb00109c1?w=800&q=80',
-  'Tour Đảo': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-  'Nha Trang': 'https://images.unsplash.com/photo-1519046909882-ff06bbed8696?w=800&q=80',
-  'Tour nước ngoài': 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
+  ...CATEGORY_IMAGE,
+  'Tour Miền Tây': TOUR_STOCK.heritage,
+  'Tour Phan Thiết': TOUR_STOCK.phanThiet,
+  'Đà Nẵng': TOUR_STOCK.coastRoad,
+  'Phú Quốc': TOUR_STOCK.phuQuocBeach,
+  'Miền Bắc': TOUR_STOCK.trek,
+  'Đà Lạt': TOUR_STOCK.dalat,
+  'Hồ Chí Minh': TOUR_STOCK.city,
+  'Tour Đảo': TOUR_STOCK.islandAerial,
+  'Nha Trang': TOUR_STOCK.beachTropical,
+  'Tour nước ngoài': TOUR_STOCK.city,
 };
 
 const DESTINATION_STOCK: Record<string, string> = {
-  'đà lạt': 'https://images.unsplash.com/photo-1569163139394-de4798aa62b6?w=800&q=80',
-  'phú quốc': 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
-  'nha trang': 'https://images.unsplash.com/photo-1519046909882-ff06bbed8696?w=800&q=80',
-  'đà nẵng': 'https://images.unsplash.com/photo-1555881400-632adc7acd64?w=800&q=80',
-  'hà nội': 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800&q=80',
-  'bangkok': 'https://images.unsplash.com/photo-1563492065-73a5c03fde12?w=800&q=80',
+  ...DESTINATION_IMAGE,
 };
 
-const DEFAULT_STOCK =
-  'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80';
+const DEFAULT_STOCK = TOUR_STOCK.default;
+
+/** Ảnh cho khối Biển đảo / Núi rừng / Di sản trên trang chủ. */
+export const PROMO_GALLERY_IMAGES = {
+  beach: TOUR_STOCK.beachSunset,
+  mountain: TOUR_STOCK.mountain,
+  heritage: TOUR_STOCK.heritage,
+} as const;
 
 export function getCategoryStockImage(cateName: string): string {
   const exact = CATEGORY_STOCK[cateName.trim()];

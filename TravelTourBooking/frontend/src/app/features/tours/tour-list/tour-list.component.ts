@@ -8,8 +8,8 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 import { TourList, PaginationMeta, CategoryResponse, PopularTourResult } from '../../../shared/models';
 import { environment } from '../../../../environments/environment';
 import { formatDurationMenuLabel } from '../../../shared/utils/tour-duration.util';
-import { buildImageLayer, getCategoryStockImage, getDestinationStockImage } from '../../../shared/utils/category-image.util';
-import { DEFAULT_TOUR_IMAGE, getTourDisplayImageUrl, resolveTourImageUrl } from '../../../shared/utils/tour-image.util';
+import { buildImageLayer, getCategoryStockImage, getDestinationStockImage, PROMO_GALLERY_IMAGES } from '../../../shared/utils/category-image.util';
+import { getTourDisplayImageUrl, handleTourImageError, resolveTourImageUrl } from '../../../shared/utils/tour-image.util';
 import { TestimonialsSectionComponent } from '../../../shared/components/testimonials-section/testimonials-section.component';
 
 interface CategoryTheme {
@@ -80,8 +80,9 @@ interface CategoryTheme {
                   @for (t of heroSlides; track t.tourId; let i = $index) {
                     <div class="carousel-item" [class.active]="i === 0">
                       <a [routerLink]="['/tours', t.tourId]" class="d-block text-decoration-none">
-                        <img [src]="tourImg(t.imageUrl, t.desName)" class="d-block w-100 hero-carousel-img"
-                             [alt]="t.tourName" (error)="handleImageError($event)">
+                        <img [src]="tourImg(t.imageUrl, t.desName, t.cateName)" class="d-block w-100 hero-carousel-img"
+                             [alt]="t.tourName" referrerpolicy="no-referrer"
+                             (error)="handleImageError($event, t.desName, t.cateName)">
                         <div class="carousel-caption hero-carousel-caption text-start">
                           <span class="badge bg-danger mb-2">Hot</span>
                           <h5 class="fw-bold mb-1">{{ t.tourName }}</h5>
@@ -130,8 +131,9 @@ interface CategoryTheme {
               <a [routerLink]="['/tours', t.tourId]" class="text-decoration-none">
                 <div class="card card-tour h-100">
                   <div class="card-img-wrapper">
-                    <img [src]="tourImg(t.imageUrl, t.desName)"
-                           class="card-img-top" [alt]="t.tourName" (error)="handleImageError($event)">
+                    <img [src]="tourImg(t.imageUrl, t.desName, t.cateName)"
+                           class="card-img-top" [alt]="t.tourName" referrerpolicy="no-referrer"
+                           (error)="handleImageError($event, t.desName, t.cateName)">
                     <span class="tour-duration-badge"><i class="bi bi-clock me-1"></i>Hot</span>
                   </div>
                   <div class="card-body">
@@ -167,12 +169,16 @@ interface CategoryTheme {
               <div class="col-6 col-md-4 col-lg-3">
                 <a class="category-explore-card text-decoration-none" role="button"
                    (click)="navigateToCategory(c.cateId)"
-                   [ngStyle]="getCategoryCardStyle(c)">
-                  <i class="bi category-explore-icon" [ngClass]="getCategoryTheme(i).icon"></i>
-                  <span class="category-explore-name">{{ c.cateName }}</span>
-                  @if (c.description) {
-                    <small class="category-explore-desc">{{ c.description }}</small>
-                  }
+                   [attr.data-category]="c.cateName"
+                   [style.--cat-img]="categoryBgImage(c)">
+                  <div class="category-explore-overlay" aria-hidden="true"></div>
+                  <div class="category-explore-content">
+                    <i class="bi category-explore-icon" [ngClass]="getCategoryIcon(c.cateName, i)"></i>
+                    <span class="category-explore-name">{{ c.cateName }}</span>
+                    @if (c.description) {
+                      <small class="category-explore-desc">{{ c.description }}</small>
+                    }
+                  </div>
                 </a>
               </div>
             }
@@ -205,8 +211,9 @@ interface CategoryTheme {
                 <a [routerLink]="['/tours', tour.tourId]" class="text-decoration-none">
                   <div class="card card-tour card-tour-rich h-100">
                     <div class="card-img-wrapper">
-                      <img [src]="tourImg(tour.imageUrl, tour.desName, tour.cateName)"
-                           class="card-img-top" (error)="handleImageError($event)" [alt]="tour.tourName">
+                      <img [src]="tourImg(tour.imageUrl, tour.desName, tour.cateName, tour.tourName)"
+                           class="card-img-top" referrerpolicy="no-referrer"
+                           (error)="handleImageError($event, tour.desName, tour.cateName, tour.tourName)" [alt]="tour.tourName">
                       @if (tour.cateName) {
                         <span class="tour-cate-badge">{{ tour.cateName }}</span>
                       }
@@ -317,9 +324,9 @@ export class TourListComponent implements OnInit {
     categories: CategoryResponse[] = [];
     categoryCoverByCateId: Record<number, string> = {};
     readonly promoGallery = [
-        { label: 'Biển đảo', url: getDestinationStockImage('Phú Quốc') },
-        { label: 'Núi rừng', url: getDestinationStockImage('Đà Lạt') },
-        { label: 'Di sản', url: getDestinationStockImage('Đà Nẵng') },
+        { label: 'Biển đảo', url: PROMO_GALLERY_IMAGES.beach },
+        { label: 'Núi rừng', url: PROMO_GALLERY_IMAGES.mountain },
+        { label: 'Di sản', url: PROMO_GALLERY_IMAGES.heritage },
     ];
     pagination: PaginationMeta = { page: 1, pageSize: 9, totalCount: 0, totalPages: 0, hasPrev: false, hasNext: false };
     loading = false;
@@ -416,16 +423,23 @@ export class TourListComponent implements OnInit {
         return this.categoryThemes[index % this.categoryThemes.length];
     }
 
-    getCategoryCardStyle(c: CategoryResponse): Record<string, string> {
+    private readonly categoryIcons: Record<string, string> = {
+        Adventure: 'bi-signpost-split',
+        Luxury: 'bi-gem',
+        Family: 'bi-people-fill',
+        Beach: 'bi-umbrella-fill',
+    };
+
+    getCategoryIcon(cateName: string, index: number): string {
+        return this.categoryIcons[cateName] ?? this.getCategoryTheme(index).icon;
+    }
+
+    categoryBgImage(c: CategoryResponse): string {
         const cover = this.categoryCoverByCateId[c.cateId];
         const url = cover
             ? (resolveTourImageUrl(cover) ?? getCategoryStockImage(c.cateName))
             : getCategoryStockImage(c.cateName);
-        return {
-            backgroundImage: buildImageLayer(url),
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-        };
+        return `url('${url}')`;
     }
 
     loadCategoryCovers(): void {
@@ -447,13 +461,14 @@ export class TourListComponent implements OnInit {
     tourImg(
         imageUrl: string | null | undefined,
         desName?: string | null,
-        cateName?: string | null
+        cateName?: string | null,
+        tourName?: string | null
     ): string {
-        return getTourDisplayImageUrl(imageUrl, desName, cateName);
+        return getTourDisplayImageUrl(imageUrl, desName, cateName, tourName);
     }
 
-    handleImageError(event: Event): void {
-        (event.target as HTMLImageElement).src = DEFAULT_TOUR_IMAGE;
+    handleImageError(event: Event, desName?: string | null, cateName?: string | null, tourName?: string | null): void {
+        handleTourImageError(event, desName, cateName, tourName);
     }
 
     goSearch(): void {

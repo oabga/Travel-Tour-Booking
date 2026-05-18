@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TourService } from '../../../services/tour.service';
 import { SearchTourResult } from '../../../shared/models';
-import { getTourDisplayImageUrl } from '../../../shared/utils/tour-image.util';
+import { getTourDisplayImageUrl, handleTourImageError } from '../../../shared/utils/tour-image.util';
 
 @Component({
   selector: 'app-tour-search',
@@ -64,8 +64,9 @@ import { getTourDisplayImageUrl } from '../../../shared/utils/tour-image.util';
             <div class="col-md-4">
               <div class="card card-tour h-100">
                 <div class="card-img-wrapper">
-                  <img [src]="getImageUrl(tour.imageUrl, tour.desName)" class="card-img-top"
-                       [alt]="tour.tourName" (error)="handleImageError($event)">
+                  <img [src]="getImageUrl(tour.imageUrl, tour.desName, tour.cateName, tour.tourName)" class="card-img-top"
+                       [alt]="tour.tourName" referrerpolicy="no-referrer"
+                       (error)="handleImageError($event, tour.desName, tour.cateName, tour.tourName)">
                   <span class="tour-duration-badge">
                     <i class="bi bi-clock me-1"></i>{{ tour.durationDays }} ngày
                   </span>
@@ -118,12 +119,12 @@ export class TourSearchComponent {
 
   constructor(private fb: FormBuilder, private tourSvc: TourService) {}
 
-  getImageUrl(imageUrl: string | null, desName?: string | null): string {
-    return getTourDisplayImageUrl(imageUrl, desName);
+  getImageUrl(imageUrl: string | null, desName?: string | null, cateName?: string | null, tourName?: string | null): string {
+    return getTourDisplayImageUrl(imageUrl, desName, cateName, tourName);
   }
 
-  handleImageError(event: any): void {
-    event.target.src = '/assets/images/default-tour.jpg';
+  handleImageError(event: Event, desName?: string | null, cateName?: string | null, tourName?: string | null): void {
+    handleTourImageError(event, desName, cateName, tourName);
   }
 
   onSearch(): void {

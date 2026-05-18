@@ -55,6 +55,9 @@ export interface SearchTourResult {
 export interface PopularTourResult {
   tourId: number;
   tourName: string;
+  price?: number;
+  durationDays?: number;
+  cateName: string | null;
   desName: string | null;
   avgRating: number;
   totalBookings: number;
