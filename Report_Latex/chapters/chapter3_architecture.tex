@@ -212,6 +212,21 @@ endpoints của hệ thống.
   POST & \texttt{/api/auth/login} & Đăng nhập, nhận JWT
       & Public \\
   \hline
+  GET & \texttt{/api/vouchers/active} & Danh sách mã voucher khả dụng
+      & Auth \\
+  GET & \texttt{/api/vouchers/validate/\{code\}} & Xác thực thông tin voucher
+      & Auth \\
+  GET & \texttt{/api/vouchers} & Quản lý danh sách voucher (Admin)
+      & Admin \\
+  GET & \texttt{/api/vouchers/\{id\}} & Lấy chi tiết voucher
+      & Admin \\
+  POST & \texttt{/api/vouchers} & Tạo mới voucher
+      & Admin \\
+  PUT & \texttt{/api/vouchers/\{id\}} & Cập nhật voucher
+      & Admin \\
+  DELETE & \texttt{/api/vouchers/\{id\}} & Xóa voucher khỏi hệ thống
+      & Admin \\
+  \hline
   GET & \texttt{/api/reports/revenue} & Doanh thu theo tour
       & Admin \\
   GET & \texttt{/api/reports/revenue-by-month} & Doanh thu tháng
@@ -405,6 +420,10 @@ Bảng~\ref{table:rbac}.
         & \checkmark & & \\
       Export / Import XML
         & \checkmark & & \\
+      Xem và áp dụng Voucher
+        & \checkmark & \checkmark & \checkmark \\
+      Quản lý CRUD Voucher (Admin)
+        & \checkmark & & \\
       \hline
     \end{tabular}
   \end{center}
@@ -491,6 +510,8 @@ chính trong hệ thống.
       7 & Người liên hệ chính phải nhập Số điện thoại và phải là Người lớn (\texttt{Adult}) & BookingService \\
       8 & Đoàn đi tour bắt buộc phải có ít nhất một Người lớn đi kèm (tránh trẻ em đi một mình) & BookingService \\
       9 & Hành khách bắt buộc phải nhập Ngày sinh, khớp với phân loại Trẻ em ($<12$ tuổi) hoặc Người lớn ($\ge12$ tuổi) & BookingService \\
+      10 & Mã giảm giá áp dụng phải tồn tại và đang trong thời gian có hiệu lực & BookingService \\
+      11 & Số lượt đã dùng (\texttt{UsedCount}) của voucher phải nhỏ hơn số lượt tối đa (\texttt{MaxUsage}) & BookingService \\
       \hline
     \end{tabular}
   \end{center}

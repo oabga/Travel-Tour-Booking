@@ -8,12 +8,12 @@
 
 Cơ sở dữ liệu \textbf{TravelBookingDB} được thiết kế nhằm xây dựng hệ thống đặt tour du lịch trực tuyến, hỗ trợ quản lý người dùng, tour, lịch khởi hành, đặt chỗ, thanh toán và đánh giá.
 
-Hệ thống bao gồm 13 bảng chính, chia thành các nhóm chức năng:
+Hệ thống bao gồm 14 bảng chính, chia thành các nhóm chức năng:
 
 \begin{itemize}
   \item \textbf{Nhóm người dùng và xác thực:} Accounts, Roles, AccountRoles, CustomerProfiles
   \item \textbf{Nhóm quản lý tour:} Categories, Destinations, Tours, TourSchedules
-  \item \textbf{Nhóm nghiệp vụ đặt tour:} Bookings, BookingDetails, Payments
+  \item \textbf{Nhóm nghiệp vụ đặt tour:} Bookings, BookingDetails, Payments, Vouchers
   \item \textbf{Nhóm mở rộng hệ thống:} Reviews, Employees
 \end{itemize}
 
@@ -73,6 +73,9 @@ BookingDetails & 8 & Lưu thông tin hành khách trong mỗi booking \\
 Payments & 8 & Quản lý thanh toán và hóa đơn \\
 \hline
 
+Vouchers & 7 & Quản lý mã giảm giá, mức giảm, thời gian hiệu lực và giới hạn lượt sử dụng \\
+\hline
+
 Reviews & 6 & Lưu đánh giá và phản hồi tour \\
 \hline
 
@@ -97,6 +100,9 @@ Hệ thống áp dụng các ràng buộc nhằm đảm bảo dữ liệu luôn 
   \item Trạng thái booking (Bookings.Status) hợp lệ: Pending, Confirmed, Completed, Cancelled
   \item Trạng thái thanh toán (Payments.Status) hợp lệ: Pending, Completed, Failed, Refunded
   \item Trạng thái lịch tour (TourSchedules.Status): Open, Full, Cancelled
+  \item Phần trăm giảm giá (Vouchers.DiscountPercent) nằm trong khoảng từ 0 đến 100
+  \item Ngày hết hạn của voucher (Vouchers.EndDate) phải lớn hơn hoặc bằng ngày bắt đầu (Vouchers.StartDate)
+  \item Số lượt sử dụng tối đa (Vouchers.MaxUsage) và số lượt đã dùng (Vouchers.UsedCount) không được âm
 \end{itemize}
 
 % ============================================================

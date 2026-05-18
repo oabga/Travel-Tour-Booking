@@ -24,6 +24,9 @@ public class CreateBookingRequestDto
     [MaxLength(255)]
     public string? Notes { get; set; }
 
+    [MaxLength(50)]
+    public string? VoucherCode { get; set; }
+
     /// <summary>
     /// Danh sách hành khách — số lượng phải bằng NumberOfPeople.
     /// </summary>

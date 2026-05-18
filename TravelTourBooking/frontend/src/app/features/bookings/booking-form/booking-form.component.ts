@@ -7,6 +7,7 @@ import { ScheduleService } from '../../../services/schedule.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AccountService } from '../../../services/account.service';
 import { VoucherService } from '../../../services/voucher.service';
+import { TourService } from '../../../services/tour.service';
 import { ScheduleResponse, CustomerList } from '../../../shared/models';
 
 @Component({
@@ -19,7 +20,8 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
 
       @if (schedule) {
         <div class="alert alert-info shadow-sm border-0">
-          <strong>Lịch khởi hành #{{ schedule.scheduleId }}</strong> —
+          <strong>Đặt Tour: {{ tourName || 'Đang tải...' }}</strong> | 
+          Lịch khởi hành #{{ schedule.scheduleId }} — 
           Ngày đi: {{ schedule.departureDate }} | Về: {{ schedule.returnDate }}
           | Còn {{ schedule.availableSlots }} chỗ
           @if (schedule.employeeName) {
@@ -59,8 +61,9 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
                 <label class="form-label">Mã giảm giá</label>
                 <div class="input-group">
                   <input type="text" class="form-control text-uppercase" [(ngModel)]="voucherCode" 
-                         [ngModelOptions]="{standalone: true}" placeholder="NHẬP MÃ">
-                  <button class="btn btn-outline-secondary" type="button" (click)="applyVoucher()" [disabled]="!voucherCode || applyingVoucher">
+                         [ngModelOptions]="{standalone: true}" placeholder="NHẬP MÃ"
+                         (ngModelChange)="onVoucherChange()">
+                  <button class="btn btn-outline-secondary" type="button" (click)="applyVoucher()" [disabled]="applyingVoucher">
                     @if (applyingVoucher) {
                        <span class="spinner-border spinner-border-sm"></span>
                     } @else {
@@ -146,6 +149,25 @@ import { ScheduleResponse, CustomerList } from '../../../shared/models';
           }
         </div>
 
+        <!-- Pricing Details Box -->
+        @if (tourPrice) {
+          <div class="card border-0 shadow-sm mb-4 bg-light">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <span class="text-muted">Đơn giá:</span> 
+                <strong class="text-dark ms-1">{{ tourPrice | number:'1.0-0' }}đ / khách</strong>
+                @if ((form.getRawValue().discountPercent || 0) > 0) {
+                  <span class="badge bg-danger ms-2">Giảm {{ form.getRawValue().discountPercent }}%</span>
+                }
+              </div>
+              <div class="text-end">
+                <span class="text-muted fs-6 me-2">Tổng tiền tạm tính:</span>
+                <span class="fs-4 fw-bold text-danger">{{ estimatedTotal | number:'1.0-0' }} VND</span>
+              </div>
+            </div>
+          </div>
+        }
+
         <div class="d-flex gap-2 mb-4 mt-4">
           <button type="button" class="btn btn-outline-primary px-4 shadow-sm" (click)="addPassenger()">
             <i class="bi bi-plus-circle me-1"></i>Thêm hành khách
@@ -170,6 +192,10 @@ export class BookingFormComponent implements OnInit {
   isAdminOrStaff = false;
   customers: CustomerList[] = [];
 
+  // Tour properties for estimated total calculation
+  tourName = '';
+  tourPrice = 0;
+
   // Voucher properties
   voucherCode = '';
   voucherMsg = '';
@@ -184,6 +210,13 @@ export class BookingFormComponent implements OnInit {
     passengers: this.fb.array([this.createPassenger()])
   });
 
+  get estimatedTotal(): number {
+    if (!this.tourPrice) return 0;
+    const num = this.form.value.numberOfPeople ?? 1;
+    const discount = this.form.getRawValue().discountPercent ?? 0;
+    return this.tourPrice * num * (1 - discount / 100);
+  }
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -192,7 +225,8 @@ export class BookingFormComponent implements OnInit {
     private scheduleSvc: ScheduleService,
     private auth: AuthService,
     private accountSvc: AccountService,
-    private voucherSvc: VoucherService
+    private voucherSvc: VoucherService,
+    private tourSvc: TourService
   ) {
     const role = this.auth.userRole();
     this.isAdminOrStaff = role === 'Admin' || role === 'Staff';
@@ -201,24 +235,76 @@ export class BookingFormComponent implements OnInit {
   ngOnInit(): void {
     const scheduleId = Number(this.route.snapshot.paramMap.get('scheduleId'));
     this.scheduleSvc.getById(scheduleId).subscribe({
-      next: s => this.schedule = s,
+      next: s => {
+        this.schedule = s;
+        if (s.tourId) {
+          this.tourSvc.getById(s.tourId).subscribe({
+            next: t => {
+              this.tourName = t.tourName;
+              this.tourPrice = t.price;
+            }
+          });
+        }
+      },
       error: () => this.errorMsg = 'Không tìm thấy lịch khởi hành.'
     });
 
     if (this.isAdminOrStaff) {
       this.accountSvc.getAllCustomers().subscribe(data => this.customers = data);
       this.form.controls.accountId.setValidators(Validators.required);
+
+      // Auto-fill when staff/admin selects a customer
+      this.form.controls.accountId.valueChanges.subscribe(accountId => {
+        if (accountId) {
+          this.accountSvc.getProfile(accountId).subscribe({
+            next: profile => {
+              if (this.passengers.length > 0) {
+                const passengerGroup = this.passengers.at(0);
+                passengerGroup.patchValue({
+                  passengerName: profile.fullName || '',
+                  passengerPhone: profile.phone || '',
+                  passengerDOB: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : '',
+                  isPrimaryContact: true
+                });
+              }
+            }
+          });
+        }
+      });
     } else {
       this.form.controls.discountPercent.disable();
+
+      // Auto-fill current customer profile info into Passenger 1
+      const currentUserId = this.auth.userId();
+      if (currentUserId) {
+        this.accountSvc.getProfile(currentUserId).subscribe({
+          next: profile => {
+            if (this.passengers.length > 0) {
+              const passengerGroup = this.passengers.at(0);
+              passengerGroup.patchValue({
+                passengerName: profile.fullName || '',
+                passengerPhone: profile.phone || '',
+                passengerDOB: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : '',
+                isPrimaryContact: true
+              });
+            }
+          }
+        });
+      }
     }
   }
 
   applyVoucher(): void {
-    if (!this.voucherCode) return;
+    if (!this.voucherCode || !this.voucherCode.trim()) {
+      this.voucherOk = false;
+      this.voucherMsg = 'Vui lòng nhập mã giảm giá để áp dụng.';
+      this.form.patchValue({ discountPercent: 0 });
+      return;
+    }
     this.applyingVoucher = true;
     this.voucherMsg = '';
 
-    this.voucherSvc.validate(this.voucherCode).subscribe({
+    this.voucherSvc.validate(this.voucherCode.trim()).subscribe({
       next: res => {
         this.applyingVoucher = false;
         if (res.isValid) {
@@ -235,8 +321,15 @@ export class BookingFormComponent implements OnInit {
         this.applyingVoucher = false;
         this.voucherOk = false;
         this.voucherMsg = 'Không thể kiểm tra mã lúc này.';
+        this.form.patchValue({ discountPercent: 0 });
       }
     });
+  }
+
+  onVoucherChange(): void {
+    this.voucherOk = false;
+    this.voucherMsg = '';
+    this.form.patchValue({ discountPercent: 0 });
   }
 
   get passengers(): FormArray {
@@ -363,6 +456,7 @@ export class BookingFormComponent implements OnInit {
       numberOfPeople: val.numberOfPeople ?? 0,
       discountPercent: val.discountPercent ?? 0,
       notes: val.notes || undefined,
+      voucherCode: this.voucherOk ? this.voucherCode.trim().toUpperCase() : undefined,
       passengers: val.passengers.map(p => ({
         passengerName: p.passengerName ?? '',
         passengerType: p.passengerType as 'Adult' | 'Child',

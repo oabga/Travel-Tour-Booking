@@ -50,11 +50,21 @@ namespace TravelTourBooking.DAL.EFCore
                 entity.ToView("vw_TourRevenue");
                 entity.Property(e => e.TotalRevenue).HasColumnType("decimal(18, 2)");
             });
+
+            modelBuilder.Entity<Voucher>(entity =>
+            {
+                entity.ToTable("Vouchers");
+                entity.HasKey(e => e.VoucherId);
+                entity.HasIndex(e => e.Code).IsUnique();
+                entity.Property(e => e.Code).HasMaxLength(50).IsUnicode(false);
+                entity.Property(e => e.DiscountPercent).HasColumnType("decimal(5, 2)");
+            });
         }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<AccountRole> AccountRoles { get; set; }
         public DbSet<CustomerProfile> CustomerProfiles { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
     }
 }

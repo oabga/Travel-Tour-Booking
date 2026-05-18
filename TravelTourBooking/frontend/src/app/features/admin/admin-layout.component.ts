@@ -69,6 +69,9 @@ import { AuthService } from '../../core/services/auth.service';
             <li class="nav-item">
               <a class="nav-link" routerLink="reports" routerLinkActive="active"><i class="bi bi-file-earmark-bar-graph me-2"></i>Báo cáo</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="vouchers" routerLinkActive="active"><i class="bi bi-ticket-perforated me-2"></i>Quản lý Voucher</a>
+            </li>
           }
           <li class="nav-item mt-auto">
             <a class="nav-link" routerLink="change-password" routerLinkActive="active">
