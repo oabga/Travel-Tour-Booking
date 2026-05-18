@@ -6,8 +6,7 @@
 [![JWT](https://img.shields.io/badge/JWT-Authentication-blue?style=for-the-badge&logo=json-web-tokens)](https://jwt.io/)
 [![Architecture](https://img.shields.io/badge/Architecture-3--Layer-green?style=for-the-badge)](#-kiến-trúc-hệ-thống)
 
-Một hệ thống quản lý đặt tour du lịch toàn diện được xây dựng bằng **ASP.NET Core Web API** theo mô hình **3-Layer Architecture** kết hợp với **Angular v17/v18 (Signals & Standalone Components)** và cơ sở dữ liệu **SQL Server**. Dự án triển khai nhiều kỹ thuật nâng cao vượt ngoài khuôn khổ chương trình học cơ bản như tối ưu hóa tranh chấp đồng thời đặt vé (Concurrency Control), tự động cập nhật ghế trống qua Triggers, và xác thực phân quyền dạng RBAC thông qua JWT.
-
+Một hệ thống quản lý đặt tour du lịch toàn diện được xây dựng bằng **ASP.NET Core Web API** theo mô hình **3-Layer Architecture** kết hợp với **Angular v17/v18 (Signals & Standalone Components)** và cơ sở dữ liệu **SQL Server**. Dự án triển khai nhiều kỹ thuật như EF (Entities Framework), ADO connected, ADO disconnected, ASP .NET CORE WebAPI,...
 ---
 
 ## 🌟 Các Nhóm Tính Năng Nổi Bật
@@ -25,6 +24,7 @@ Một hệ thống quản lý đặt tour du lịch toàn diện được xây d
 ### 💼 2. Nhóm Nghiệp Vụ Đặt Tour (Booking Workflow)
 *   **Quy Trình Đặt Tour Nghiệp Vụ:** Gọi Stored Procedure `sp_CreateBooking` chạy trong giao dịch an toàn (`BEGIN TRANSACTION`): tự động kiểm tra số lượng ghế trống còn lại, tính tổng tiền qua hàm `fn_CalcBookingTotal`, lưu thông tin đặt chỗ cùng danh sách hành khách, và tự động kích hoạt trigger để trừ chỗ.
 *   **Nhập Danh Sách Hành Khách:** Ghi nhận thông tin chi tiết từng hành khách đi kèm gồm họ tên, ngày sinh, SĐT, CCCD/Hộ chiếu (thông tin `PassengerIdNumber` bắt buộc đối với người lớn `Adult`, cho phép để trống với trẻ em `Child`) và phân loại nhóm tuổi `PassengerType`.
+*   **Áp Dụng Voucher Giảm Giá Động:** Khách hàng có thể nhập mã voucher lấy trực tiếp từ database SQL Server. Hệ thống tự động xác thực tính hợp lệ của mã (ngày hiệu lực, giới hạn tối đa). Đi kèm cơ chế an toàn: tự động hủy chiết khấu cũ khi sửa ô nhập liệu và ghi đè trực tiếp để chống áp dụng chồng/cộng dồn nhiều mã.
 *   **Hủy Đặt Tour An Toàn:** Cập nhật trạng thái đơn đặt chỗ `Status = 'Cancelled'` với ràng buộc CHECK constraint nghiêm ngặt của SQL Server (`Pending` → `Confirmed` → `Completed` → `Cancelled`). Tự động kích hoạt trigger hoàn lại số chỗ trống cho lịch trình du lịch.
 *   **Xem Chi Tiết Đơn Hàng:** Sử dụng View `vw_BookingDetails` (thực hiện liên kết `JOIN` đa bảng) kèm danh sách chi tiết các hành khách đi cùng.
 *   **Lịch Sử Đặt Tour:** Hỗ trợ tra cứu tất cả các đơn đặt tour của khách hàng và lọc nhanh chóng theo trạng thái đơn hàng.
@@ -32,9 +32,10 @@ Một hệ thống quản lý đặt tour du lịch toàn diện được xây d
 ### 🔐 3. Nhóm Quản Lý Khách Hàng & Phản Hồi (User Management & Reviews)
 *   **Đăng Ký / Đăng Nhập:** Xác thực bảo mật cao qua **JWT Authentication**. Mật khẩu được mã hóa băm một chiều an toàn bằng **BCrypt** lưu trong bảng `Accounts`. Quyền hạn tài khoản được phân bổ qua bảng `Roles` và `AccountRoles`. Thông tin cá nhân khách hàng được lưu riêng biệt tại bảng `CustomerProfiles`.
 *   **Phân Quyền Dựa Trên Vai Trò (RBAC):** Thiết lập 3 cấp độ truy cập rõ ràng, áp dụng bộ lọc `[Authorize(Roles="...")]` trên từng API endpoint:
-    *   **Admin:** Toàn quyền hệ thống, CRUD Tour, Categories, Destinations, Employees, xem dashboard thống kê doanh thu, và thực hiện Export/Import dữ liệu dạng XML.
+    *   **Admin:** Toàn quyền hệ thống, CRUD Tour, Categories, Destinations, Employees, Vouchers (mã giảm giá), xem dashboard thống kê doanh thu, và thực hiện Export/Import dữ liệu dạng XML.
     *   **Staff:** Chỉ xem danh sách tour và xem danh sách đơn đặt tour (không có quyền tạo mới, sửa hoặc xóa).
     *   **Customer:** Đăng ký tài khoản, tìm kiếm đặt tour, hủy đơn hàng của chính mình, đánh giá tour và theo dõi lịch sử giao dịch cá nhân.
+*   **Quản Lý Voucher (Admin Only):** Màn hình quản trị CRUD danh sách các mã giảm giá vật lý (`Vouchers`) từ database, đi kèm Reactive Form kiểm duyệt dữ liệu nghiêm ngặt, hiển thị thanh tiến độ sử dụng trực quan.
 *   **Quản Lý Nhân Sự (Admin Only):** Thực hiện CRUD hồ sơ nhân viên và hướng dẫn viên (bảng `Employees`). *Lưu ý học thuật:* Employees và tài khoản đăng nhập là 2 khái niệm tách biệt hoàn toàn — Employee không đăng nhập vào hệ thống, chỉ được Admin phân công vào trường `TourSchedules.EmployeeId` để phụ trách dẫn tour.
 *   **Quản Lý Hồ Sơ Cá Nhân:** Cho phép khách hàng xem và cập nhật thông tin cá nhân của mình.
 *   **Đánh Giá & Phản Hồi (Reviews):** Cho phép khách hàng chấm điểm từ 1-5 sao và viết bình luận trải nghiệm (chỉ áp dụng đối với những khách hàng có trạng thái đơn đặt chỗ là `Completed` - đã hoàn thành chuyến đi).
@@ -132,6 +133,7 @@ Dự án áp dụng hệ thống giải pháp lập trình cơ sở dữ liệu 
     *   `trg_AfterBookingInsert`: Khấu trừ ghế trống khi đặt tour thành công; tự động đổi trạng thái sang "Full" khi hết chỗ.
     *   `trg_AfterBookingCancel`: Hoàn lại số ghế trống khi hủy đơn; khôi phục trạng thái lịch khởi hành về "Open".
 *   **User-Defined Functions:** Hàm vô hướng `fn_CalcBookingTotal` tính tiền tự động sau chiết khấu và hàm `fn_GenerateInvoiceCode` tự động sinh mã hóa đơn dạng `INV-{YEAR}-{ID}`.
+*   **Đồng bộ hóa UsedCount của Voucher:** Khi đặt tour thành công qua `CreateBookingAsync`, hệ thống tự động tăng số lượt đã dùng `UsedCount` của mã giảm giá lên 1 đơn vị, được bảo vệ đồng bộ bằng Transaction đồng nhất trong Entity Framework Core nhằm loại bỏ nguy cơ bất đồng bộ dữ liệu.
 
 ---
 

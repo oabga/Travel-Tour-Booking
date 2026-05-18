@@ -4,6 +4,7 @@ export interface CreateBookingRequest {
   numberOfPeople: number;
   discountPercent: number;
   notes?: string;
+  voucherCode?: string;
   passengers: PassengerDto[];
 }
 
