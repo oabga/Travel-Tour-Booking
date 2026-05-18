@@ -56,83 +56,82 @@ Một hệ thống quản lý đặt tour du lịch toàn diện được xây d
 
 ## 🏗️ Kiến Trúc Hệ Thống
 
-Dự án được phân chia theo mô hình **3-Layer Architecture** chuẩn doanh nghiệp nhằm tách biệt các trách nhiệm phát triển (Separation of Concerns):
+Dự án được thiết kế theo mô hình **3-Layer Architecture** (Kiến trúc 3 tầng) chuẩn doanh nghiệp, kết hợp với frontend **Angular** và cơ sở dữ liệu **SQL Server**:
 
 ```text
 Travel-Tour-Booking/
-├── TravelTourBooking/
-│   ├── TravelTourBooking.API/      # PRESENTATION LAYER
-│   │   ├── Controllers/            # Cung cấp endpoints JSON RESTful cho Client
-│   │   └── Middleware/             # ExceptionMiddleware - xử lý lỗi tập trung bảo mật
+├── TravelTourBooking/                      # Mã nguồn Backend & Frontend
+│   ├── TravelTourBooking.API/              # 1. PRESENTATION LAYER (Web API)
+│   │   ├── Controllers/                    # Điểm tiếp nhận HTTP Requests, điều hướng luồng
+│   │   ├── Middleware/                     # ExceptionMiddleware xử lý lỗi và bảo mật toàn cầu
+│   │   └── Program.cs                      # Cấu hình Services, DI Container & Middleware Pipeline
 │   │
-│   ├── TravelTourBooking.BLL/      # BUSINESS LOGIC LAYER
-│   │   ├── Services/               # Xử lý các quy tắc nghiệp vụ (Business Rules)
-│   │   └── Validators/             # Kiểm tra hợp lệ dữ liệu bằng FluentValidation
+│   ├── TravelTourBooking.BLL/              # 2. BUSINESS LOGIC LAYER (Xử lý Nghiệp vụ)
+│   │   ├── Interfaces/                     # Hợp đồng định nghĩa các dịch vụ nghiệp vụ (Services)
+│   │   ├── Services/                       # Hiện thực hóa chi tiết logic nghiệp vụ & ràng buộc (Business Rules)
+│   │   ├── Validators/                     # Bộ xác thực tính hợp lệ dữ liệu đầu vào (FluentValidation)
+│   │   └── Helpers/                        # Công cụ bổ trợ (AutoMapper Profiles, JwtHelper)
 │   │
-│   ├── TravelTourBooking.DAL/      # DATA ACCESS LAYER
-│   │   ├── EFCore/                 # Tương tác ORM thông qua DbContext
-│   │   └── Repositories/           # Sự kết hợp giữa Generic Repository & Specific Repositories
-│   │                               # và các truy vấn tối ưu bằng ADO.NET Connected / Disconnected
+│   ├── TravelTourBooking.DAL/              # 3. DATA ACCESS LAYER (Tương tác Cơ sở dữ liệu)
+│   │   ├── ADO/                            # Cài đặt kết nối SqlDataReader & SqlDataAdapter thô
+│   │   ├── EFCore/                         # Cấu hình Entity Framework Core DbContext & Entities
+│   │   └── Repositories/                   # Bộ đôi Generic Repository & Specific Repositories
 │   │
-│   └── TravelTourBooking.Common/   # SHARED LAYER
-│       └── DTOs/                   # Data Transfer Objects & ApiResponse định dạng chuẩn
+│   ├── TravelTourBooking.Common/           # 4. SHARED LAYER (Thành phần dùng chung)
+│   │   ├── DTOs/                           # Cấu trúc trung chuyển dữ liệu (Data Transfer Objects)
+│   │   └── Enums/                          # Các kiểu liệt kê định nghĩa trạng thái dùng chung
+│   │
+│   └── frontend/                           # 5. ANGULAR CLIENT SIDE (Ứng dụng Giao diện)
+│       └── src/app/
+│           ├── core/                       # Services hệ thống, Guards, HttpInterceptors (JWT)
+│           ├── features/                   # Các tính năng chính (Admin, Tours, Bookings, Auth...)
+│           └── shared/                     # Components, Models và Pipes dùng chung toàn app
 │
-└── database/                       # DATABASE LAYER (SQL Server Scripts)
+├── database/                               # 6. SQL SERVER DATABASE LAYOUT (Kịch bản CSDL)
+│   ├── TravelBookingDB.sql                 # Kịch bản chính (Tạo bảng, SPs, Functions, Triggers, Dữ liệu mẫu)
 ```
 
 ---
 
-## ⚡ Kỹ Thuật Lập Trình Cơ Sở Dữ Liệu Nâng Cao
+## ⚡ Kỹ Thuật Lập Trình Cơ Sở Dữ Liệu
 
-Dự án áp dụng một hệ thống giải pháp lập trình cơ sở dữ liệu chuyên sâu, kết hợp sức mạnh của **ASP.NET Core Web API**, **Entity Framework Core (EF Core 8)**, **Ngôn ngữ truy vấn LINQ** và **ADO.NET truyền thống** để tối ưu hóa hiệu năng và bảo đảm an toàn dữ liệu tuyệt đối.
+Dự án áp dụng hệ thống giải pháp lập trình cơ sở dữ liệu chuyên sâu kết hợp **ASP.NET Core Web API**, **Entity Framework Core 9 (EF Core 9)**, truy vấn **LINQ** và **ADO.NET** để tối ưu hóa hiệu năng và bảo đảm an toàn dữ liệu:
 
 ### 1. ⚙️ ASP.NET Core API & Dependency Injection Container (DI)
-*   **Quản Lý Vòng Đời Kết Nối Database:** Cấu hình và tiêm `AppDbContext` thông qua container DI tích hợp sẵn trong file `Program.cs` sử dụng vòng đời **Scoped** (`builder.Services.AddDbContext<AppDbContext>(...)`). Điều này đảm bảo mỗi yêu cầu HTTP (HTTP Request) sẽ chỉ sử dụng duy nhất một kết nối DB vật lý và tự động đóng/giải phóng kết nối ngay khi phản hồi (HTTP Response) được hoàn tất, ngăn chặn rò rỉ kết nối (Connection Leak).
-*   **Đăng Ký Đa Dạng Lifetimes:**
-    *   **Scoped:** Áp dụng cho các Service nghiệp vụ và Repository (`IBookingService`, `IBookingRepository`, `ITourRepository`...) để giữ trạng thái giao dịch nhất quán trong một request.
-    *   **Singleton:** Áp dụng cho `AdoTourRepository` giúp duy trì duy nhất một chuỗi cấu hình Connection String trong suốt vòng đời của ứng dụng, giảm thiểu tài nguyên khởi tạo.
-*   **Global Exception Handling Middleware:** Hệ thống tích hợp một lớp lọc trung gian `ExceptionMiddleware` bắt toàn bộ lỗi phát sinh từ tầng cơ sở dữ liệu (lỗi khóa ngoại, lỗi trigger, lỗi kết nối DB) và đóng gói thành kết quả đồng nhất `ApiResponse<T>`, giúp che giấu cấu trúc vật lý của CSDL và nâng cao tính bảo mật.
+*   **Scoped DbContext:** Quản lý và tự động giải phóng kết nối `AppDbContext` theo từng HTTP Request, ngăn ngừa rò rỉ kết nối (Connection Leak).
+*   **Lifetimes Phân Biệt:** Đăng ký các Repository/Service dưới dạng **Scoped** để giữ nhất quán giao dịch, riêng `AdoTourRepository` dạng **Singleton** để tối ưu cấu hình kết nối.
+*   **Global Exception Handling:** Middleware tự động chặn bắt mọi lỗi cơ sở dữ liệu vật lý (khóa ngoại, trigger...), che giấu cấu trúc DB gốc để bảo mật thông tin nhạy cảm và trả về lỗi chuẩn `ApiResponse<T>`.
 
-### 2. 🗄️ Entity Framework Core (EF Core 8.0)
-*   **DbContext & Fluent API Config:** Định nghĩa ánh xạ các bảng vật lý và thiết lập cấu hình nâng cao trong lớp `AppDbContext`. Sử dụng Fluent API để thiết lập các mối quan hệ 1-N, N-N, và các ràng buộc dữ liệu.
-*   **Keyless Entity Mapping (Ánh Xạ Khung Nhìn Views):** Sử dụng cấu hình `.HasNoKey().ToView(...)` trong Fluent API để ánh xạ các View phức tạp trong CSDL thành thực thể thực tế trong C#:
-    *   `TourRevenueView` ánh xạ tới View `vw_TourRevenue` (Xem doanh thu lũy kế theo từng tour).
-    *   `PopularTourResult` ánh xạ tới View `vw_PopularTours` (Thống kê lượt đặt và đánh giá trung bình).
-    Các thực thể keyless này được xử lý như các bảng chỉ đọc (Read-only), tối ưu tốc độ đọc dữ liệu thống kê cho Admin.
-*   **Generic & Specific Repository Pattern:**
-    *   `GenericRepository<T>`: Đóng gói các phương thức truy cập dữ liệu cơ bản (CRUD) áp dụng chung cho mọi thực thể để tái sử dụng mã nguồn.
-    *   `Specific Repositories` (`BookingRepository`, `TourRepository`...): Kế thừa Generic và mở rộng các hàm truy xuất đặc thù, cho phép kết hợp linh hoạt cả LINQ, Raw SQL và ADO.NET kết nối.
+### 2. 🗄️ Entity Framework Core 9 (ORM)
+*   **Keyless Entity Mapping:** Sử dụng `.HasNoKey().ToView(...)` trong Fluent API để ánh xạ trực tiếp các Database Views (`vw_TourRevenue` xem doanh thu, `vw_PopularTours` thống kê độ hot) thành các thực thể chỉ đọc (Read-only) trong C#.
+*   **Mẫu Thiết Kế Repository:** Triển khai **Generic & Specific Repository Pattern** giúp tái sử dụng mã nguồn CRUD cơ bản và dễ dàng mở rộng các phương thức truy xuất dữ liệu nâng cao.
 
 ### 3. 🔍 Công Nghệ Truy Vấn LINQ (Language Integrated Query)
-*   **LINQ to Entities (Truy Vấn Tối Ưu Phía CSDL):** Tác động trực tiếp lên các đối tượng `IQueryable<T>`. EF Core sẽ biên dịch (compile) các biểu thức Lambda C# thành mã lệnh SQL tối ưu để thực thi trực tiếp dưới Server SQL Server:
-    *   **Phân trang dữ liệu tại Database:** Sử dụng `.Skip((page-1)*pageSize).Take(pageSize)` giúp SQL Server chỉ tải đúng số bản ghi của trang hiện tại lên bộ nhớ RAM.
-    *   **Lọc dữ liệu động:** Kết hợp liên tiếp các hàm `.Where()` dựa trên điều kiện lọc của người dùng trước khi gọi các hàm kích hoạt thực thi (`ToListAsync()`, `FirstOrDefaultAsync()`).
-    *   **Eager Loading (Tải kèm dữ liệu liên quan):** Sử dụng các hàm `.Include(t => t.Category).ThenInclude(...)` để dịch thành các câu lệnh `LEFT JOIN` tối ưu phía database, ngăn ngừa triệt để lỗi hiệu năng kinh điển $N+1$ Query.
-*   **LINQ to Objects (Xử Lý Bộ Nhớ RAM Máy Chủ BLL):** Sử dụng để ánh xạ (Projection) các thực thể DB sang DTO bằng cách biến đổi cấu trúc danh sách `IEnumerable` trong bộ nhớ RAM máy chủ. Phối hợp nhịp nhàng với các cấu hình ánh xạ tự động trong AutoMapper Profiles (`MappingProfile.cs`).
-*   **LINQ to XML (`XDocument`):** Áp dụng kỹ thuật truy vấn và xử lý dữ liệu XML cao cấp trong các tính năng Export/Import danh mục Tour du lịch và đơn đặt chỗ. Cho phép chuyển đổi linh hoạt dữ liệu dạng bảng quan hệ của SQL Server sang định dạng tài liệu XML cây phân cấp và ngược lại một cách nhanh chóng.
+*   **LINQ to Entities:** Biên dịch Lambda C# thành SQL tối ưu chạy trực tiếp dưới SQL Server:
+    *   *Phân trang:* Dùng `.Skip().Take()` giúp chỉ tải các bản ghi của trang hiện tại lên RAM.
+    *   *Eager Loading:* Dùng `.Include()` dịch thành phép `LEFT JOIN` tối ưu, loại bỏ triệt để lỗi hiệu năng $N+1$ Query và chống tấn công SQL Injection.
+*   **LINQ to Objects & XML:** Ánh xạ dữ liệu sang DTO tự động qua AutoMapper và sử dụng `XDocument` để import/export danh mục Tour bằng XML phân cấp.
 
 ### 4. ⚡ EF Core SqlQueryRaw (SQL Thô Cấp Cao)
-*   Thực thi trực tiếp các câu lệnh SQL thô thông qua hàm `_db.Database.SqlQueryRaw<TResult>(...)`.
-*   Giúp chạy trực tiếp các View phân tích dữ liệu thống kê hoặc gọi thủ tục lưu trữ với các tham số an toàn, tự động ánh xạ (map) kết quả trả về thành mảng DTO tùy biến mà không cần khai báo bảng DB vật lý tương ứng trong DbContext. Bảo vệ hệ thống tuyệt đối khỏi lỗi tấn công chèn mã độc (SQL Injection).
+*   Thực thi trực tiếp các câu truy vấn SQL phức tạp qua hàm `SqlQueryRaw<TResult>(...)`.
+*   Tự động ánh xạ kết quả từ DB thành DTO tùy biến một cách an toàn mà không cần khai báo thực thể vật lý trong DbContext, bảo mật tuyệt đối trước SQL Injection.
 
 ### 5. 🔌 ADO.NET Connected Model (Kết Nối Liên Tục)
-*   **Công Cụ:** `SqlConnection`, `SqlCommand` (sử dụng `CommandType.StoredProcedure`), và `SqlDataReader`.
-*   **Cơ Chế Hoạt Động:** Duy trì kết nối liên tục từ API Server tới SQL Server trong suốt quá trình đọc dữ liệu. Sử dụng vòng lặp `while (await reader.ReadAsync())` để duyệt và nạp dữ liệu tuần tự dưới dạng luồng (stream) trực tiếp từ database về RAM máy chủ, sau đó chủ động đóng kết nối ngay lập tức.
-*   **Ứng Dụng:** Áp dụng cho chức năng tìm kiếm tour gần đúng theo đa tiêu chí (`sp_SearchTours`) và thống kê tài chính (`sp_RevenueReport`). Đây là giải pháp tối ưu hiệu năng đọc cực kỳ vượt trội đối với các bảng dữ liệu khổng lồ vì không phải nạp toàn bộ danh sách đồ sộ vào bộ nhớ RAM của Web API Server cùng lúc như cơ chế tracking của EF Core.
+*   **Công cụ:** Sử dụng bộ ba `SqlConnection`, `SqlCommand` (Stored Procedure) và `SqlDataReader`.
+*   **Cơ chế:** Duy trì kết nối vật lý liên tục để nạp dữ liệu dạng luồng tuần tự (`SqlDataReader.ReadAsync()`) trực tiếp về RAM.
+*   **Ứng dụng:** Áp dụng cho tìm kiếm tour (`sp_SearchTours`) và thống kê doanh thu (`sp_RevenueReport`), tối ưu hiệu năng đọc cực nhanh cho các bảng dữ liệu khổng lồ mà không tốn bộ nhớ RAM để tracking thực thể.
 
 ### 6. 💾 ADO.NET Disconnected Model (Kết Nối Không Liên Tục)
-*   **Công Cụ:** `SqlDataAdapter`, `DataSet`, `DataTable`, và mối quan hệ ngoại tuyến `DataRelation`.
-*   **Cơ Chế Hoạt Động:** Sử dụng bộ điều phối `SqlDataAdapter` như chiếc phà trung chuyển dữ liệu. Thực hiện mở kết nối, truy vấn dữ liệu, nạp đầy cấu trúc cây dữ liệu offline `DataSet` nằm hoàn toàn trên RAM máy chủ thông qua hàm `adapter.Fill(dataSet)`, rồi tự động ngắt kết nối vật lý với Database ngay lập tức.
-*   **Ứng Dụng:** Sử dụng trong `AdoTourRepository` để tải đồng thời bảng Danh mục Tour và lịch trình đi kèm, sau đó thiết lập mối quan hệ liên kết ngoại tuyến giữa 2 bảng (`ds.Relations.Add("Tour_Schedules", ...)`) hoàn toàn trên RAM của máy chủ. Kỹ thuật này giúp hệ thống hoạt động cực kỳ nhẹ nhàng, giảm tải trọng kết nối đồng thời lên SQL Server đối với các dữ liệu tĩnh ít biến động.
+*   **Công cụ:** Sử dụng bộ điều phối `SqlDataAdapter`, cấu trúc dữ liệu offline `DataSet` và `DataTable`.
+*   **Cơ chế:** Đổ toàn bộ dữ liệu thô vào `DataSet` ngoại tuyến thông qua `adapter.Fill()`, sau đó ngắt kết nối vật lý với DB ngay lập tức để thực hiện liên kết dữ liệu quan hệ (`ds.Relations.Add`) trên bộ nhớ RAM.
+*   **Ứng dụng:** Tải đồng thời bảng Tour và Lịch trình đi kèm, thiết lập quan hệ ảo để giảm tải tối đa số lượng kết nối đồng thời lên máy chủ SQL Server.
 
 ### 7. ⚡ Cơ Chế An Toàn Giao Dịch & Tự Động Hóa Database (SQL Server Programming)
-*   **Concurrency Control (Kiểm Soát Tranh Chấp Đồng Thời):** Trong Stored Procedure `sp_CreateBooking`, hệ thống khởi chạy một giao dịch an toàn (`BEGIN TRANSACTION`). Sử dụng các cơ chế khóa dòng nâng cao (`UPDLOCK`, `ROWLOCK`) để khóa tạm thời dòng dữ liệu của lịch trình đang đặt tour. Đảm bảo tại một thời điểm, chỉ một yêu cầu đặt tour được phép can thiệp trừ ghế trống, ngăn chặn hoàn toàn lỗi bán vượt quá số chỗ (Overbooking).
-*   **Database Triggers (Tự Động Hóa Ràng Buộc):**
-    *   `trg_AfterBookingInsert`: Tự động trừ số lượng ghế trống (`AvailableSlots`) của lịch trình du lịch ngay khi có đơn đặt tour thành công. Nếu số chỗ trống bằng 0, tự động chuyển trạng thái lịch trình sang "Full".
-    *   `trg_AfterBookingCancel`: Tự động cộng trả lại số lượng ghế trống cho lịch trình khi có đơn hàng cập nhật trạng thái sang "Cancelled", chuyển trạng thái lịch trình về "Open" nếu trước đó đang bị khóa đầy chỗ.
-*   **User-Defined Functions (Hàm Tự Định Nghĩa):**
-    *   **Scalar Function `fn_CalcBookingTotal`:** Tự động tính toán tổng số tiền của đơn hàng dựa trên công thức nghiệp vụ phức tạp: `Giá Tour * Số Người * (1 - Chiết khấu/100)`.
-    *   **Scalar Function `fn_GenerateInvoiceCode`:** Tự động sinh mã hóa đơn định dạng chuỗi chuyên nghiệp: `INV-{YEAR_NOW}-{BOOKING_ID}` (ví dụ: `INV-2026-0001`).
+*   **Concurrency Control (Kiểm soát đồng thời):** Giao dịch an toàn (`BEGIN TRANSACTION` trong `sp_CreateBooking`) kết hợp khóa dòng dữ liệu (`UPDLOCK`, `ROWLOCK`) để loại bỏ hoàn toàn tranh chấp đặt vé đồng thời gây bán quá số chỗ (**Overbooking**).
+*   **Database Triggers:** Cập nhật ghế trống real-time và tự động khóa/mở lịch trình khi có sự thay đổi đơn đặt chỗ:
+    *   `trg_AfterBookingInsert`: Khấu trừ ghế trống khi đặt tour thành công; tự động đổi trạng thái sang "Full" khi hết chỗ.
+    *   `trg_AfterBookingCancel`: Hoàn lại số ghế trống khi hủy đơn; khôi phục trạng thái lịch khởi hành về "Open".
+*   **User-Defined Functions:** Hàm vô hướng `fn_CalcBookingTotal` tính tiền tự động sau chiết khấu và hàm `fn_GenerateInvoiceCode` tự động sinh mã hóa đơn dạng `INV-{YEAR}-{ID}`.
 
 ---
 
@@ -181,13 +180,3 @@ Hệ thống được bảo mật và phân quyền chặt chẽ bằng cơ ch�
 | **Nhân viên (Staff)** | `staff@travel.com` | `Staff@123` | Quản lý lịch trình tour du lịch, xem danh sách hành khách đi kèm của đơn hàng và hỗ trợ khách hàng đặt/hủy tour. |
 | **Khách hàng (Customer)** | `an@gmail.com` | `Customer@123` | Tìm kiếm tour du lịch, tiến hành đặt chỗ điền thông tin hành khách, thanh toán, đánh giá xếp hạng tour và xem lịch sử đặt chỗ. |
 
----
-
-## 📖 Tài Liệu Hướng Dẫn Tự Học & Bảo Vệ Đồ Án Chi Tiết
-
-Nếu bạn đang sử dụng mã nguồn này làm bài tập lớn hoặc đồ án tốt nghiệp, chúng tôi đã biên soạn riêng một bộ tài liệu hướng dẫn học nhanh, giải thích cặn kẽ từng dòng code kèm theo **Bộ câu hỏi FAQ Phản biện đạt điểm A+** tại đây:
-
-👉 **[Tài liệu hướng dẫn học nhanh & bảo vệ đồ án (readme_explanation.md)](readme_explanation.md)** hoặc tại thư mục **[FunctionsAndTasks/readme_explanation.md](FunctionsAndTasks/readme_explanation.md)**
-
----
-*Chúc bạn có những trải nghiệm tuyệt vời và bảo vệ đồ án thành công rực rỡ!*
