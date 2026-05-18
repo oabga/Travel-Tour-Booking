@@ -60,9 +60,20 @@ public class PaymentsController : ControllerBase
 
     [HttpPut("{id}/confirm")]
     [Authorize(Roles = "Staff,Admin")]
-    public async Task<IActionResult> Confirm(int id)
+    public async Task<IActionResult> Confirm(int id, [FromBody] ConfirmPaymentRequestDto body)
     {
-        var result = await _service.ConfirmPaymentAsync(id);
+        if (body is null || body.VerifiedAmount <= 0)
+            return BadRequest(new { message = "Vui lòng nhập số tiền thực nhận (verifiedAmount)." });
+
+        var result = await _service.ConfirmPaymentAsync(id, body.VerifiedAmount);
+        return Ok(result);
+    }
+
+    [HttpPut("{id}/reject")]
+    [Authorize(Roles = "Staff,Admin")]
+    public async Task<IActionResult> Reject(int id)
+    {
+        var result = await _service.RejectPaymentAsync(id);
         return Ok(result);
     }
 

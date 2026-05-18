@@ -1,5 +1,5 @@
 -- ============================================================
---  migrate_tour_images.sql
+--  optional_patch_tour_images.sql (tùy chọn — DB cũ, không chạy sau 03_seed_catalog)
 --  Gán ảnh RIÊNG cho từng tour (theo TourId) — không trùng.
 --  Chạy sau BACKUP.
 -- ============================================================
@@ -64,5 +64,5 @@ UPDATE Tours SET ImageUrl = N'https://picsum.photos/seed/phu-quoc-nam-du-island/
 SELECT ImageUrl, COUNT(*) AS Cnt FROM Tours GROUP BY ImageUrl HAVING COUNT(*) > 1;
 SELECT T.TourId, T.TourName, LEFT(T.ImageUrl, 60) AS Img FROM Tours T WHERE T.TourId >= 37 ORDER BY T.TourId;
 
-PRINT N'✅ migrate_tour_images.sql hoàn tất.';
+PRINT N'✅ optional_patch_tour_images.sql hoàn tất.';
 GO

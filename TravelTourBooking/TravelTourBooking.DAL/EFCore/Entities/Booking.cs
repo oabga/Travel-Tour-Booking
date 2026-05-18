@@ -30,6 +30,10 @@ public class Booking
     [MaxLength(255)]
     public string? Notes { get; set; }
 
+    public DateTime? PaymentSessionStartedAt { get; set; }
+
+    public DateTime? PaymentDeadlineAt { get; set; }
+
     // Navigation
     [ForeignKey(nameof(ScheduleId))]
     public TourSchedule? Schedule { get; set; }

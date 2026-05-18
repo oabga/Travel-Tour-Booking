@@ -9,7 +9,8 @@ import {
   CheckoutPaymentResult,
   PaymentConfig,
   SubmitPaymentResult,
-  ConfirmPaymentResult
+  ConfirmPaymentResult,
+  RejectPaymentResult
 } from '../shared/models';
 
 @Injectable({ providedIn: 'root' })
@@ -44,8 +45,12 @@ export class PaymentService {
     );
   }
   
-  confirm(id: number): Observable<ConfirmPaymentResult> {
-    return this.http.put<ConfirmPaymentResult>(`${this.url}/${id}/confirm`, {});
+  confirm(id: number, verifiedAmount: number): Observable<ConfirmPaymentResult> {
+    return this.http.put<ConfirmPaymentResult>(`${this.url}/${id}/confirm`, { verifiedAmount });
+  }
+
+  reject(id: number): Observable<RejectPaymentResult> {
+    return this.http.put<RejectPaymentResult>(`${this.url}/${id}/reject`, {});
   }
 
   getByBooking(bookingId: number): Observable<PaymentDto[]> {

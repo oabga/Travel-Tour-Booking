@@ -11,9 +11,25 @@ export interface PaymentDto {
 
 export interface CreatePaymentDto {
   bookingId: number;
-  amount: number;
+  amount?: number;
   paymentMethod?: string;
   transactionCode?: string;
+}
+
+export interface PaymentSession {
+  bookingId: number;
+  deadlineUtc?: string | null;
+  remainingSeconds: number;
+  amountDue: number;
+  expired?: boolean;
+  cancelled?: boolean;
+  message?: string | null;
+}
+
+export interface ExpirePaymentSessionResult {
+  expired: boolean;
+  cancelled: boolean;
+  message?: string | null;
 }
 
 export interface CreateCashPaymentDto {
@@ -42,6 +58,7 @@ export interface PaymentConfig {
 export interface SubmitPaymentResult {
   paymentId: number;
   status: string;
+  amountExpected?: number;
   emailSent: boolean;
   emailError?: string | null;
   message: string;
@@ -52,5 +69,11 @@ export interface ConfirmPaymentResult {
   bookingConfirmed: boolean;
   emailSent: boolean;
   remainingAmount: number;
+  paymentMatch?: string | null;
+  message: string;
+}
+
+export interface RejectPaymentResult {
+  success: boolean;
   message: string;
 }

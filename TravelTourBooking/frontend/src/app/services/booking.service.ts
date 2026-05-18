@@ -4,7 +4,7 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   ApiResponse, CreateBookingRequest, BookingResponse,
-  BookingDetailView, BookingHistory
+  BookingDetailView, BookingHistory, PaymentSession, ExpirePaymentSessionResult
 } from '../shared/models';
 
 @Injectable({ providedIn: 'root' })
@@ -35,6 +35,16 @@ export class BookingService {
 
   getAll(): Observable<BookingHistory[]> {
     return this.http.get<ApiResponse<BookingHistory[]>>(`${this.url}/all`)
+      .pipe(map(r => r.data));
+  }
+
+  startPaymentSession(bookingId: number): Observable<PaymentSession> {
+    return this.http.post<ApiResponse<PaymentSession>>(`${this.url}/${bookingId}/start-payment-session`, {})
+      .pipe(map(r => r.data));
+  }
+
+  expirePaymentSession(bookingId: number): Observable<ExpirePaymentSessionResult> {
+    return this.http.post<ApiResponse<ExpirePaymentSessionResult>>(`${this.url}/${bookingId}/expire-payment-session`, {})
       .pipe(map(r => r.data));
   }
 }

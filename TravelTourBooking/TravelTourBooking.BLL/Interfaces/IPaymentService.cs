@@ -14,7 +14,8 @@ public interface IPaymentService
     Task<int> CreateBankTransferAsync(CreatePaymentDto dto);
     Task<int> CreateCashPaymentAsync(CreateCashPaymentDto dto);
     Task<IEnumerable<PaymentDto>> GetPaymentsByBookingAsync(int bookingId);
-    Task<ConfirmPaymentResultDto> ConfirmPaymentAsync(int paymentId);
+    Task<ConfirmPaymentResultDto> ConfirmPaymentAsync(int paymentId, decimal verifiedAmount);
+    Task<RejectPaymentResultDto> RejectPaymentAsync(int paymentId);
     Task<bool> RefundPaymentAsync(int paymentId);
     Task<decimal> GetTotalPaidAsync(int bookingId);
     Task<decimal> GetRemainingAmountAsync(int bookingId);

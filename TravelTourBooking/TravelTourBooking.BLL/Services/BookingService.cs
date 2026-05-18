@@ -9,6 +9,9 @@ namespace TravelTourBooking.BLL.Services;
 
 public class BookingService(IBookingRepository bookingRepo, AppDbContext dbContext) : IBookingService
 {
+    private const int PaymentSessionMinutes = 2;
+
+    private static readonly string[] BlockingPaymentStatuses = ["Pending", "Completed"];
     // ── Đặt Tour ───────────────────────────────────────────────────────────
     public async Task<BookingResponseDto> CreateBookingAsync(CreateBookingRequestDto dto)
     {
@@ -151,8 +154,132 @@ public class BookingService(IBookingRepository bookingRepo, AppDbContext dbConte
     // ── Hủy Booking ────────────────────────────────────────────────────────
     public async Task CancelBookingAsync(int bookingId)
     {
-        // sp_CancelBooking tự kiểm tra status và THROW nếu lỗi
+        if (await HasBlockingPaymentAsync(bookingId))
+            throw new InvalidOperationException(
+                "Không thể hủy booking đã có thanh toán chờ xác minh hoặc đã thanh toán. Hãy từ chối/xác nhận giao dịch thay vì hủy.");
+
         await bookingRepo.CancelBookingSpAsync(bookingId);
+    }
+
+    public async Task<PaymentSessionDto> StartPaymentSessionAsync(int bookingId)
+    {
+        var booking = await bookingRepo.GetByIdAsync(bookingId)
+            ?? throw new KeyNotFoundException("Booking not found");
+
+        if (booking.Status == "Cancelled")
+            return new PaymentSessionDto
+            {
+                BookingId = bookingId,
+                Expired = true,
+                Cancelled = true,
+                Message = "Booking đã bị hủy."
+            };
+
+        if (booking.Status is not "Pending")
+            throw new InvalidOperationException("Chỉ booking chờ thanh toán mới mở phiên thanh toán.");
+
+        if (await HasBlockingPaymentAsync(bookingId))
+        {
+            var due = await GetAmountDueAsync(bookingId);
+            return new PaymentSessionDto
+            {
+                BookingId = bookingId,
+                AmountDue = due,
+                RemainingSeconds = 0,
+                Message = "Đã gửi thông tin thanh toán. Đang chờ xác minh."
+            };
+        }
+
+        if (booking.PaymentSessionStartedAt is null)
+        {
+            var now = DateTime.Now;
+            booking.PaymentSessionStartedAt = now;
+            booking.PaymentDeadlineAt = now.AddMinutes(PaymentSessionMinutes);
+            await bookingRepo.UpdateAsync(booking);
+        }
+
+        if (booking.PaymentDeadlineAt.HasValue && DateTime.Now > booking.PaymentDeadlineAt.Value)
+        {
+            var expired = await TryExpirePendingPaymentSessionAsync(bookingId);
+            return expired;
+        }
+
+        var remainingSec = booking.PaymentDeadlineAt.HasValue
+            ? Math.Max(0, (int)(booking.PaymentDeadlineAt.Value - DateTime.Now).TotalSeconds)
+            : PaymentSessionMinutes * 60;
+
+        return new PaymentSessionDto
+        {
+            BookingId = bookingId,
+            DeadlineUtc = booking.PaymentDeadlineAt,
+            RemainingSeconds = remainingSec,
+            AmountDue = await GetAmountDueAsync(bookingId),
+            Message = "Quét QR và gửi mã giao dịch trong thời gian quy định."
+        };
+    }
+
+    public async Task<ExpirePaymentSessionResultDto> ExpirePaymentSessionAsync(int bookingId)
+    {
+        var result = await TryExpirePendingPaymentSessionAsync(bookingId);
+        return new ExpirePaymentSessionResultDto
+        {
+            Expired = result.Expired,
+            Cancelled = result.Cancelled,
+            Message = result.Message
+        };
+    }
+
+    private async Task<PaymentSessionDto> TryExpirePendingPaymentSessionAsync(int bookingId)
+    {
+        var booking = await bookingRepo.GetByIdAsync(bookingId);
+        if (booking is null)
+            return new PaymentSessionDto { BookingId = bookingId, Message = "Booking not found" };
+
+        if (booking.Status != "Pending" || await HasBlockingPaymentAsync(bookingId))
+            return new PaymentSessionDto
+            {
+                BookingId = bookingId,
+                Expired = false,
+                Cancelled = false,
+                AmountDue = await GetAmountDueAsync(bookingId)
+            };
+
+        if (!booking.PaymentDeadlineAt.HasValue || DateTime.Now <= booking.PaymentDeadlineAt.Value)
+            return new PaymentSessionDto
+            {
+                BookingId = bookingId,
+                Expired = false,
+                RemainingSeconds = booking.PaymentDeadlineAt.HasValue
+                    ? (int)(booking.PaymentDeadlineAt.Value - DateTime.Now).TotalSeconds
+                    : 0,
+                AmountDue = await GetAmountDueAsync(bookingId)
+            };
+
+        await bookingRepo.CancelBookingSpAsync(bookingId);
+        return new PaymentSessionDto
+        {
+            BookingId = bookingId,
+            Expired = true,
+            Cancelled = true,
+            RemainingSeconds = 0,
+            Message = "Đã hết thời gian thanh toán. Chỗ đã được trả cho khách khác."
+        };
+    }
+
+    private async Task<bool> HasBlockingPaymentAsync(int bookingId) =>
+        await dbContext.Payments.AnyAsync(p =>
+            p.BookingId == bookingId && BlockingPaymentStatuses.Contains(p.Status));
+
+    private async Task<decimal> GetAmountDueAsync(int bookingId)
+    {
+        var booking = await bookingRepo.GetByIdAsync(bookingId);
+        if (booking?.TotalAmount is null) return 0;
+
+        var paid = await dbContext.Payments
+            .Where(p => p.BookingId == bookingId && p.Status == "Completed")
+            .SumAsync(p => (decimal?)p.Amount) ?? 0;
+
+        return Math.Max(0, booking.TotalAmount.Value - paid);
     }
 
     // ── Chi tiết Đơn hàng (vw_BookingDetails) ──────────────────────────────

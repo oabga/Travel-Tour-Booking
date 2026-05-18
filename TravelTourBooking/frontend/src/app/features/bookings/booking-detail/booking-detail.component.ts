@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, FormsModule } from '@angular/forms';
 import { BookingService } from '../../../services/booking.service';
 import { PaymentService } from '../../../services/payment.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -10,7 +10,7 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
 @Component({
   selector: 'app-booking-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule],
   template: `
     @if (loading) {
       <div class="spinner-overlay py-5">
@@ -158,24 +158,40 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
                       </small>
 
                       @if (auth.userRole() !== 'Customer' && pay.status === 'Pending') {
-                        <div class="mt-2">
-                          <button class="btn btn-sm btn-success"
-                                  (click)="confirmPayment(pay.paymentId)">
-                            Confirm
+                        <div class="mt-2 d-flex gap-1 flex-wrap">
+                          <button type="button" class="btn btn-sm btn-success"
+                                  (click)="openConfirmModal(pay)">
+                            Xác nhận
+                          </button>
+                          <button type="button" class="btn btn-sm btn-outline-danger"
+                                  (click)="rejectPayment(pay.paymentId)" [disabled]="rejecting">
+                            Từ chối
                           </button>
                         </div>
                       }
 
+                      @if (pay.status === 'Pending') {
+                        <span class="badge bg-warning text-dark mt-1 d-block mt-1">Chờ xác minh</span>
+                      }
+                      @if (pay.status === 'Failed') {
+                        <span class="badge bg-secondary mt-1 d-block">Đã từ chối</span>
+                      }
                       @if (pay.status === 'Completed') {
-                        <span class="badge bg-success mt-1">Completed</span>
+                        <span class="badge bg-success mt-1 d-block">Đã xác nhận</span>
                       }
                     </div>
                   }
                 }
               </div>
             </div>
-            @if (auth.userRole()  === 'Customer' || auth.userRole() === 'Staff') {
-            <!-- Payment Form -->
+            @if (auth.userRole() === 'Customer' && booking.bookingStatus === 'Pending' && remaining > 0 && !hasBlockingPayment) {
+              <a [routerLink]="['/bookings', booking.bookingId, 'payment']"
+                 class="btn btn-success w-100 mb-3">
+                <i class="bi bi-qr-code me-1"></i> Thanh toán MoMo (QR)
+              </a>
+            }
+            @if (auth.userRole() === 'Staff') {
+            <!-- Payment Form (Staff: tiền mặt) -->
             @if (booking.bookingStatus !== 'Cancelled' && remaining > 0) {
               <div class="card border-0 shadow-sm">
                 <div class="card-header"><h6 class="mb-0">Thanh toán mới</h6></div>
@@ -186,22 +202,7 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
                       <input type="number" class="form-control" formControlName="amount">
                     </div>
                     
-                    <div class="mb-2">
-                      <label class="form-label">Phương thức</label>
-                      <select class="form-select" formControlName="paymentMethod">
-                        @if (auth.userRole()  === 'Customer') {
-                        <option value="BankTransfer">Chuyển khoản</option>
-                        <option value="VNPay">VNPay</option>
-                        <option value="MoMo">MoMo</option>}
-                        @if (auth.userRole() === 'Staff') {
-                        <option value="Cash">Tiền mặt</option>}
-                      </select>
-                    </div>
-                    @if (auth.userRole()  === 'Customer') {
-                    <div class="mb-2">
-                      <label class="form-label">Mã giao dịch</label>
-                      <input type="text" class="form-control" formControlName="transactionCode">
-                    </div>}
+                    <input type="hidden" formControlName="paymentMethod" value="Cash">
                     <button type="submit" class="btn btn-success w-100 mt-2"
                             [disabled]="payLoading || payForm.invalid">
                       @if (payLoading) {
@@ -216,6 +217,51 @@ import { BookingDetailView, PaymentDto } from '../../../shared/models';
             }
           </div>
         </div>
+
+        @if (confirmPaymentId !== null) {
+          <div class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,.5)">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Xác nhận thanh toán</h5>
+                  <button type="button" class="btn-close" (click)="closeConfirmModal()"></button>
+                </div>
+                <div class="modal-body">
+                  <p class="small text-muted mb-2">
+                    Đối chiếu app MoMo. Còn phải thu: <strong>{{ remaining | number:'1.0-0' }} VND</strong>
+                  </p>
+                  <label class="form-label fw-semibold">Số tiền thực nhận (VND)</label>
+                  <input type="number" class="form-control form-control-lg" [(ngModel)]="verifiedAmount"
+                         [ngModelOptions]="{standalone: true}" min="1">
+                  @if (verifiedAmount > 0 && remaining > 0) {
+                    <p class="small mt-2 mb-0"
+                       [class.text-success]="verifiedAmount >= remaining"
+                       [class.text-warning]="verifiedAmount > 0 && verifiedAmount < remaining"
+                       [class.text-danger]="verifiedAmount > remaining">
+                      @if (verifiedAmount < remaining) {
+                        Thiếu {{ remaining - verifiedAmount | number:'1.0-0' }} VND
+                      } @else if (verifiedAmount > remaining) {
+                        Thừa {{ verifiedAmount - remaining | number:'1.0-0' }} VND
+                      } @else {
+                        Khớp số tiền cần thu
+                      }
+                    </p>
+                  }
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" (click)="closeConfirmModal()">Đóng</button>
+                  <button type="button" class="btn btn-success" (click)="confirmPaymentWithAmount()"
+                          [disabled]="confirming || verifiedAmount <= 0">
+                    @if (confirming) {
+                      <span class="spinner-border spinner-border-sm me-1"></span>
+                    }
+                    Xác nhận
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     }
   `
@@ -230,15 +276,19 @@ export class BookingDetailComponent implements OnInit {
   msg = '';
   msgOk = false;
   payLoading = false;
+  rejecting = false;
+  confirming = false;
+  confirmPaymentId: number | null = null;
+  verifiedAmount = 0;
 
-  // Customer: chỉ hủy Pending; Staff/Admin: hủy cả Pending và Confirmed
+  get hasBlockingPayment(): boolean {
+    return this.payments.some(p => p.status === 'Pending' || p.status === 'Completed');
+  }
+
   get canCancel(): boolean {
-    if (!this.booking) return false;
-    const role = this.auth.userRole();
+    if (!this.booking || this.hasBlockingPayment) return false;
     const status = this.booking.bookingStatus;
-    if (role === 'Customer') return status === 'Pending';
-    if (role === 'Staff' || role === 'Admin') return status === 'Pending' || status === 'Confirmed';
-    return false;
+    return status === 'Pending';
   }
 
   payForm = this.fb.nonNullable.group({
@@ -283,15 +333,47 @@ export class BookingDetailComponent implements OnInit {
     this.paymentSvc.getRemaining(bookingId).subscribe(v => this.remaining = v);
   }
 
-  confirmPayment(id: number) {
-    this.paymentSvc.confirm(id).subscribe({
+  openConfirmModal(pay: PaymentDto): void {
+    this.confirmPaymentId = pay.paymentId;
+    this.verifiedAmount = pay.amount || this.remaining;
+  }
+
+  closeConfirmModal(): void {
+    this.confirmPaymentId = null;
+  }
+
+  confirmPaymentWithAmount(): void {
+    if (this.confirmPaymentId === null) return;
+    this.confirming = true;
+    this.paymentSvc.confirm(this.confirmPaymentId, this.verifiedAmount).subscribe({
       next: res => {
+        this.confirming = false;
+        this.closeConfirmModal();
         this.msg = res.message;
         this.msgOk = res.success;
         this.loadAll();
       },
       error: err => {
+        this.confirming = false;
         this.msg = err.error?.message ?? 'Xác nhận thất bại.';
+        this.msgOk = false;
+      }
+    });
+  }
+
+  rejectPayment(id: number): void {
+    if (!confirm('Từ chối giao dịch này? Khách có thể gửi lại mã nếu còn thời hạn thanh toán.')) return;
+    this.rejecting = true;
+    this.paymentSvc.reject(id).subscribe({
+      next: res => {
+        this.rejecting = false;
+        this.msg = res.message;
+        this.msgOk = true;
+        this.loadAll();
+      },
+      error: err => {
+        this.rejecting = false;
+        this.msg = err.error?.message ?? 'Từ chối thất bại.';
         this.msgOk = false;
       }
     });

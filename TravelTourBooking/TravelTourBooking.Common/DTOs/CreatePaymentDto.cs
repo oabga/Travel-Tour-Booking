@@ -4,7 +4,8 @@ public class CreatePaymentDto
 {
     public int BookingId { get; set; }
 
-    public decimal Amount { get; set; }
+    /// <summary>Không bắt buộc — server tự lấy số còn phải trả khi khách submit MoMo.</summary>
+    public decimal? Amount { get; set; }
 
     public string? PaymentMethod { get; set; }
 

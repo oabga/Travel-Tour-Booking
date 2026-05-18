@@ -26,4 +26,7 @@ public interface IBookingService
 
     Task<IEnumerable<BookingHistoryDto>> GetAllBookingsAsync();
 
+    Task<PaymentSessionDto> StartPaymentSessionAsync(int bookingId);
+
+    Task<ExpirePaymentSessionResultDto> ExpirePaymentSessionAsync(int bookingId);
 }

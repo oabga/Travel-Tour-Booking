@@ -50,6 +50,26 @@ public class BookingsController(IBookingService svc) : ControllerBase
     /// PUT /api/bookings/{id}/cancel — Hủy booking → gọi sp_CancelBooking.
     /// Customer hủy tour của mình; Staff/Admin hủy hộ khách khi có yêu cầu.
     /// </summary>
+    /// <summary>Bắt đầu phiên thanh toán 2 phút (từ lần mở trang QR đầu tiên).</summary>
+    [HttpPost("{id:int}/start-payment-session")]
+    [Authorize(Roles = "Customer,Staff,Admin")]
+    [ProducesResponseType(typeof(ApiResponse<PaymentSessionDto>), 200)]
+    public async Task<IActionResult> StartPaymentSession(int id)
+    {
+        var session = await svc.StartPaymentSessionAsync(id);
+        return Ok(ApiResponse<PaymentSessionDto>.Ok(session));
+    }
+
+    /// <summary>Hủy booking nếu quá hạn phiên thanh toán và chưa gửi mã giao dịch.</summary>
+    [HttpPost("{id:int}/expire-payment-session")]
+    [Authorize(Roles = "Customer,Staff,Admin")]
+    [ProducesResponseType(typeof(ApiResponse<ExpirePaymentSessionResultDto>), 200)]
+    public async Task<IActionResult> ExpirePaymentSession(int id)
+    {
+        var result = await svc.ExpirePaymentSessionAsync(id);
+        return Ok(ApiResponse<ExpirePaymentSessionResultDto>.Ok(result));
+    }
+
     [HttpPut("{id:int}/cancel")]
     [Authorize(Roles = "Customer,Staff,Admin")]
     [ProducesResponseType(typeof(ApiResponse<string>), 200)]

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BaseChartDirective } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { ReportService } from '../../../services/report.service';
 import { MonthlyRevenueDto, PopularTourDto, TourRevenueDto, OccupancyRateDto } from '../../../shared/models';
@@ -10,7 +10,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, NgChartsModule],
   template: `
     <h3 class="mb-4"><i class="bi bi-bar-chart-line me-2"></i>Dashboard</h3>
 

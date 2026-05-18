@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -34,6 +34,15 @@ import { environment } from '../../../../environments/environment';
         <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
       } @else if (!booking) {
         <div class="alert alert-danger">Không tìm thấy booking.</div>
+      } @else if (sessionCancelled || booking.bookingStatus === 'Cancelled') {
+        <div class="card border-0 shadow-sm text-center py-5">
+          <div class="card-body">
+            <i class="bi bi-x-circle text-danger display-4 mb-3"></i>
+            <h4 class="fw-bold">Đã hết thời gian giữ chỗ</h4>
+            <p class="text-muted">{{ sessionMessage || 'Chỗ đã được trả cho khách khác. Vui lòng đặt tour lại.' }}</p>
+            <a routerLink="/tours" class="btn btn-primary mt-2">Đặt tour khác</a>
+          </div>
+        </div>
       } @else if (paidComplete) {
         <div class="card border-0 shadow-sm text-center py-5">
           <div class="card-body">
@@ -67,7 +76,7 @@ import { environment } from '../../../../environments/environment';
               </p>
             }
             <p class="small text-muted mt-3">
-              Sau khi nhân viên xác minh MoMo (thường trong 24h), bạn nhận email xác nhận tour.
+              Nhân viên sẽ đối chiếu số tiền trên MoMo và xác nhận trong 24h.
             </p>
             <a [routerLink]="['/bookings', booking.bookingId]" class="btn btn-outline-primary mt-2">Xem trạng thái</a>
           </div>
@@ -84,6 +93,21 @@ import { environment } from '../../../../environments/environment';
                 @if (errorMsg) {
                   <div class="alert alert-danger">{{ errorMsg }}</div>
                 }
+
+                <div class="alert mb-4 d-flex align-items-center gap-2"
+                     [class.alert-warning]="remainingSeconds > 0 && remainingSeconds <= 60"
+                     [class.alert-info]="remainingSeconds > 60"
+                     [class.alert-danger]="remainingSeconds <= 0 && !sessionExpired">
+                  <i class="bi bi-clock-history fs-4"></i>
+                  <div>
+                    @if (remainingSeconds > 0) {
+                      <strong>Còn {{ countdownLabel }}</strong> để gửi mã giao dịch
+                    } @else {
+                      <strong>Đang hết hạn phiên thanh toán...</strong>
+                    }
+                    <div class="small mb-0 d-block text-muted">Chuyển đúng số tiền hiển thị bên dưới</div>
+                  </div>
+                </div>
 
                 <div class="payment-qr-box text-center mb-4 p-3 bg-light rounded-4">
                   <img [src]="momoQrFullUrl" alt="QR MoMo" class="payment-qr-img mb-3"
@@ -110,17 +134,14 @@ import { environment } from '../../../../environments/environment';
 
                 <form [formGroup]="payForm" (ngSubmit)="submitPayment()">
                   <div class="mb-3">
-                    <label class="form-label fw-semibold">Số tiền đã chuyển (VND) *</label>
-                    <input type="number" class="form-control form-control-lg" formControlName="amount" readonly>
-                  </div>
-                  <div class="mb-3">
                     <label class="form-label fw-semibold">Mã giao dịch MoMo *</label>
                     <input type="text" class="form-control form-control-lg" formControlName="transactionCode"
-                           placeholder="VD: 12345678901">
+                           placeholder="VD: 12345678901"
+                           [disabled]="sessionExpired || payLoading">
                     <small class="text-muted">Lấy trong lịch sử giao dịch app MoMo sau khi chuyển</small>
                   </div>
                   <button type="submit" class="btn btn-success btn-lg w-100"
-                          [disabled]="payLoading || payForm.invalid">
+                          [disabled]="sessionExpired || payLoading || payForm.invalid">
                     @if (payLoading) {
                       <span class="spinner-border spinner-border-sm me-2"></span>
                     }
@@ -158,7 +179,7 @@ import { environment } from '../../../../environments/environment';
     </div>
   `
 })
-export class BookingPaymentComponent implements OnInit {
+export class BookingPaymentComponent implements OnInit, OnDestroy {
   readonly environment = environment;
   booking: BookingDetailView | null = null;
   payConfig: PaymentConfig | null = null;
@@ -170,16 +191,28 @@ export class BookingPaymentComponent implements OnInit {
   remaining = 0;
   paidComplete = false;
   submittedPending = false;
+  sessionExpired = false;
+  sessionCancelled = false;
+  sessionMessage = '';
+  remainingSeconds = 0;
   emailSent = false;
   emailError = '';
   successMessage = '';
   errorMsg = '';
 
+  private timerId: ReturnType<typeof setInterval> | null = null;
+  private bookingId = 0;
+
   payForm = this.fb.nonNullable.group({
-    amount: [0, [Validators.required, Validators.min(1)]],
     paymentMethod: ['MoMo'],
     transactionCode: ['', Validators.required]
   });
+
+  get countdownLabel(): string {
+    const m = Math.floor(this.remainingSeconds / 60);
+    const s = this.remainingSeconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -190,33 +223,38 @@ export class BookingPaymentComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.bookingId = Number(this.route.snapshot.paramMap.get('id'));
 
     this.paymentSvc.getConfig().subscribe({
       next: cfg => {
         this.payConfig = cfg;
         const path = cfg.moMoQrUrl.startsWith('/') ? cfg.moMoQrUrl : `/${cfg.moMoQrUrl}`;
         this.momoQrFullUrl = environment.imageBaseUrl + path;
-        if (this.booking) {
-          this.transferNote = `${cfg.transferNotePrefix}${this.booking.bookingId}`;
-        }
       }
     });
 
-    this.bookingSvc.getById(id).subscribe({
+    this.bookingSvc.getById(this.bookingId).subscribe({
       next: b => {
         this.booking = b;
         this.transferNote = `${this.payConfig?.transferNotePrefix ?? 'TT'}${b.bookingId}`;
-        this.loading = false;
         if (b.bookingStatus === 'Confirmed' || b.bookingStatus === 'Completed') {
           this.paidComplete = true;
           this.successMessage = 'Tour đã được xác nhận.';
+          this.loading = false;
+          return;
         }
-        this.refreshPayments(id);
-        this.paymentSvc.getByBooking(id).subscribe(pays => {
+        if (b.bookingStatus === 'Cancelled') {
+          this.sessionCancelled = true;
+          this.loading = false;
+          return;
+        }
+        this.paymentSvc.getByBooking(this.bookingId).subscribe(pays => {
           if (pays.some(p => p.status === 'Pending')) {
             this.submittedPending = true;
             this.successMessage = 'Bạn đã gửi thông tin thanh toán. Đang chờ xác minh.';
+            this.loading = false;
+          } else {
+            this.startSession();
           }
         });
       },
@@ -224,34 +262,80 @@ export class BookingPaymentComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.clearTimer();
+  }
+
   onQrError(event: Event): void {
     (event.target as HTMLImageElement).src = '/assets/images/default-tour.jpg';
   }
 
-  private refreshPayments(bookingId: number): void {
-    this.paymentSvc.getRemaining(bookingId).subscribe(v => {
-      this.remaining = v;
-      if (v > 0 && !this.paidComplete) {
-        this.payForm.patchValue({ amount: v });
-        this.transferNote = `${this.payConfig?.transferNotePrefix ?? 'TT'}${bookingId}`;
+  private startSession(): void {
+    this.bookingSvc.startPaymentSession(this.bookingId).subscribe({
+      next: session => {
+        this.loading = false;
+        if (session.cancelled) {
+          this.sessionCancelled = true;
+          this.sessionMessage = session.message ?? '';
+          return;
+        }
+        this.remaining = session.amountDue;
+        this.remainingSeconds = session.remainingSeconds;
+        this.transferNote = `${this.payConfig?.transferNotePrefix ?? 'TT'}${this.bookingId}`;
+        this.startCountdown();
+      },
+      error: err => {
+        this.loading = false;
+        this.errorMsg = err.error?.message ?? err.error?.data ?? 'Không thể bắt đầu phiên thanh toán.';
       }
     });
   }
 
+  private startCountdown(): void {
+    this.clearTimer();
+    this.timerId = setInterval(() => {
+      if (this.remainingSeconds > 0) {
+        this.remainingSeconds--;
+      } else {
+        this.handleExpire();
+      }
+    }, 1000);
+  }
+
+  private handleExpire(): void {
+    this.clearTimer();
+    this.sessionExpired = true;
+    this.bookingSvc.expirePaymentSession(this.bookingId).subscribe({
+      next: res => {
+        if (res.cancelled) {
+          this.sessionCancelled = true;
+          this.sessionMessage = res.message ?? '';
+        }
+      }
+    });
+  }
+
+  private clearTimer(): void {
+    if (this.timerId !== null) {
+      clearInterval(this.timerId);
+      this.timerId = null;
+    }
+  }
+
   submitPayment(): void {
-    if (!this.booking || this.payForm.invalid) return;
+    if (!this.booking || this.payForm.invalid || this.sessionExpired) return;
     this.payLoading = true;
     this.errorMsg = '';
     const val = this.payForm.getRawValue();
 
     this.paymentSvc.submit({
       bookingId: this.booking.bookingId,
-      amount: val.amount,
       paymentMethod: 'MoMo',
       transactionCode: val.transactionCode.trim()
     }).subscribe({
       next: res => {
         this.payLoading = false;
+        this.clearTimer();
         this.submittedPending = true;
         this.successMessage = res.message;
         this.emailSent = res.emailSent;

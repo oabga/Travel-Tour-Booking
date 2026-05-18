@@ -1,5 +1,5 @@
 -- ============================================================
---  seed_reset_catalog_and_tours.sql
+--  03_seed_catalog.sql
 --  Xóa dữ liệu nghiệp vụ + catalog, GIỮ Accounts/Roles/Profiles/Employees.
 --  Seed 4 danh mục, 26 điểm đến, 48 tour với ImageUrl Unsplash (khớp chủ đề).
 --
@@ -165,5 +165,5 @@ PRINT N'--- Kiểm tra seed ---';
 SELECT C.CateName, COUNT(*) AS TourCount FROM Tours T JOIN Categories C ON T.CateId = C.CateId GROUP BY C.CateName;
 SELECT COUNT(*) AS ToursMissingImage FROM Tours WHERE ImageUrl IS NULL OR LTRIM(RTRIM(ImageUrl)) = N'';
 SELECT T.TourName, D.DesName FROM Tours T JOIN Destinations D ON T.DesId = D.DesId WHERE T.TourName LIKE N'%Hang Én%';
-PRINT N'✅ seed_reset_catalog_and_tours.sql hoàn tất.';
+PRINT N'✅ 03_seed_catalog.sql hoàn tất.';
 GO
